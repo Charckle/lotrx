@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3 uid="uid://barfv6cfiagfx"]
+
+[ext_resource type="Texture2D" uid="uid://dfpc2chrv2smm" path="res://sprites/units/archer.png" id="1_lj8k3"]
+[ext_resource type="Script" path="res://units/archer.gd" id="1_st7m2"]
+[ext_resource type="Texture2D" uid="uid://dnqsm816tai7b" path="res://GUI/PNG/blue_boxCheckmark.png" id="3_dd7f6"]
+[ext_resource type="PackedScene" uid="uid://dtxwi1d7ga3kr" path="res://units/life_bar.tscn" id="4_m5q04"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0h0yk"]
+radius = 21.2132
+
+[node name="archer" type="CharacterBody2D"]
+input_pickable = true
+script = ExtResource("1_st7m2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_lj8k3")
+metadata/_edit_lock_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_0h0yk")
+metadata/_edit_lock_ = true
+
+[node name="selectedBox" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-20, -19)
+scale = Vector2(0.421053, 0.388889)
+texture = ExtResource("3_dd7f6")
+metadata/_edit_lock_ = true
+
+[node name="lifebar" parent="." instance=ExtResource("4_m5q04")]
+offset_right = 37.0
+metadata/_edit_lock_ = true
+
+[node name="path" type="Line2D" parent="."]
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]

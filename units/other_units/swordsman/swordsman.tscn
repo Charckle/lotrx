@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://dvytc5sw73we2"]
+
+[ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_vofi6"]
+[ext_resource type="Texture2D" uid="uid://c8gr26ty0j7ia" path="res://sprites/units/swordsman_32.png" id="2_63ire"]
+[ext_resource type="Script" path="res://units/other_units/swordsman/attack.gd" id="2_baxmu"]
+[ext_resource type="Script" path="res://units/other_units/swordsman/properties.gd" id="3_11fem"]
+
+[node name="swordman" instance=ExtResource("1_vofi6")]
+
+[node name="Sprite2D" parent="." index="0"]
+texture = ExtResource("2_63ire")
+
+[node name="attack" type="Node2D" parent="." index="4"]
+script = ExtResource("2_baxmu")
+
+[node name="Timer" type="Timer" parent="attack" index="0"]
+
+[node name="properties" type="Node2D" parent="." index="5"]
+script = ExtResource("3_11fem")
+
+[connection signal="timeout" from="attack/Timer" to="attack" method="_on_timer_timeout"]

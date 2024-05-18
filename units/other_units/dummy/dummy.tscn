@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://buab8h48a8x8c"]
+
+[ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_sg7vx"]
+[ext_resource type="Script" path="res://units/other_units/dummy/properties.gd" id="2_rpg8g"]
+[ext_resource type="Script" path="res://units/other_units/dummy/attack.gd" id="4_e0p8s"]
+
+[node name="dummy" instance=ExtResource("1_sg7vx")]
+
+[node name="properties" type="Node2D" parent="." index="4"]
+script = ExtResource("2_rpg8g")
+
+[node name="attack" type="Node2D" parent="." index="5"]
+script = ExtResource("4_e0p8s")

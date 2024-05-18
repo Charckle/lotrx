@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://i73kgii02p12"]
+
+[ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_pvcqr"]
+[ext_resource type="Script" path="res://units/other_units/peasant/properties.gd" id="2_d57en"]
+[ext_resource type="Script" path="res://units/other_units/peasant/attack.gd" id="2_e8bt7"]
+[ext_resource type="Texture2D" uid="uid://b74fsq2182xac" path="res://sprites/units/peasant_32.png" id="2_spbrs"]
+
+[node name="peasant" instance=ExtResource("1_pvcqr")]
+
+[node name="Sprite2D" parent="." index="0"]
+texture = ExtResource("2_spbrs")
+
+[node name="attack" type="Node2D" parent="." index="4"]
+script = ExtResource("2_e8bt7")
+
+[node name="Timer" type="Timer" parent="attack" index="0"]
+
+[node name="properties" type="Node2D" parent="." index="5"]
+script = ExtResource("2_d57en")
+
+[connection signal="timeout" from="attack/Timer" to="attack" method="_on_timer_timeout"]
