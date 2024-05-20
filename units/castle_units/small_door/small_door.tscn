@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://dajt566dqfjbv"]
+
+[ext_resource type="PackedScene" uid="uid://cjw36056lh3pj" path="res://units/castle_units/base_castle_unit/base_castle_unit.tscn" id="1_t86i7"]
+[ext_resource type="Script" path="res://units/castle_units/small_door/actions.gd" id="2_v0fnc"]
+
+[node name="small_door" instance=ExtResource("1_t86i7")]
+faction = 2
+
+[node name="actions" type="Node2D" parent="." index="1"]
+script = ExtResource("2_v0fnc")

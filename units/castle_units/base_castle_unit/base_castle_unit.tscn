@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://cjw36056lh3pj"]
+
+[ext_resource type="Script" path="res://units/castle_units/base_castle_unit/base_castle_unit.gd" id="1_sh7lu"]
+[ext_resource type="Texture2D" uid="uid://ckbpg7tgea87x" path="res://sprites/units/castle/small_door/small_door_closed.png" id="2_vx4lf"]
+
+[node name="base_castle_unit" type="Node2D"]
+script = ExtResource("1_sh7lu")
+direction_iddle = 1
+
+[node name="base_sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_vx4lf")

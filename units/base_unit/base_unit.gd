@@ -44,6 +44,8 @@ var agression_radius_array = [] #not in use
 @onready var attack_rage_px = attack_range * root_map.m_cell_size
 @onready var damage_label = preload("res://weapons/random/damage_label.tscn")
 
+var selected_target = load("res://sprites/gui/selected_target.png")
+
 var units_pining_me = []
 var pinning_blocks = []
 var is_pinned = false #for long range, if someone who is attacking is in the next cell
@@ -53,11 +55,7 @@ var target_attack_passive = null
 var attack_dmg_mele = 40
 var attack_dmg_range = 40
 
-var cursor_default = load("res://sprites/gui/defaut_cursor.png")
-var cursor_move = load("res://sprites/gui/move_to.png")
-var cursor_attack = load("res://sprites/gui/attack_target.png")
 
-var selected_target = load("res://sprites/gui/selected_target.png")
 
 var timer_ = 1
 
@@ -142,15 +140,18 @@ func _on_mouse_entered() -> void:
 	if root_map.units_selected.size() > 0:
 		if faction != GlobalSettings.my_faction:
 			self.lifebar.visible = true
-			Input.set_custom_mouse_cursor(cursor_attack, Input.CURSOR_ARROW, Vector2(20,20))
+			#Input.set_custom_mouse_cursor(cursor_attack, Input.CURSOR_ARROW, Vector2(20,20))
+			root_map.get_node("UI").get_node("cursors").set_attack_cursor()
 
 func _on_mouse_exited() -> void:
 	if faction != GlobalSettings.my_faction:
 		self.lifebar.visible = false
 	if root_map.units_selected.size() > 0:
-		Input.set_custom_mouse_cursor(cursor_move, Input.CURSOR_ARROW, Vector2(20,20))
+		#Input.set_custom_mouse_cursor(cursor_move, Input.CURSOR_ARROW, Vector2(20,20))
+		root_map.get_node("UI").get_node("cursors").set_move_cursor()
 	else:
-		Input.set_custom_mouse_cursor(cursor_default)
+		root_map.get_node("UI").get_node("cursors").set_default_cursor()
+		#Input.set_custom_mouse_cursor(cursor_default)
 
 
 func check_who_pinning_me():
@@ -513,8 +514,6 @@ func get_damaged(damage: int, penetration: int, ):
 	if health <= 0:
 		get_died()
 	
-	if siege_weapon:
-		$attack.siege_action(damage)
 
 func lower_health(damage: int,):
 	health -= damage
@@ -541,7 +540,8 @@ func get_died():
 	
 	queue_free()
 	if units_selected.size() == 0:
-		Input.set_custom_mouse_cursor(cursor_default)
+		#Input.set_custom_mouse_cursor(cursor_default)
+		root_map.get_node("UI").get_node("cursors").set_default_cursor()
 
 
 func gr(weak_refer):

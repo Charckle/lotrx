@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://cjw36056lh3pj"]
+
+[ext_resource type="Script" path="res://units/castle_units/base_castle_unit/base_castle_unit.gd" id="1_sh7lu"]
+[ext_resource type="Texture2D" uid="uid://ckbpg7tgea87x" path="res://sprites/units/castle/small_door/small_door_closed.png" id="2_vx4lf"]
+[ext_resource type="PackedScene" uid="uid://dtxwi1d7ga3kr" path="res://units/base_unit/life_bar.tscn" id="2_xh3ff"]
+
+[node name="base_castle_unit" type="Node2D"]
+script = ExtResource("1_sh7lu")
+faction = null
+base_health = null
+
+[node name="lifebar" parent="." instance=ExtResource("2_xh3ff")]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_vx4lf")
