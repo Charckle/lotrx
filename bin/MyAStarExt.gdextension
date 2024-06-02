@@ -1,0 +1,15 @@
+[configuration]
+
+entry_symbol = "my_astar_ext_init"
+compatibility_minimum = "4.2"
+
+[libraries]
+
+macos.debug = "res://bin/libMyAStarExt.macos.template_debug.framework"
+macos.release = "res://bin/libMyAStarExt.macos.template_release.framework"
+windows.debug.x86_64 = "res://bin/libMyAStarExt.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://bin/libMyAStarExt.windows.template_release.x86_64.dll"
+linux.debug.x86_64 = "res://bin/libMyAStarExt.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://bin/libMyAStarExt.linux.template_release.x86_64.so"
+linux.debug.arm64 = "res://bin/libMyAStarExt.linux.template_debug.arm64.so"
+linux.release.arm64 = "res://bin/libMyAStarExt.linux.template_release.arm64.so"
