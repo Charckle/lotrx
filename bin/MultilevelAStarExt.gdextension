@@ -1,0 +1,13 @@
+[configuration]
+
+entry_symbol = "multilevel_astar_ext_init"
+compatibility_minimum = "4.2"
+
+[libraries]
+
+macos.debug = "res://bin/libMultilevelAStarExt.macos.template_debug.framework"
+macos.release = "res://bin/libMultilevelAStarExt.macos.template_release.framework"
+windows.debug.x86_64 = "res://bin/libMultilevelAStarExt.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://bin/libMultilevelAStarExt.windows.template_release.x86_64.dll"
+linux.debug.x86_64 = "res://bin/libMultilevelAStarExt.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://bin/libMultilevelAStarExt.linux.template_release.x86_64.so"
