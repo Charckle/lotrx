@@ -14,6 +14,7 @@ func _ready() -> void:
 	
 	parent_n.a_defense = 0
 	parent_n.a_penetration = 10
+	parent_n.unit_strenght = 13
 	
 	var sprite2d = parent_n.get_node("Sprite2D")
 	sprite2d.new_red = 255

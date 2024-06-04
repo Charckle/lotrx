@@ -9,6 +9,7 @@ var siege_weapon = false
 @onready var health = base_health
 var a_defense = 0
 var a_penetration = 0
+var unit_strenght = 1 # for calculations
 
 
 
@@ -25,6 +26,7 @@ var selected = false
 @onready var astar_grid = root_map.astar_grid
 @onready var unit_position = title_map.local_to_map(global_position)
 @onready var old_unit_position = title_map.local_to_map(global_position)
+@onready var unit_position_iddle = title_map.local_to_map(global_position) # return to this position if baited, but enemy out of agro range
 
 var waiting_to_move = false
 var waiting_time = 0
@@ -113,13 +115,14 @@ func _process(delta):
 		# get new 1 sorounding squares
 		pinning_blocks = get_adjecent_blocks()
 	
+
 	if selected:
 		queue_redraw()
 	# get_aggression_cells()
 	
 	# this shit....
 	check_soroundings()
-	
+
 
 func set_selected(value):
 	queue_redraw()
@@ -195,6 +198,9 @@ func move_(recalc=false):
 	if recalc == false:
 		var mouse_pos = get_global_mouse_position()
 		target_walk = title_map.local_to_map(mouse_pos)
+		# set iddle position for returnign to it, if not in agro anymore
+		unit_position_iddle = Vector2i(target_walk.x, target_walk.y)
+
 
 	
 	var unit_pos_for_calc = unit_position
@@ -372,7 +378,7 @@ func check_soroundings():
 
 func calclulate_if_in_agression():
 	var close_units = []
-	for unit in root_map.get_node("units").get_children():
+	for unit in root_map.get_all_units():
 		var unit_wr = weakref(unit)
 		var unit_wr_obj = unit_wr.get_ref()
 		if unit == self:
@@ -395,6 +401,10 @@ func calclulate_if_in_agression():
 	if not close_units.is_empty():
 		close_units.sort_custom(func(a, b): return a[1] > b[1])
 		target_attack_passive = close_units[0][0]
+	# return to iddle position if not agro anymore
+	elif unit_position_iddle != unit_position:
+		target_walk = unit_position_iddle
+		move_(true)
 
 
 
@@ -457,7 +467,7 @@ func get_adjecent_units():
 	var neighbour_points = get_adjecent_blocks()
 	
 	var close_units = []
-	for unit in root_map.get_node("units").get_children():
+	for unit in root_map.get_all_units():
 		var unit_wr = weakref(unit)
 		var unit_wr_obj = unit_wr.get_ref()
 		if unit == self:
