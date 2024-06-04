@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bn7ri334xglt1"]
+[gd_scene load_steps=8 format=3 uid="uid://bn7ri334xglt1"]
 
 [ext_resource type="Script" path="res://maps/base_map/base_ui/camera.gd" id="1_lp3te"]
 [ext_resource type="Script" path="res://maps/base_map/base_ui/fps_label.gd" id="2_siea2"]
@@ -12,6 +12,12 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.97953, 0.5119, 0.350515, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_ej034"]
+font_size = 13
+
+[sub_resource type="LabelSettings" id="LabelSettings_lyo7d"]
+font_size = 13
 
 [node name="UI" type="CanvasLayer"]
 
@@ -63,9 +69,19 @@ columns = 2
 
 [node name="Label" type="Label" parent="CanvasLayer/Panel/GridContainer"]
 layout_mode = 2
-text = "Close/Open Gates"
+text = "Outer Close/Open Gates"
+label_settings = SubResource("LabelSettings_ej034")
 
 [node name="CheckButton" type="CheckButton" parent="CanvasLayer/Panel/GridContainer"]
 layout_mode = 2
 
+[node name="Label2" type="Label" parent="CanvasLayer/Panel/GridContainer"]
+layout_mode = 2
+text = "Inner Close/Open Gates"
+label_settings = SubResource("LabelSettings_lyo7d")
+
+[node name="CheckButton2" type="CheckButton" parent="CanvasLayer/Panel/GridContainer"]
+layout_mode = 2
+
 [connection signal="toggled" from="CanvasLayer/Panel/GridContainer/CheckButton" to="CanvasLayer/Panel" method="_on_check_button_toggled"]
+[connection signal="toggled" from="CanvasLayer/Panel/GridContainer/CheckButton2" to="CanvasLayer/Panel" method="_on_check_button_toggled_2"]

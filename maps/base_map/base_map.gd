@@ -122,7 +122,6 @@ func setup_astar_grid():
 	astar_grid.region = title_map.get_used_rect()
 	astar_grid.cell_size = Vector2(m_cell_size,m_cell_size)
 	astar_grid.update()
-	update_astar_grid_units()
 	grid_size = astar_grid.get_size()
 	print(grid_size)
 	#walking_map_tiles_taken = create_empty_array(astar_grid.get_size())
@@ -142,6 +141,8 @@ func setup_astar_grid():
 						astar_grid.set_point_solid(tile_position, true)
 					else:
 						astar_grid.set_point_solid(tile_position, false)
+	
+	update_astar_grid_units()
 
 func create_empty_array(vector_var:Vector2):
 	var rows = vector_var.x
@@ -221,3 +222,9 @@ func get_wr_unit_on_mouse_position() -> WeakRef:
 			return unit_wr
 	return null
 
+
+func get_all_units():
+	var units_ = []
+	for unit in $units.get_children():
+		units_.append(unit)
+	return units_

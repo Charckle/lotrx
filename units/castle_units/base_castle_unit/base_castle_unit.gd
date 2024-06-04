@@ -11,6 +11,7 @@ var all_siege_ids = [50]
 @export var base_health = 20
 @onready var health = base_health
 var a_defense = 100
+var unit_strenght = 1 # for calculations
 
 var selected = false
 
@@ -37,6 +38,9 @@ func _process(delta: float) -> void:
 	pass
 
 
+func set_act():
+	pass
+
 func damage_other_parts(damage: int):
 	for unit in root_map.get_node("units").get_children():
 		var unit_wr = weakref(unit)
@@ -50,7 +54,7 @@ func damage_other_parts(damage: int):
 func set_direction_sprite():
 
 	var r
-	print(direction_iddle)
+	#print(direction_iddle)
 	if direction_iddle == 1:
 		r = deg_to_rad(90)
 		rotation = r

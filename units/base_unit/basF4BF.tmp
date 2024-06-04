@@ -1,0 +1,39 @@
+[gd_scene load_steps=7 format=3 uid="uid://barfv6cfiagfx"]
+
+[ext_resource type="Script" path="res://units/base_unit/base_unit.gd" id="1_st7m2"]
+[ext_resource type="Texture2D" uid="uid://do4gw6epe1ycd" path="res://sprites/units/dummy_32.png" id="2_ncg1m"]
+[ext_resource type="Script" path="res://units/base_unit/sprite_2d.gd" id="3_p4amh"]
+[ext_resource type="PackedScene" uid="uid://dtxwi1d7ga3kr" path="res://units/base_unit/life_bar.tscn" id="4_m5q04"]
+[ext_resource type="Texture2D" uid="uid://dvdox8hlvs4md" path="res://sprites/units/random/moral_boost.png" id="4_y5nbe"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0h0yk"]
+radius = 12.0
+
+[node name="base_unit" type="Area2D"]
+script = ExtResource("1_st7m2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_ncg1m")
+script = ExtResource("3_p4amh")
+metadata/_edit_lock_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_0h0yk")
+metadata/_edit_lock_ = true
+
+[node name="selectedBox" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-20, -19)
+scale = Vector2(0.421053, 0.388889)
+texture = ExtResource("4_y5nbe")
+metadata/_edit_lock_ = true
+
+[node name="lifebar" parent="." instance=ExtResource("4_m5q04")]
+offset_right = 37.0
+metadata/_edit_lock_ = true
+
+[node name="PathLine" type="Line2D" parent="."]
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

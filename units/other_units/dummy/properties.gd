@@ -13,3 +13,4 @@ func _ready() -> void:
 	
 	parent_n.a_defense = 20
 	parent_n.a_penetration = 0
+	parent_n.unit_strenght = 0
