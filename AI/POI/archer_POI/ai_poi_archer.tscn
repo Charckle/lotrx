@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://bk172ovhtx36a"]
+
+[ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_av8st"]
+[ext_resource type="Script" path="res://AI/POI/archer_POI/settings.gd" id="2_igvg6"]
+
+[node name="AiPoiArcher" instance=ExtResource("1_av8st")]
+
+[node name="settings" type="Node2D" parent="." index="1"]
+script = ExtResource("2_igvg6")

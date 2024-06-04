@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://quirpxu71lc3"]
+
+[ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_55mgn"]
+[ext_resource type="Script" path="res://AI/POI/swordsman_POI/settings.gd" id="2_x24uf"]
+
+[node name="AiPoiSwordsman" instance=ExtResource("1_55mgn")]
+
+[node name="settings" type="Node2D" parent="." index="1"]
+script = ExtResource("2_x24uf")

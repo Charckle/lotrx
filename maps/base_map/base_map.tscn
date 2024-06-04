@@ -18,3 +18,7 @@ metadata/_edit_lock_ = true
 [node name="projectiles" type="Node2D" parent="."]
 
 [node name="on_map_texts" type="Node2D" parent="."]
+
+[node name="ai_stuff" type="Node2D" parent="."]
+
+[node name="markers" type="Node2D" parent="ai_stuff"]
