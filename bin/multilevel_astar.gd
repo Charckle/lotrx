@@ -51,6 +51,11 @@ func set_terrain(point: Vector2i, type: MultilevelAStarEx.TerrainType) -> void:
 	_astar.set_terrain(point, type)
 
 
+func is_blocked(point: Vector2i) -> bool:
+	assert(_used_rect.has_point(point))
+	return (_astar.get_terrain(point) == MultilevelAStarEx.BLOCKED) or _astar.get_unit(point)
+
+
 func find_path(from: Vector2i, to: Vector2i, return_closest: bool = false) -> Array[Vector2i]:
 	assert(_used_rect.has_point(from))
 	assert(_used_rect.has_point(to))
@@ -61,10 +66,3 @@ func find_path(from: Vector2i, to: Vector2i, return_closest: bool = false) -> Ar
 		return res
 	else:
 		return []
-
-
-func is_point_solid(point: Vector2i) -> bool:
-	assert(_used_rect.has_point(point))
-	if _astar.get_terrain(point) == MultilevelAStarEx.BLOCKED:
-		return false
-	return _astar.get_unit(point)
