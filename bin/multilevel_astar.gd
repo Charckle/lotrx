@@ -56,13 +56,9 @@ func is_blocked(point: Vector2i) -> bool:
 	return (_astar.get_terrain(point) == MultilevelAStarEx.BLOCKED) or _astar.get_unit(point)
 
 
+# returns a list of points containing the path (including the starting point) or an empty array if no path was found
 func find_path(from: Vector2i, to: Vector2i, return_closest: bool = false) -> Array[Vector2i]:
 	assert(_used_rect.has_point(from))
 	assert(_used_rect.has_point(to))
 	
-	var res = _astar.find_path(from, to, return_closest) # returns Variant: null or Array[Vector2i]
-	
-	if res != null:
-		return res
-	else:
-		return []
+	return _astar.find_path(from, to, return_closest)
