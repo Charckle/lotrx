@@ -181,23 +181,24 @@ func check_who_pinning_me():
 		else:
 			is_pinned = false
 
-func set_move(recalc=false):
+#func set_move(recalc=false):
+func set_move(target_move_to=null): # null means it will just recalculate the old target
 	target_attack = null
 	is_attacking = false
-	move_(recalc)
+	move_(target_move_to)
 
 func set_attack(unit_wr: WeakRef):
 	target_attack = unit_wr
 	is_attacking = true
 	target_walk = gr(unit_wr).unit_position
-	move_(true)
+	move_()
 
-func move_(recalc=false):
-	
+func move_(target_move_to=null):
 	root_map.get_solid_points()
-	if recalc == false:
-		var mouse_pos = get_global_mouse_position()
-		target_walk = title_map.local_to_map(mouse_pos)
+	if target_move_to != null:
+		#var mouse_pos = get_global_mouse_position()
+		print(target_move_to)
+		target_walk = title_map.local_to_map(target_move_to)
 		# set iddle position for returnign to it, if not in agro anymore
 		unit_position_iddle = Vector2i(target_walk.x, target_walk.y)
 
@@ -260,7 +261,7 @@ func _physics_process(delta):
 		waiting_time -= 1
 		waiting_to_move = true
 		if not waiting_time % 3 == 0:
-			move_(true)
+			move_()
 	else:
 		waiting_to_move = false
 		
@@ -273,7 +274,7 @@ func _physics_process(delta):
 	# check if the next step is free, otherwise, recalc the route
 	if astar_grid.is_point_solid(next_cell) and next_cell != unit_position:
 		#print(astar_grid.is_point_solid(title_map.map_to_local(current_id_path.front())))
-		move_(true)
+		move_()
 		return
 
 	astar_grid.set_point_solid(next_cell)
@@ -370,7 +371,7 @@ func check_soroundings():
 		if not $attack.in_range(target_attack_passive):
 			if aggressive and primary_mele_fighter:
 				target_walk = gr(target_attack_passive).unit_position
-				move_(true)
+				move_()
 			else:
 				target_attack_passive = null
 
@@ -404,7 +405,7 @@ func calclulate_if_in_agression():
 	# return to iddle position if not agro anymore
 	elif unit_position_iddle != unit_position:
 		target_walk = unit_position_iddle
-		move_(true)
+		move_()
 
 
 
@@ -435,14 +436,14 @@ func draw_target():
 
 func set_act():
 	if GlobalSettings.my_faction == faction:
-
+		var mouse_pos = get_global_mouse_position()
 		var unit_wr = root_map.get_wr_unit_on_mouse_position()
 		#if location has a hostile unit attack, otherwise, move
 		if gr(unit_wr) == null:
-			set_move()
+			set_move(mouse_pos)
 		else:
 			if gr(unit_wr).faction == GlobalSettings.my_faction:
-				set_move()
+				set_move(mouse_pos)
 			else:
 				set_attack(unit_wr)
 
