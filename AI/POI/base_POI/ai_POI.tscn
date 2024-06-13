@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://dax6pwjksj7dh"]
+
+[ext_resource type="Script" path="res://AI/POI/base_POI/ai_POI.gd" id="1_v4jjh"]
+[ext_resource type="Texture2D" uid="uid://dssbmiwrmqgpt" path="res://sprites/gui/attack_target.png" id="2_pg1cj"]
+
+[node name="AiPoi" type="Node2D"]
+script = ExtResource("1_v4jjh")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_pg1cj")

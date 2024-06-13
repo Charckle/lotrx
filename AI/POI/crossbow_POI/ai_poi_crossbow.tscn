@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://ceq8am3wk5830"]
+
+[ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_664f5"]
+[ext_resource type="Script" path="res://AI/POI/crossbow_POI/settings.gd" id="2_j0dh0"]
+
+[node name="AiPoiCrossbow" instance=ExtResource("1_664f5")]
+
+[node name="settings" type="Node2D" parent="." index="1"]
+script = ExtResource("2_j0dh0")

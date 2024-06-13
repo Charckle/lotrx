@@ -228,3 +228,9 @@ func get_all_units():
 	for unit in $units.get_children():
 		units_.append(unit)
 	return units_
+
+func get_all_ai_markers():
+	var markers = []
+	for marker in $ai_stuff/markers.get_children():
+		markers.append(marker)
+	return markers

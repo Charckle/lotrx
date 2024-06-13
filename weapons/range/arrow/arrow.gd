@@ -63,7 +63,7 @@ func check_hit_wall():
 
 
 func check_hit_target():
-	if target_coordinate == global_position:
+	if target_coordinate == global_position and stuck == false:
 		stuck = true
 		if gr(target) != null and global_position == gr(target).global_position:
 			queue_free()

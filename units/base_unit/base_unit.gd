@@ -1,5 +1,7 @@
 extends Area2D
 
+@export var debugging_ = false
+
 var unit_id = 0
 var primary_mele_fighter = true
 var siege_weapon = false
@@ -28,9 +30,6 @@ var selected = false
 @onready var old_unit_position = title_map.local_to_map(global_position)
 @onready var unit_position_iddle = title_map.local_to_map(global_position) # return to this position if baited, but enemy out of agro range
 
-var waiting_to_move = false
-var waiting_time = 0
-
 var is_moving: bool
 var target_walk: Vector2
 var old_target_walk: Vector2
@@ -41,6 +40,7 @@ var agression_radius = 6 #not in use
 var agression_radius_array = [] #not in use
 @export var agression_range = 5 # when it gets aggressive
 @onready var aggression_rage_px = agression_range * root_map.m_cell_size
+var walking_in_agression = false
 
 @export var  attack_range = 1 # when it can accatck
 @onready var attack_rage_px = attack_range * root_map.m_cell_size
@@ -89,6 +89,11 @@ func set_timer(delta):
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	if walking_in_agression == true:
+		box.visible = true
+	else:
+		box.visible = false
+		
 	set_timer(delta)
 		
 	# remove the target, if it dies
@@ -128,7 +133,6 @@ func set_selected(value):
 	queue_redraw()
 	if selected != value:
 		selected = value
-		box.visible = value
 		lifebar.visible = value
 
 func _on_input_event(viewport, event, shape_idx):
@@ -181,26 +185,33 @@ func check_who_pinning_me():
 		else:
 			is_pinned = false
 
-func set_move(recalc=false):
+#func set_move(recalc=false):
+func set_move(target_move_to=null): # null means it will just recalculate the old target
 	target_attack = null
 	is_attacking = false
-	move_(recalc)
+	move_(target_move_to)
 
 func set_attack(unit_wr: WeakRef):
 	target_attack = unit_wr
 	is_attacking = true
 	target_walk = gr(unit_wr).unit_position
-	move_(true)
+	move_()
 
-func move_(recalc=false):
-	
+func move_(target_move_to=null):
+	print_("walking here!")
+	print_("target move to")
+	print_(target_move_to)
+	print_("current path")
+	print_(current_id_path)
 	root_map.get_solid_points()
-	if recalc == false:
-		var mouse_pos = get_global_mouse_position()
-		target_walk = title_map.local_to_map(mouse_pos)
+	if target_move_to != null:
+		#var mouse_pos = get_global_mouse_position()
+
+		target_walk = title_map.local_to_map(target_move_to)
 		# set iddle position for returnign to it, if not in agro anymore
 		unit_position_iddle = Vector2i(target_walk.x, target_walk.y)
-
+	print_("target walk")
+	print_(target_walk)
 
 	
 	var unit_pos_for_calc = unit_position
@@ -211,22 +222,25 @@ func move_(recalc=false):
 		new_id_path = []
 	else:
 		new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
+		print_("recalculating")
+		print_(new_id_path)
 	
 	if new_id_path.is_empty():
-
 		#print(find_nearest_vector(unit_position, target_walk))
 		# try to find the nearest, and if 56 cells around there is none, dont do anything? D:
 		var nearest = get_nearest_position(target_walk)
+		print_("neerest")
+		print_(nearest)
 		if typeof(nearest) == TYPE_BOOL:
 			current_id_path = [current_id_path.front()]
 		else:
 			new_id_path = astar_grid.get_id_path(unit_pos_for_calc, nearest)
-			if new_id_path.size() <= 2:
-				var last_step = current_id_path.front()
-				if last_step != null:
-					new_id_path = [current_id_path.front()]
-				else:
-					new_id_path = []
+			if new_id_path.size() == 2:
+				
+				new_id_path = new_id_path
+				
+				print_("iddle position")
+				print_(unit_position_iddle)
 			elif is_attacking:
 				# if unit is mele, walk to it in any case
 				if primary_mele_fighter == true:
@@ -235,16 +249,22 @@ func move_(recalc=false):
 					# if target in range, do nothing
 					if $attack.in_range(target_attack):
 						new_id_path = [current_id_path.front()]
-			
-			# if path still empty, wait some time. and is stil lempty, fuck it
-			if waiting_to_move == false:
-				waiting_time = 6
+			if walking_in_agression == false:
+				unit_position_iddle = Vector2i(nearest.x, nearest.y)
 
 			# if still path blocked, fcuck it
 			current_id_path = new_id_path
 	else:
-		current_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
-
+		
+		print_("new path is not empty?")
+		current_id_path = new_id_path
+	
+	print_("unit position")
+	#ČE UGOTOVI, DA JE NEEREST ZASEDEN, BI MORAL REKALKULIRAT OZ ZAČETNEGA TARGETA, NE PA OD NEEREST!!!!
+	
+	print_(unit_position)
+	print_("current path 2")
+	print_(current_id_path)
 	get_going_arraw_line()
 
 
@@ -256,24 +276,22 @@ func get_going_arraw_line():
 		current_point_path[i] = current_point_path[i] + Vector2(21,21)
 
 func _physics_process(delta):
-	if waiting_time > 0:
-		waiting_time -= 1
-		waiting_to_move = true
-		if not waiting_time % 3 == 0:
-			move_(true)
-	else:
-		waiting_to_move = false
+	#WHEN MOVING IN GROUPS, THEY TRY TO FIND THE NEEREST OF THE ONE IN FRONT OF THEM, NOT THE TARGET ONE. ALWAYS THE TARGET ONE
 		
 	if current_id_path.is_empty():
 		return
 	
 	var next_cell = current_id_path.front()
+	# needed, because godot is retarded
+	if next_cell == null:
+		return
 	var next_cell_global = title_map.map_to_local(next_cell)
 	
 	# check if the next step is free, otherwise, recalc the route
 	if astar_grid.is_point_solid(next_cell) and next_cell != unit_position:
 		#print(astar_grid.is_point_solid(title_map.map_to_local(current_id_path.front())))
-		move_(true)
+		print_("checking if step is free")
+		move_()
 		return
 
 	astar_grid.set_point_solid(next_cell)
@@ -289,6 +307,7 @@ func _physics_process(delta):
 	if is_attacking == true:
 		if gr(target_attack) and $attack.in_range(target_attack):
 			is_moving = false
+			
 			current_id_path = [next_cell]
 			return
 
@@ -311,7 +330,9 @@ func get_nearest_position(target_walk_):
 	var neighbour_points = []
 	var center = target_walk_
 	var free_position
-	
+	if selected:
+		print_("staring nearest")
+		print_(target_walk_)
 	for i in range(8):
 		var left = i + 1
 		var right = i + 2
@@ -320,6 +341,8 @@ func get_nearest_position(target_walk_):
 			for y in range(center[1] - left, center[1] + right):
 				# Check if the current point is the center point
 				var neighbour_point = Vector2(x, y)
+				if selected:
+					print_(neighbour_point)
 				if neighbour_point != center and not astar_grid.is_point_solid(neighbour_point):
 					neighbour_points.append(neighbour_point)
 		if neighbour_points.size() > 0:
@@ -337,6 +360,11 @@ func get_nearest_position(target_walk_):
 		free_position = points_farnes[0][0]
 	else:
 		free_position = false
+	if selected:
+		print_("free position")
+		print_(free_position)
+		print_("my position")
+		print_(unit_position)
 	return free_position
 
 #func get_aggression_cells():
@@ -370,7 +398,9 @@ func check_soroundings():
 		if not $attack.in_range(target_attack_passive):
 			if aggressive and primary_mele_fighter:
 				target_walk = gr(target_attack_passive).unit_position
-				move_(true)
+				print_("agressive!!!")
+				walking_in_agression = true
+				move_()
 			else:
 				target_attack_passive = null
 
@@ -403,8 +433,13 @@ func calclulate_if_in_agression():
 		target_attack_passive = close_units[0][0]
 	# return to iddle position if not agro anymore
 	elif unit_position_iddle != unit_position:
-		target_walk = unit_position_iddle
-		move_(true)
+		if walking_in_agression:
+			target_walk = unit_position_iddle
+		print_("iddle position not iddle")
+		print_(unit_position_iddle)
+		print_(unit_position)
+		walking_in_agression = false
+		move_()
 
 
 
@@ -435,14 +470,14 @@ func draw_target():
 
 func set_act():
 	if GlobalSettings.my_faction == faction:
-
+		var mouse_pos = get_global_mouse_position()
 		var unit_wr = root_map.get_wr_unit_on_mouse_position()
 		#if location has a hostile unit attack, otherwise, move
 		if gr(unit_wr) == null:
-			set_move()
+			set_move(mouse_pos)
 		else:
 			if gr(unit_wr).faction == GlobalSettings.my_faction:
-				set_move()
+				set_move(mouse_pos)
 			else:
 				set_attack(unit_wr)
 
@@ -553,6 +588,9 @@ func get_died():
 		#Input.set_custom_mouse_cursor(cursor_default)
 		root_map.get_node("UI").get_node("cursors").set_default_cursor()
 
+func print_(my_string):
+	if debugging_ == true:
+		print(my_string)
 
 func gr(weak_refer):
 	if weak_refer == null:

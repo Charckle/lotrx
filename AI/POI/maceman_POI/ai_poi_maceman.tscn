@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://6r1fu2uw31ni"]
+
+[ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_8irhe"]
+[ext_resource type="Script" path="res://AI/POI/maceman_POI/settings.gd" id="2_kwmb8"]
+
+[node name="AiPoiMaceman" instance=ExtResource("1_8irhe")]
+
+[node name="settings" type="Node2D" parent="." index="1"]
+script = ExtResource("2_kwmb8")
