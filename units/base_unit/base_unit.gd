@@ -210,7 +210,8 @@ func move_(target_move_to=null):
 		target_walk = title_map.local_to_map(target_move_to)
 		# set iddle position for returnign to it, if not in agro anymore
 		unit_position_iddle = Vector2i(target_walk.x, target_walk.y)
-
+	print_("target walk")
+	print_(target_walk)
 
 	
 	var unit_pos_for_calc = unit_position
@@ -225,41 +226,34 @@ func move_(target_move_to=null):
 		print_(new_id_path)
 	
 	if new_id_path.is_empty():
-		#if current_id_path.size() == 1:
-			#if walking_in_agression == false:
-				#unit_position_iddle = unit_position
-			#current_id_path = []
-		if true:
-			print_("else")
-			#print(find_nearest_vector(unit_position, target_walk))
-			# try to find the nearest, and if 56 cells around there is none, dont do anything? D:
-			var nearest = get_nearest_position(target_walk)
-			if selected:
-				print_("neerest")
-				print_(nearest)
-			if typeof(nearest) == TYPE_BOOL:
-				current_id_path = [current_id_path.front()]
-			else:
-				new_id_path = astar_grid.get_id_path(unit_pos_for_calc, nearest)
-				if new_id_path.size() == 2:
-					
+		#print(find_nearest_vector(unit_position, target_walk))
+		# try to find the nearest, and if 56 cells around there is none, dont do anything? D:
+		var nearest = get_nearest_position(target_walk)
+		print_("neerest")
+		print_(nearest)
+		if typeof(nearest) == TYPE_BOOL:
+			current_id_path = [current_id_path.front()]
+		else:
+			new_id_path = astar_grid.get_id_path(unit_pos_for_calc, nearest)
+			if new_id_path.size() == 2:
+				
+				new_id_path = new_id_path
+				
+				print_("iddle position")
+				print_(unit_position_iddle)
+			elif is_attacking:
+				# if unit is mele, walk to it in any case
+				if primary_mele_fighter == true:
 					new_id_path = new_id_path
-					
-					print_("iddle position")
-					print_(unit_position_iddle)
-				elif is_attacking:
-					# if unit is mele, walk to it in any case
-					if primary_mele_fighter == true:
-						new_id_path = new_id_path
-					else:
-						# if target in range, do nothing
-						if $attack.in_range(target_attack):
-							new_id_path = [current_id_path.front()]
-				if walking_in_agression == false:
-					unit_position_iddle = Vector2i(nearest.x, nearest.y)
+				else:
+					# if target in range, do nothing
+					if $attack.in_range(target_attack):
+						new_id_path = [current_id_path.front()]
+			if walking_in_agression == false:
+				unit_position_iddle = Vector2i(nearest.x, nearest.y)
 
-				# if still path blocked, fcuck it
-				current_id_path = new_id_path
+			# if still path blocked, fcuck it
+			current_id_path = new_id_path
 	else:
 		
 		print_("new path is not empty?")
@@ -288,6 +282,9 @@ func _physics_process(delta):
 		return
 	
 	var next_cell = current_id_path.front()
+	# needed, because godot is retarded
+	if next_cell == null:
+		return
 	var next_cell_global = title_map.map_to_local(next_cell)
 	
 	# check if the next step is free, otherwise, recalc the route
@@ -401,7 +398,7 @@ func check_soroundings():
 		if not $attack.in_range(target_attack_passive):
 			if aggressive and primary_mele_fighter:
 				target_walk = gr(target_attack_passive).unit_position
-				print("agressive!!!")
+				print_("agressive!!!")
 				walking_in_agression = true
 				move_()
 			else:
@@ -436,7 +433,8 @@ func calclulate_if_in_agression():
 		target_attack_passive = close_units[0][0]
 	# return to iddle position if not agro anymore
 	elif unit_position_iddle != unit_position:
-		target_walk = unit_position_iddle
+		if walking_in_agression:
+			target_walk = unit_position_iddle
 		print_("iddle position not iddle")
 		print_(unit_position_iddle)
 		print_(unit_position)

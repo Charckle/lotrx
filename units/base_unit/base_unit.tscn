@@ -29,6 +29,7 @@ texture = ExtResource("4_y5nbe")
 metadata/_edit_lock_ = true
 
 [node name="lifebar" parent="." instance=ExtResource("4_m5q04")]
+z_index = 500
 offset_right = 37.0
 metadata/_edit_lock_ = true
 
