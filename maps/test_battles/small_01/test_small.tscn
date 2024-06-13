@@ -82,7 +82,6 @@ position = Vector2(176, 304)
 
 [node name="knight" parent="units" index="18" instance=ExtResource("7_7brba")]
 position = Vector2(208, 240)
-debugging_ = true
 
 [node name="knight2" parent="units" index="19" instance=ExtResource("7_7brba")]
 position = Vector2(208, 272)
@@ -90,7 +89,6 @@ debugging_ = true
 
 [node name="knight3" parent="units" index="20" instance=ExtResource("7_7brba")]
 position = Vector2(208, 304)
-debugging_ = true
 
 [node name="pikeman" parent="units" index="21" instance=ExtResource("8_tuadm")]
 position = Vector2(176, 336)

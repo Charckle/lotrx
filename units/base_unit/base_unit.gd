@@ -225,11 +225,11 @@ func move_(target_move_to=null):
 		print_(new_id_path)
 	
 	if new_id_path.is_empty():
-		if current_id_path.size() == 1:
-			if walking_in_agression == false:
-				unit_position_iddle = unit_position
-			current_id_path = []
-		else:
+		#if current_id_path.size() == 1:
+			#if walking_in_agression == false:
+				#unit_position_iddle = unit_position
+			#current_id_path = []
+		if true:
 			print_("else")
 			#print(find_nearest_vector(unit_position, target_walk))
 			# try to find the nearest, and if 56 cells around there is none, dont do anything? D:
@@ -242,6 +242,7 @@ func move_(target_move_to=null):
 			else:
 				new_id_path = astar_grid.get_id_path(unit_pos_for_calc, nearest)
 				if new_id_path.size() == 2:
+					
 					new_id_path = new_id_path
 					
 					print_("iddle position")
@@ -262,8 +263,12 @@ func move_(target_move_to=null):
 	else:
 		
 		print_("new path is not empty?")
-		current_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
+		current_id_path = new_id_path
 	
+	print_("unit position")
+	#ČE UGOTOVI, DA JE NEEREST ZASEDEN, BI MORAL REKALKULIRAT OZ ZAČETNEGA TARGETA, NE PA OD NEEREST!!!!
+	
+	print_(unit_position)
 	print_("current path 2")
 	print_(current_id_path)
 	get_going_arraw_line()
@@ -329,8 +334,8 @@ func get_nearest_position(target_walk_):
 	var center = target_walk_
 	var free_position
 	if selected:
-		print("staring nearest")
-		print(target_walk_)
+		print_("staring nearest")
+		print_(target_walk_)
 	for i in range(8):
 		var left = i + 1
 		var right = i + 2
@@ -340,7 +345,7 @@ func get_nearest_position(target_walk_):
 				# Check if the current point is the center point
 				var neighbour_point = Vector2(x, y)
 				if selected:
-					print(neighbour_point)
+					print_(neighbour_point)
 				if neighbour_point != center and not astar_grid.is_point_solid(neighbour_point):
 					neighbour_points.append(neighbour_point)
 		if neighbour_points.size() > 0:
@@ -359,10 +364,10 @@ func get_nearest_position(target_walk_):
 	else:
 		free_position = false
 	if selected:
-		print("free position")
-		print(free_position)
-		print("my position")
-		print(unit_position)
+		print_("free position")
+		print_(free_position)
+		print_("my position")
+		print_(unit_position)
 	return free_position
 
 #func get_aggression_cells():
@@ -433,6 +438,8 @@ func calclulate_if_in_agression():
 	elif unit_position_iddle != unit_position:
 		target_walk = unit_position_iddle
 		print_("iddle position not iddle")
+		print_(unit_position_iddle)
+		print_(unit_position)
 		walking_in_agression = false
 		move_()
 
