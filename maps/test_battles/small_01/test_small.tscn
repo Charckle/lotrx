@@ -260,6 +260,6 @@ position = Vector2(944, 496)
 position = Vector2(1008, 432)
 
 [node name="AiPoiCrossbow" parent="ai_stuff/markers" index="7" instance=ExtResource("16_hc4nr")]
-position = Vector2(1072, 592)
+position = Vector2(560, 624)
 
 [node name="Ai_v_1" parent="ai_stuff" index="1" instance=ExtResource("10_mynax")]
