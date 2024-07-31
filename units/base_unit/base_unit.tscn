@@ -1,10 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://barfv6cfiagfx"]
+[gd_scene load_steps=9 format=3 uid="uid://barfv6cfiagfx"]
 
 [ext_resource type="Script" path="res://units/base_unit/base_unit.gd" id="1_st7m2"]
-[ext_resource type="Texture2D" uid="uid://do4gw6epe1ycd" path="res://sprites/units/dummy_32.png" id="2_ncg1m"]
+[ext_resource type="Texture2D" uid="uid://cyuwq2cd2koyr" path="res://sprites/units/battle/base_panel.png" id="2_ieus5"]
 [ext_resource type="Script" path="res://units/base_unit/sprite_2d.gd" id="3_p4amh"]
 [ext_resource type="PackedScene" uid="uid://dtxwi1d7ga3kr" path="res://units/base_unit/life_bar.tscn" id="4_m5q04"]
+[ext_resource type="Texture2D" uid="uid://emnpxld1q1up" path="res://sprites/units/battle/dummy_32.png" id="4_ud7nu"]
 [ext_resource type="Texture2D" uid="uid://dvdox8hlvs4md" path="res://sprites/units/random/moral_boost.png" id="4_y5nbe"]
+[ext_resource type="Script" path="res://units/base_unit/sprite_unit.gd" id="5_bxnv8"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_0h0yk"]
 radius = 15.0
@@ -12,10 +14,14 @@ radius = 15.0
 [node name="base_unit" type="Area2D"]
 script = ExtResource("1_st7m2")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_ncg1m")
+[node name="sprite_base" type="Sprite2D" parent="."]
+texture = ExtResource("2_ieus5")
 script = ExtResource("3_p4amh")
 metadata/_edit_lock_ = true
+
+[node name="sprite_unit" type="Sprite2D" parent="sprite_base"]
+texture = ExtResource("4_ud7nu")
+script = ExtResource("5_bxnv8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_0h0yk")

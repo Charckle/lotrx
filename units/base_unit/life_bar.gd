@@ -11,9 +11,9 @@ func _ready():
 	progress_bar.max_value = base_health
 	progress_bar.value = base_health
 	#print(parent_node.get_node("Sprite2D").texture.get_size())
-	position.x -= parent_node.get_node("Sprite2D").texture.get_size()[0] / 2
-	position.y -= parent_node.get_node("Sprite2D").texture.get_size()[1] - 6
-	progress_bar.size.x = parent_node.get_node("Sprite2D").texture.get_size()[1]
+	position.x -= parent_node.get_node("sprite_base").texture.get_size()[0] / 2
+	position.y -= parent_node.get_node("sprite_base").texture.get_size()[1] - 6
+	progress_bar.size.x = parent_node.get_node("sprite_base").texture.get_size()[1]
 	progress_bar.size.y = 7
 	#print(parent_node.name)
 

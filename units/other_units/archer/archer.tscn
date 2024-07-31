@@ -1,14 +1,14 @@
 [gd_scene load_steps=5 format=3 uid="uid://c5pey8052bhw8"]
 
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_1yrge"]
-[ext_resource type="Texture2D" uid="uid://b6qg7yh10f6wj" path="res://sprites/units/archer_32.png" id="2_idrj0"]
+[ext_resource type="Texture2D" uid="uid://cc4pu8web81ua" path="res://sprites/units/battle/archer_32.png" id="2_t862d"]
 [ext_resource type="Script" path="res://units/other_units/archer/attack.gd" id="3_r1l4a"]
 [ext_resource type="Script" path="res://units/other_units/archer/properties.gd" id="4_o5y5n"]
 
 [node name="archer" instance=ExtResource("1_1yrge")]
 
-[node name="Sprite2D" parent="." index="0"]
-texture = ExtResource("2_idrj0")
+[node name="sprite_unit" parent="sprite_base" index="0"]
+texture = ExtResource("2_t862d")
 
 [node name="attack" type="Node2D" parent="." index="4"]
 script = ExtResource("3_r1l4a")
