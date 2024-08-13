@@ -1,14 +1,14 @@
 [gd_scene load_steps=5 format=3 uid="uid://cx1jmyu8ch88g"]
 
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_hbs1k"]
-[ext_resource type="Texture2D" uid="uid://c46jl7dfw2byi" path="res://sprites/units/knight_32.png" id="2_6cqd3"]
+[ext_resource type="Texture2D" uid="uid://bc63hubn21pt3" path="res://sprites/units/battle/knight_32.png" id="2_qmcym"]
 [ext_resource type="Script" path="res://units/other_units/knight/attack.gd" id="3_hgsm2"]
 [ext_resource type="Script" path="res://units/other_units/knight/properties.gd" id="3_x0k3a"]
 
 [node name="knight" instance=ExtResource("1_hbs1k")]
 
-[node name="Sprite2D" parent="." index="0"]
-texture = ExtResource("2_6cqd3")
+[node name="sprite_unit" parent="sprite_base" index="0"]
+texture = ExtResource("2_qmcym")
 
 [node name="attack" type="Node2D" parent="." index="4"]
 script = ExtResource("3_hgsm2")

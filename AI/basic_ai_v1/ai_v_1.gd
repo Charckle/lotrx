@@ -22,13 +22,14 @@ func _ready():
 	evaluate_threat()
 	initial_setup()
 
-	pass # Replace with function body.
+
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	
 	empty_dead_units()
+
 	
 func print_units_groups():
 	for gr in unit_groups:
@@ -36,7 +37,7 @@ func print_units_groups():
 		print(unit_groups[gr].size())
 
 func evaluate_threat():
-	print("evaluating_threats")
+	#print("evaluating_threats")
 	var units_on_map = root_map.get_all_units()
 	
 	var my_side = 0
@@ -47,8 +48,8 @@ func evaluate_threat():
 			my_side += unit.unit_strenght
 		else:
 			their_side += unit.unit_strenght
-	print("my side: " + str(my_side))
-	print("their side: " + str(their_side))
+	#print("my side: " + str(my_side))
+	#print("their side: " + str(their_side))
 	set_state(my_side, their_side)
 
 func set_state(my_side, their_side):
@@ -87,8 +88,8 @@ func set_markers(units_on_map):
 	for marker in root_map.get_all_ai_markers():
 		var unit_id_ = marker.unit_type
 		markers[unit_id_].append(marker)
-	print("current markers on map:")
-	print(markers)
+	#print("current markers on map:")
+	#print(markers)
 
 func set_unit_groups(units_on_map):
 	#var units_on_map = root_map.get_all_units()

@@ -429,7 +429,7 @@ func calclulate_if_in_agression():
 	# sort units to closest one
 	
 	if not close_units.is_empty():
-		close_units.sort_custom(func(a, b): return a[1] < b[1])
+		close_units.sort_custom(func(a, b): return a[1] > b[1])
 		target_attack_passive = close_units[0][0]
 	# return to iddle position if not agro anymore
 	elif unit_position_iddle != unit_position:

@@ -3,12 +3,12 @@
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_227ty"]
 [ext_resource type="Script" path="res://units/other_units/crossbow/attack.gd" id="2_g6kkb"]
 [ext_resource type="Script" path="res://units/other_units/crossbow/settings.gd" id="2_opqt0"]
-[ext_resource type="Texture2D" uid="uid://bon0fhue12d8l" path="res://sprites/units/crossbow_32.png" id="2_tyqb5"]
+[ext_resource type="Texture2D" uid="uid://6osmhycvjaj2" path="res://sprites/units/battle/crossbow_32.png" id="2_s4kvb"]
 
 [node name="crossbow" instance=ExtResource("1_227ty")]
 
-[node name="Sprite2D" parent="." index="0"]
-texture = ExtResource("2_tyqb5")
+[node name="sprite_unit" parent="sprite_base" index="0"]
+texture = ExtResource("2_s4kvb")
 
 [node name="attack" type="Node2D" parent="." index="4"]
 script = ExtResource("2_g6kkb")
