@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://q6phc22yb7ca"]
+
+[ext_resource type="Texture2D" uid="uid://ckbpg7tgea87x" path="res://sprites/units/castle/small_door/small_door_closed.png" id="1_abf5s"]
+[ext_resource type="Script" path="res://units/castle_units/small_door/map_placer/small_door_map_placer.gd" id="1_twwlc"]
+
+[node name="SmallDoorMapPlacer" type="Node2D"]
+script = ExtResource("1_twwlc")
+
+[node name="spriteNode" type="Node2D" parent="."]
+position = Vector2(-16, -16)
+
+[node name="Sprite2D" type="Sprite2D" parent="spriteNode"]
+position = Vector2(16, 16)
+texture = ExtResource("1_abf5s")
+
+[node name="Sprite2D2" type="Sprite2D" parent="spriteNode"]
+position = Vector2(48, 16)
+texture = ExtResource("1_abf5s")

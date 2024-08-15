@@ -34,6 +34,7 @@ func create_gui():
 	var panel_width = instance.size.x
 	instance.position = global_position + Vector2(-(panel_width / 2),-50)
 	instance.door_wr = weakref(parent_n)
+
 	
 	var actions = parent_n.get_node("actions")
 	var checkButton = instance.get_node("CheckButton")

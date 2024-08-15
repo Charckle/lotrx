@@ -5,7 +5,7 @@ extends Area2D
 var unit_id = 0
 var primary_mele_fighter = true
 var siege_weapon = false
-@export var siege_id = 0
+#@export var siege_id = 0
 @export var aggressive = true
 @export var base_health = 120
 @onready var health = base_health
