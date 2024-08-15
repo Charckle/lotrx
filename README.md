@@ -16,7 +16,7 @@
 	- attacking open map
 	- defending castle
 	- attacking castle
-- a new UI to open and close castle doors, for more granular control, and possibility of sneek attaks
+- DONE - a new UI to open and close castle doors, for more granular control, and possibility of sneek attaks
 - siedge weapons
 - damage difference depending on the angle of attack (if you get hit in the back, auch)
 	- arrows deal more damage the closer they are shot at a target
