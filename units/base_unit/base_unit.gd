@@ -435,9 +435,6 @@ func calclulate_if_in_agression():
 	elif unit_position_iddle != unit_position:
 		if walking_in_agression:
 			target_walk = unit_position_iddle
-		print_("iddle position not iddle")
-		print_(unit_position_iddle)
-		print_(unit_position)
 		walking_in_agression = false
 		move_()
 

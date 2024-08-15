@@ -1,10 +1,22 @@
-[gd_scene load_steps=3 format=3 uid="uid://dajt566dqfjbv"]
+[gd_scene load_steps=5 format=3 uid="uid://dajt566dqfjbv"]
 
 [ext_resource type="PackedScene" uid="uid://cjw36056lh3pj" path="res://units/castle_units/base_castle_unit/base_castle_unit.tscn" id="1_t86i7"]
 [ext_resource type="Script" path="res://units/castle_units/small_door/actions.gd" id="2_v0fnc"]
+[ext_resource type="Script" path="res://units/castle_units/small_door/Area2D.gd" id="4_xoukh"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rl7gp"]
+size = Vector2(32, 32)
 
 [node name="small_door" instance=ExtResource("1_t86i7")]
 faction = 2
 
 [node name="actions" type="Node2D" parent="." index="1"]
 script = ExtResource("2_v0fnc")
+
+[node name="Area2D" type="Area2D" parent="." index="2"]
+script = ExtResource("4_xoukh")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" index="0"]
+shape = SubResource("RectangleShape2D_rl7gp")
+
+[connection signal="input_event" from="Area2D" to="Area2D" method="_on_input_event"]

@@ -48,6 +48,7 @@ func _input(event):
 	if Input.is_action_just_pressed("left_click"):
 		# Call a function to reset variables
 		deselect_all_units()
+
 		Input.set_custom_mouse_cursor(cursor_default)
 	# control groups
 	if event is InputEventKey:
@@ -234,3 +235,11 @@ func get_all_ai_markers():
 	for marker in $ai_stuff/markers.get_children():
 		markers.append(marker)
 	return markers
+
+func remove_all_gui():
+	_remove_all_children($gui_windows)
+
+func _remove_all_children(node_to_delete_children_of):
+	# Iterate over a copy of the children list
+	for child in node_to_delete_children_of.get_children():
+		child.queue_free()

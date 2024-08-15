@@ -15,6 +15,8 @@ script = ExtResource("1_gg3s0")
 script = ExtResource("5_c0kh2")
 metadata/_edit_lock_ = true
 
+[node name="gui_windows" type="Node2D" parent="."]
+
 [node name="projectiles" type="Node2D" parent="."]
 
 [node name="on_map_texts" type="Node2D" parent="."]

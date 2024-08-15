@@ -7,5 +7,7 @@
 script = ExtResource("1_sh7lu")
 direction_iddle = 1
 
-[node name="base_sprite" type="Sprite2D" parent="."]
+[node name="spriteNode" type="Node2D" parent="."]
+
+[node name="base_sprite" type="Sprite2D" parent="spriteNode"]
 texture = ExtResource("2_vx4lf")

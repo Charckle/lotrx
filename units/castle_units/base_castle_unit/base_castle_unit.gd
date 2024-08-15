@@ -23,7 +23,7 @@ var selected = false
 
 @onready var damage_label = preload("res://weapons/random/damage_label.tscn")
 
-
+@onready var door_sprite_node = $"spriteNode"
 
 
 
@@ -54,18 +54,21 @@ func damage_other_parts(damage: int):
 func set_direction_sprite():
 
 	var r
+	var rotation_
 	#print(direction_iddle)
 	if direction_iddle == 1:
 		r = deg_to_rad(90)
-		rotation = r
+		rotation_ = r
 	elif direction_iddle == 2:
 		r = deg_to_rad(180)
-		rotation = r
+		rotation_ = r
 	elif direction_iddle == 3:
 		r = deg_to_rad(270)
-		rotation = r
+		rotation_ = r
 	else:
-		rotation = 0
+		rotation_ = 0
+	
+	door_sprite_node.rotation = rotation_
 	
 	
 func set_selected(value):
@@ -130,7 +133,7 @@ func get_died():
 	
 	queue_free()
 	if units_selected.size() == 0:
-		#Input.set_custom_mouse_cursor(cursor_default)
+		#Input.set_custom_mouse_cursor(cursor_defau.get_ref() lt)
 		root_map.get_node("UI").get_node("cursors").set_default_cursor()
 
 

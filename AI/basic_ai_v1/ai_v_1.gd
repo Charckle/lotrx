@@ -25,7 +25,6 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	
 	empty_dead_units()
 
 	
@@ -35,6 +34,7 @@ func print_units_groups():
 		print(unit_groups[gr].size())
 
 func evaluate_threat():
+	# evaluates who is winning and who is loosing
 	#print("evaluating_threats")
 	var units_on_map = root_map.get_all_units()
 	
