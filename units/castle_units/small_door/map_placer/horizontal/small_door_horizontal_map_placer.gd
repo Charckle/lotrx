@@ -21,16 +21,18 @@ func place_doors():
 	var sprite_02 = $"spriteNode/Sprite2D2"
 
 	units_node = parent_n.get_parent().get_node("units")
-	
-	create_instance(sprite_01.global_position, 0)
-	create_instance(sprite_02.global_position, 2)
+	var new_siege_id = units_node.get_child_count()
+	create_instance(sprite_01.global_position, 0, new_siege_id)
+	create_instance(sprite_02.global_position, 2, new_siege_id)
 	
 	queue_free()
 
 
-func create_instance(coordinates_, direction_iddle_):
+func create_instance(coordinates_, direction_iddle_, new_siege_id):
 	var instance = small_door_obj.instantiate()
 	instance.position = coordinates_
 	instance.direction_iddle = direction_iddle_
 	instance.faction = faction
+	instance.siege_id = new_siege_id
 	units_node.add_child(instance)
+	print(instance.siege_id)

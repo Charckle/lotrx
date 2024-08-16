@@ -12,7 +12,8 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	pass
+	if gr(door_wr) == null:
+		queue_free()
 	
 	
 func _input(event):
@@ -43,3 +44,10 @@ func change_state_of_all(state_: int):
 		if "siege_id" in unit and unit.siege_id == door_unit_id:
 			unit.get_node("actions").set_state(state_)
 
+func gr(weak_refer):
+	if weak_refer == null:
+		return null
+	if weak_refer.get_ref() == null:
+		return null
+	else:
+		return weak_refer.get_ref()
