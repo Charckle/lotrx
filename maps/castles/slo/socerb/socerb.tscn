@@ -1,10 +1,12 @@
-[gd_scene load_steps=6 format=3 uid="uid://dpq75kochn3i"]
+[gd_scene load_steps=8 format=3 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
 [ext_resource type="TileSet" uid="uid://q3ygopelucdk" path="res://tiles/tilesets/castle_tiles.tres" id="2_urvtn"]
 [ext_resource type="PackedScene" uid="uid://cx1jmyu8ch88g" path="res://units/other_units/knight/knight.tscn" id="3_uqr84"]
 [ext_resource type="PackedScene" uid="uid://c53dam5nd2klo" path="res://units/other_units/pikeman/pikeman.tscn" id="5_2f677"]
 [ext_resource type="PackedScene" uid="uid://dajt566dqfjbv" path="res://units/castle_units/small_door/small_door.tscn" id="6_3rept"]
+[ext_resource type="PackedScene" uid="uid://iycf6hgid0wt" path="res://units/castle_units/small_door/map_placer/horizontal/small_door_horizontal_map_placer.tscn" id="6_673ex"]
+[ext_resource type="PackedScene" uid="uid://d1306ntr6ywvh" path="res://units/castle_units/small_door/map_placer/vertical/small_door_vertical_map_placer.tscn" id="7_3t5sj"]
 
 [node name="socerb" instance=ExtResource("1_pay0i")]
 metadata/_edit_lock_ = true
@@ -56,3 +58,9 @@ metadata/_edit_lock_ = true
 
 [node name="on_map_texts" parent="." index="6"]
 metadata/_edit_lock_ = true
+
+[node name="SmallDoorHorizontalMapPlacer" parent="spawners" index="0" instance=ExtResource("6_673ex")]
+position = Vector2(368, -80)
+
+[node name="SmallDoorVerticalMapPlacer" parent="spawners" index="1" instance=ExtResource("7_3t5sj")]
+position = Vector2(528, 112)

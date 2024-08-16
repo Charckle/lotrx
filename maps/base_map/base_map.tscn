@@ -24,3 +24,5 @@ metadata/_edit_lock_ = true
 [node name="ai_stuff" type="Node2D" parent="."]
 
 [node name="markers" type="Node2D" parent="ai_stuff"]
+
+[node name="spawners" type="Node2D" parent="."]

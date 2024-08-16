@@ -16,24 +16,18 @@ func _process(delta):
 
 			
 func _on_input_event(viewport, event, shape_idx):
-	if event is InputEventMouseButton:		
-		if event.is_pressed():
-			if event.button_index == MOUSE_BUTTON_LEFT:
-				create_gui()
-				#var door_gui = parent_n.get_node("DoorOpener")
-				#print(door_gui.name)
-				#if door_gui.visible == false:
-					#print(door_gui.visible)
-					#door_gui.visible = true
-					#print(door_gui.visible)
-				#else:
-					#door_gui.visible = false
+	if parent_n.faction == GlobalSettings.my_faction:
+		if event is InputEventMouseButton:		
+			if event.is_pressed():
+				if event.button_index == MOUSE_BUTTON_LEFT:
+					create_gui()
 
 func create_gui():
 	var instance = door_opener.instantiate()
 	var panel_width = instance.size.x
 	instance.position = global_position + Vector2(-(panel_width / 2),-50)
 	instance.door_wr = weakref(parent_n)
+
 	
 	var actions = parent_n.get_node("actions")
 	var checkButton = instance.get_node("CheckButton")

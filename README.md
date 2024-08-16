@@ -9,8 +9,10 @@
 - the game currently has a couple of catle maps, based on real castles, none of them are functional, per say. You could place enemy units inside and then storm the castle, break the doors, but there is no functional AI to defend it
 
 # To Do
+- update maps to new tilesistem for new godot version
 - waypoints
 - adding additional units to command groups
+- scroll zoom
 - AI:
 	- defending open map (being worked on)
 	- attacking open map
