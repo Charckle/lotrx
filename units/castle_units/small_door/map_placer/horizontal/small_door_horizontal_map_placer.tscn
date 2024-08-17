@@ -25,7 +25,7 @@ func place_doors():
 	var sprite_01 = $\"spriteNode/Sprite2D\"
 	var sprite_02 = $\"spriteNode/Sprite2D2\"
 
-	units_node = parent_n.get_parent().get_node(\"units\")
+	units_node = parent_n.get_node(\"../units\")
 	var new_siege_id = units_node.get_child_count()
 	create_instance(sprite_01.global_position, 0, new_siege_id)
 	create_instance(sprite_02.global_position, 2, new_siege_id)
@@ -40,7 +40,6 @@ func create_instance(coordinates_, direction_iddle_, new_siege_id):
 	instance.faction = faction
 	instance.siege_id = new_siege_id
 	units_node.add_child(instance)
-	print(instance.siege_id)
 "
 
 [node name="SmallDoorHorizontalMapPlacer" type="Node2D"]

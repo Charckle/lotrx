@@ -21,7 +21,8 @@ GlobalSettings="*res://singletons/global_settings.gd"
 
 [display]
 
-window/size/viewport_width=1165
+window/size/viewport_width=1280
+window/size/viewport_height=640
 window/size/resizable=false
 mouse_cursor/custom_image="res://sprites/gui/defaut_cursor.png"
 
