@@ -10,6 +10,9 @@
 
 # To Do
 - update maps to new tilesistem for new godot version
+- make battleStatus progress bar be its own component
+    - make the formula for calculating a universal thing as a resource
+    - make an outside resource where you set data for things like unit value, strenght, etc, so its more centralized
 - waypoints
 - adding additional units to command groups
 - scroll zoom
