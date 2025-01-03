@@ -7,6 +7,7 @@ var state_ = 0 #  0 iddle, 1 attack, 2 defend
 @export var faction = 2
 @export var friendly_factions = []
 
+var units_on_map
 var markers: Dictionary = {}
 var unit_groups: Dictionary = {}
 
@@ -19,7 +20,8 @@ var base_unit_group = {"units": [],
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	evaluate_threat()
+	self.units_on_map = root_map.get_all_units()
+	#evaluate_threat()
 	initial_setup()
 
 
@@ -62,16 +64,19 @@ func set_state(my_side, their_side):
 
 func _on_timer_timeout():
 	evaluate_threat()
+	
 	if state_ == 2:
 		manage_defense()
 
 func initial_setup():
-	var units_on_map = root_map.get_all_units()
+	var units_on_map = self.units_on_map
 	
 	set_markers(units_on_map)
 	set_unit_groups(units_on_map)
 
 func set_markers(units_on_map):
+	# check all markers on the map and adds them locall, for faster access
+	
 	# check all own units
 	#var units_on_map = root_map.get_all_units()
 	for unit in units_on_map:
@@ -80,7 +85,6 @@ func set_markers(units_on_map):
 			if not markers.has(unit_id):
 				#var unit_wr = weakref(unit)
 				markers[unit_id] = []
-			
 
 	
 	for marker in root_map.get_all_ai_markers():
@@ -90,7 +94,9 @@ func set_markers(units_on_map):
 	#print(markers)
 
 func set_unit_groups(units_on_map):
+	# create base groups for the units and add them to them
 	#var units_on_map = root_map.get_all_units()
+	
 	for unit in units_on_map:
 		if unit.faction == self.faction:
 			var unit_id = unit.unit_id
@@ -106,7 +112,9 @@ func set_unit_groups(units_on_map):
 			add_unit_to_group(unit_wr)
 
 func add_unit_to_group(unit_wr):
+	# create groups of size 4
 	var unit_id = unit_wr.get_ref().unit_id
+	
 	if unit_groups[unit_id][-1]["units"].size() < 4:
 		unit_groups[unit_id][-1]["units"].append(unit_wr)
 	else:
@@ -116,11 +124,14 @@ func add_unit_to_group(unit_wr):
 
 
 func manage_defense():
+	send_groups_to_markers()
+	
+	check_range_units_pinned()
+	
+func send_groups_to_markers():
 	if initial_units_to_markers == false:
 		move_to_initial_markers()
 		initial_units_to_markers = true
-	
-	check_range_units_pinned()
 
 func move_to_initial_markers():
 	for unit_id in markers:

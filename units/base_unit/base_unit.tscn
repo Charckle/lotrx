@@ -39,6 +39,13 @@ z_index = 500
 offset_right = 37.0
 metadata/_edit_lock_ = true
 
+[node name="control_group_label" type="Label" parent="."]
+visible = false
+offset_left = -19.0
+offset_top = -25.0
+offset_right = 21.0
+offset_bottom = -2.0
+
 [connection signal="input_event" from="." to="." method="_on_input_event"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

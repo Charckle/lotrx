@@ -23,6 +23,7 @@ var unit_strenght = 1 # for calculations
 var selected = false
 @onready var box = $selectedBox
 @onready var lifebar = $lifebar
+@onready var control_group_label = $control_group_label
 @onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
 @onready var title_map = root_map.get_node("TileMap")
 @onready var astar_grid = root_map.astar_grid
@@ -57,6 +58,8 @@ var target_attack_passive = null
 var attack_dmg_mele = 40
 var attack_dmg_range = 40
 
+@export var font: Font
+var control_group = null
 
 
 var timer_ = 1
@@ -79,6 +82,7 @@ func _draw():
 		draw_agression_rage()
 		draw_attack_rage()
 		draw_target()
+		draw_control_group_id()
 		
 
 func set_timer(delta):
@@ -134,6 +138,7 @@ func set_selected(value):
 	if selected != value:
 		selected = value
 		lifebar.visible = value
+		control_group_label.visible = value
 
 func _on_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton:
@@ -464,6 +469,11 @@ func draw_target():
 	if get_right_target() != null and faction == GlobalSettings.my_faction:
 		var draw_loc = gr(get_right_target()).global_position - global_position - Vector2(20, 20)
 		draw_texture(selected_target,draw_loc)
+		
+func draw_control_group_id():
+	if control_group != null:
+		self.control_group_label.text = str(control_group)
+
 
 func set_act():
 	if GlobalSettings.my_faction == faction:

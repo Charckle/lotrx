@@ -34,9 +34,5 @@ func set_progressbar():
 	#print("my side: " + str(my_side))
 	#print("their side: " + str(their_side))
 	var all_units: float = my_side + their_side
-	
-	print("what")
-	print(my_side)
-	print(all_units)
-	print((my_side / all_units)*100)
-	progress_bar.value = (my_side / all_units) *100
+
+	progress_bar.value = (my_side / all_units) * 100

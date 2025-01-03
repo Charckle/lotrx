@@ -80,6 +80,8 @@ func set_assign_control_group(event):
 			if event.keycode >= KEY_0 and event.keycode <= KEY_9:
 				var pressed_number = event.keycode - KEY_1 # starts form 0
 				control_units_selected[pressed_number] = units_selected.duplicate(true)
+				for unit in units_selected:
+					unit.control_group = pressed_number + 1
 
 func deselect_units(node):
 	# Iterate through each child node
