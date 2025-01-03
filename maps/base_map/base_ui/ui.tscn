@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://bn7ri334xglt1"]
+[gd_scene load_steps=9 format=3 uid="uid://bn7ri334xglt1"]
 
 [ext_resource type="Script" path="res://maps/base_map/base_ui/camera.gd" id="1_lp3te"]
 [ext_resource type="Script" path="res://maps/base_map/base_ui/fps_label.gd" id="2_siea2"]
 [ext_resource type="Script" path="res://maps/base_map/base_ui/cursors.gd" id="3_id33t"]
 [ext_resource type="Script" path="res://maps/base_map/base_ui/panel.gd" id="4_42d2h"]
+[ext_resource type="PackedScene" uid="uid://dmdqxit4v15f5" path="res://maps/base_map/base_ui/battle_status_ui/battle_status_ui.tscn" id="5_ktqgm"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xg1d3"]
 bg_color = Color(0.6, 0.6, 0.6, 0.317647)
@@ -82,6 +83,13 @@ label_settings = SubResource("LabelSettings_lyo7d")
 
 [node name="CheckButton2" type="CheckButton" parent="CanvasLayer/Panel/GridContainer"]
 layout_mode = 2
+
+[node name="BattleStatusUi" parent="." instance=ExtResource("5_ktqgm")]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+grow_horizontal = 2
+size_flags_vertical = 8
 
 [connection signal="toggled" from="CanvasLayer/Panel/GridContainer/CheckButton" to="CanvasLayer/Panel" method="_on_check_button_toggled"]
 [connection signal="toggled" from="CanvasLayer/Panel/GridContainer/CheckButton2" to="CanvasLayer/Panel" method="_on_check_button_toggled_2"]
