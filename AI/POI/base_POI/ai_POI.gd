@@ -5,14 +5,20 @@ var unit_type = 1
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	print(get_unit_(unit_type))
-	pass # Replace with function body.
+	#print(get_unit_(unit_type))
+	set_unit_image()
+	if GlobalSettings.global_options["gameplay"]["show_ai_POI"] == false:
+		self.visible = false
+
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
 
+
+func set_unit_image():
+	pass
 
 func get_unit_(unit_type_):
 	var units_ = {

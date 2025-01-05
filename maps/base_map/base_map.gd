@@ -6,6 +6,7 @@ const m_cell_size := 32
 const sector_size := 15.0 #how many cells in a sector. not used, since the processor will be enough..prolly
 @onready var title_map = $TileMap
 
+
 var walking_map_tiles_taken
 var units_selected = []
 var control_units_selected = [[],[],[],[],[],[],[],[],[],[]]
@@ -15,9 +16,17 @@ var global_map_sectors := [] # not in use
 var cursor_default = load("res://sprites/gui/defaut_cursor.png")
 var cursor_move = load("res://sprites/gui/move_to.png")
 
+
+func _enter_tree():
+	GlobalSettings.game_stats = {
+		"game_unit_count_start" = null,
+		"game_unit_count_current" = null
+	}
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	setup_astar_grid()
+
 	#global_map_sectors_generate()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -245,3 +254,10 @@ func _remove_all_children(node_to_delete_children_of):
 	# Iterate over a copy of the children list
 	for child in node_to_delete_children_of.get_children():
 		child.queue_free()
+
+func reset_global_game_settings():
+	GlobalSettings.map_options = null
+
+func exit_to_main_menu():
+	reset_global_game_settings()
+	get_tree().change_scene_to_file("uid://ceun5xdoedpjf")

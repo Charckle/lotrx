@@ -75,6 +75,11 @@ func move_camera_if_bumped(delta):
 	var mouse_position = get_viewport().get_mouse_position()
 	
 	var camera_movement = Vector2()
+	
+	# Define the bounds of your tilemap
+	var tilemap = self.map_root.get_node("TileMap")
+	var map_size = tilemap.get_used_rect().size * Vector2i(self.map_root.m_cell_size, self.map_root.m_cell_size)
+	var map_start = tilemap.get_used_rect().position * Vector2i(self.map_root.m_cell_size, self.map_root.m_cell_size)
 
 	# Check if the mouse is near the left edge
 	if mouse_position.x <= edge_threshold:
@@ -92,5 +97,12 @@ func move_camera_if_bumped(delta):
 	if mouse_position.y >= viewport_size.y - edge_threshold:
 		camera_movement.y += camera_speed * delta
 
-	# Move the camera
-	position += camera_movement
+	# Calculate the new position
+	var new_position = position + camera_movement
+
+	# Clamp the camera position to stay within the tilemap bounds
+	new_position.x = clamp(new_position.x, map_start.x, map_start.x + map_size.x - viewport_size.x)
+	new_position.y = clamp(new_position.y, map_start.y, map_start.y + map_size.y - viewport_size.y)
+	
+	# Update the camera position
+	position = new_position

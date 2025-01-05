@@ -4,7 +4,7 @@ var state_ = 0 #  0 iddle, 1 attack, 2 defend
 @export var is_siege = false
 @export var is_siege_defending = false
 
-@export var faction = 2
+@export var faction = 99
 @export var friendly_factions = []
 
 var units_on_map
@@ -12,6 +12,10 @@ var markers: Dictionary = {}
 var unit_groups: Dictionary = {}
 
 var initial_units_to_markers = false
+
+var own_forces_center = Vector2.ZERO
+
+var lost = false
 
 var base_unit_group = {"units": [],
 				"task": null}
@@ -21,6 +25,7 @@ var base_unit_group = {"units": [],
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	self.units_on_map = root_map.get_all_units()
+	set_faction()
 	#evaluate_threat()
 	initial_setup()
 
@@ -29,11 +34,15 @@ func _ready():
 func _process(delta):
 	empty_dead_units()
 
-	
+func set_faction():
+	self.faction = root_map.get_node("map_rules").ai_faction
+
+
 func print_units_groups():
 	for gr in unit_groups:
 		print("unit: " + str(gr))
 		print(unit_groups[gr].size())
+
 
 func evaluate_threat():
 	# evaluates who is winning and who is loosing
@@ -59,14 +68,19 @@ func set_state(my_side, their_side):
 	else:
 		state_ = 2
 		print("Starting Defense!")
-		
 
 
 func _on_timer_timeout():
-	evaluate_threat()
-	
-	if state_ == 2:
-		manage_defense()
+	if self.lost == false:
+		evaluate_threat()
+		
+		if state_ == 1:
+			manage_attack()
+		if state_ == 2:
+			print(self.lost)
+			manage_defense_markers()
+	else:
+		print("GG!")
 
 func initial_setup():
 	var units_on_map = self.units_on_map
@@ -76,7 +90,7 @@ func initial_setup():
 
 func set_markers(units_on_map):
 	# check all markers on the map and adds them locall, for faster access
-	
+
 	# check all own units
 	#var units_on_map = root_map.get_all_units()
 	for unit in units_on_map:
@@ -123,11 +137,71 @@ func add_unit_to_group(unit_wr):
 		unit_groups[unit_id].append(new_group)
 
 
-func manage_defense():
+func manage_defense_markers():
 	send_groups_to_markers()
 	
 	check_range_units_pinned()
 	
+func manage_attack():
+	set_center_ow_own_forces()
+	var neerest_enemy = get_neerest_enemy()
+	
+	if neerest_enemy != null:
+		attack_unit_w_all(neerest_enemy)
+
+func set_center_ow_own_forces():
+	var total_position = Vector2.ZERO
+	var all_units = 0
+	
+	for unit_wr in self.all_own_units():
+		total_position += gr(unit_wr).global_position  # Sum up global positions
+		all_units += 1
+
+	self.own_forces_center = total_position / all_units
+
+
+func get_neerest_enemy():
+	var all_enemy_units = all_enemy_units()
+	var nearest_node: Node2D = null
+	var shortest_distance: float = INF  # Start with an infinitely large distance
+	
+	for unit in all_enemy_units:
+		var distance = self.own_forces_center.distance_to(unit.global_position)
+		
+		if distance < shortest_distance:
+			shortest_distance = distance
+			nearest_node = unit
+	
+	return nearest_node
+
+
+func attack_unit_w_all(enemy: Node2D):
+	var own_units = all_own_units()
+	
+	for unit_wr in own_units:
+		var enemy_wr = weakref(enemy)
+		gr(unit_wr).set_attack(enemy_wr)
+	
+func all_own_units():
+	var own_units = []
+	
+	for unit_id in self.unit_groups:
+		for group in self.unit_groups[unit_id]:
+			for unit_wr in group["units"]:
+				own_units.append(unit_wr)
+	
+	return own_units
+	
+func all_enemy_units():
+	var all_units = root_map.get_all_units()
+	var all_enemy_units = []
+	
+	for unit in all_units:
+		if not (unit.faction == self.faction or unit.faction in self.friendly_factions):
+			all_enemy_units.append(unit)
+	
+	return all_enemy_units
+
 func send_groups_to_markers():
 	if initial_units_to_markers == false:
 		move_to_initial_markers()
@@ -215,7 +289,7 @@ func get_neerest_group_help(unit_in_need_wr, group_seeking_help):
 	groups_by_distance.sort_custom(func(a, b): return a[1] < b[1])
 	# check if they are not defending a pinning yet
 	# ...
-	
+
 	return groups_by_distance[0][0]
 
 
@@ -229,12 +303,19 @@ func group_sttack_unit(group, unit_to_attack_wr):
 
 func empty_dead_units():
 	# remove dead units from control groups
+	var all_units_count = 0
+	
 	for type_group in unit_groups:
 		for group in unit_groups[type_group]:
 			for unit_wr in group["units"]:
 				if gr(unit_wr) == null:
 					var index_ = group["units"].find(unit_wr)
 					group["units"].remove_at(index_)
+				else:
+					all_units_count += 1
+	
+	if all_units_count == 0:
+		self.lost = true
 
 func gr(weak_refer):
 	if weak_refer == null:

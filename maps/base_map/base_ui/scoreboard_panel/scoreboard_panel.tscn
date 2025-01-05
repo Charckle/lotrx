@@ -1,0 +1,189 @@
+[gd_scene load_steps=3 format=3 uid="uid://djdxhdrnypy0c"]
+
+[ext_resource type="Script" path="res://maps/base_map/base_ui/scoreboard_panel/scoreboard_panel.gd" id="1_tu3fo"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xdejk"]
+bg_color = Color(0.190762, 0.190762, 0.190762, 1)
+
+[node name="ScoreboardPanel" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_tu3fo")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -248.0
+offset_top = -152.0
+offset_right = 248.0
+offset_bottom = 176.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_xdejk")
+
+[node name="GridContainer" type="GridContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -84.0
+offset_top = -90.0
+offset_right = 84.0
+offset_bottom = 122.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 3
+
+[node name="player_1" type="VBoxContainer" parent="Panel/GridContainer"]
+layout_mode = 2
+
+[node name="peasants_label" type="Label" parent="Panel/GridContainer/player_1"]
+layout_mode = 2
+text = "0/0"
+
+[node name="macemen_label" type="Label" parent="Panel/GridContainer/player_1"]
+layout_mode = 2
+text = "0/0"
+
+[node name="pikemen_label" type="Label" parent="Panel/GridContainer/player_1"]
+layout_mode = 2
+text = "0/0"
+
+[node name="swordsmen_label" type="Label" parent="Panel/GridContainer/player_1"]
+layout_mode = 2
+text = "0/0"
+
+[node name="archers_label" type="Label" parent="Panel/GridContainer/player_1"]
+layout_mode = 2
+text = "0/0"
+
+[node name="crossbowmen_label" type="Label" parent="Panel/GridContainer/player_1"]
+layout_mode = 2
+text = "0/0"
+
+[node name="knights_label" type="Label" parent="Panel/GridContainer/player_1"]
+layout_mode = 2
+text = "0/0"
+
+[node name="total_label" type="Label" parent="Panel/GridContainer/player_1"]
+layout_mode = 2
+text = "0/0"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/GridContainer"]
+layout_mode = 2
+
+[node name="peasants" type="Label" parent="Panel/GridContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Peasants"
+
+[node name="maceman" type="Label" parent="Panel/GridContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Macemen"
+
+[node name="pikeman" type="Label" parent="Panel/GridContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Pikemen
+"
+
+[node name="swordsman" type="Label" parent="Panel/GridContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Swordsmen"
+
+[node name="archers" type="Label" parent="Panel/GridContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Archers"
+
+[node name="crossbowman" type="Label" parent="Panel/GridContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Crossbowmen"
+
+[node name="knight" type="Label" parent="Panel/GridContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Knights"
+
+[node name="total" type="Label" parent="Panel/GridContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Total"
+
+[node name="player_2" type="VBoxContainer" parent="Panel/GridContainer"]
+layout_mode = 2
+
+[node name="peasants_label" type="Label" parent="Panel/GridContainer/player_2"]
+layout_mode = 2
+text = "0/0"
+
+[node name="macemen_label" type="Label" parent="Panel/GridContainer/player_2"]
+layout_mode = 2
+text = "0/0"
+
+[node name="pikemen_label" type="Label" parent="Panel/GridContainer/player_2"]
+layout_mode = 2
+text = "0/0"
+
+[node name="swordsmen_label" type="Label" parent="Panel/GridContainer/player_2"]
+layout_mode = 2
+text = "0/0"
+
+[node name="archers_label" type="Label" parent="Panel/GridContainer/player_2"]
+layout_mode = 2
+text = "0/0"
+
+[node name="crossbowmen_label" type="Label" parent="Panel/GridContainer/player_2"]
+layout_mode = 2
+text = "0/0"
+
+[node name="knights_label" type="Label" parent="Panel/GridContainer/player_2"]
+layout_mode = 2
+text = "0/0"
+
+[node name="total_label" type="Label" parent="Panel/GridContainer/player_2"]
+layout_mode = 2
+text = "0/0"
+
+[node name="game_over_label" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -90.0
+offset_top = 7.0
+offset_right = 90.0
+offset_bottom = 53.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 33
+text = "Game Over"
+
+[node name="main_menu_button" type="Button" parent="Panel"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -48.0
+offset_top = -31.0
+offset_right = 48.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Main Menu"
+
+[connection signal="pressed" from="Panel/main_menu_button" to="." method="_on_main_menu_button_pressed"]

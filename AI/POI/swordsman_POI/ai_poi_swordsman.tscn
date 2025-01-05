@@ -1,9 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://quirpxu71lc3"]
+[gd_scene load_steps=4 format=3 uid="uid://quirpxu71lc3"]
 
 [ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_55mgn"]
 [ext_resource type="Script" path="res://AI/POI/swordsman_POI/settings.gd" id="2_x24uf"]
+[ext_resource type="Texture2D" uid="uid://dkdvdgnterjpr" path="res://sprites/units/battle/swordsman_32.png" id="2_yg3ti"]
 
 [node name="AiPoiSwordsman" instance=ExtResource("1_55mgn")]
+
+[node name="unit_image" parent="base_image" index="0"]
+texture = ExtResource("2_yg3ti")
 
 [node name="settings" type="Node2D" parent="." index="1"]
 script = ExtResource("2_x24uf")

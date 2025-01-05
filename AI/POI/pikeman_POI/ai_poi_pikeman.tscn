@@ -1,9 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://cw62l2a8kja3j"]
+[gd_scene load_steps=4 format=3 uid="uid://cw62l2a8kja3j"]
 
 [ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_7m13i"]
+[ext_resource type="Texture2D" uid="uid://rcq6jgp0d78d" path="res://sprites/units/battle/pikeman_32.png" id="2_emqep"]
 [ext_resource type="Script" path="res://AI/POI/pikeman_POI/settings.gd" id="2_louk0"]
 
 [node name="AiPoiPikeman" instance=ExtResource("1_7m13i")]
+
+[node name="unit_image" parent="base_image" index="0"]
+texture = ExtResource("2_emqep")
 
 [node name="settings" type="Node2D" parent="." index="1"]
 script = ExtResource("2_louk0")

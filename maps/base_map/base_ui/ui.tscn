@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3 uid="uid://bn7ri334xglt1"]
+[gd_scene load_steps=11 format=3 uid="uid://bn7ri334xglt1"]
 
 [ext_resource type="Script" path="res://maps/base_map/base_ui/camera.gd" id="1_lp3te"]
 [ext_resource type="Script" path="res://maps/base_map/base_ui/fps_label.gd" id="2_siea2"]
 [ext_resource type="Script" path="res://maps/base_map/base_ui/cursors.gd" id="3_id33t"]
 [ext_resource type="Script" path="res://maps/base_map/base_ui/panel.gd" id="4_42d2h"]
 [ext_resource type="PackedScene" uid="uid://dmdqxit4v15f5" path="res://maps/base_map/base_ui/battle_status_ui/battle_status_ui.tscn" id="5_ktqgm"]
+[ext_resource type="PackedScene" uid="uid://djdxhdrnypy0c" path="res://maps/base_map/base_ui/scoreboard_panel/scoreboard_panel.tscn" id="6_mnpmd"]
+[ext_resource type="PackedScene" uid="uid://ddfk6bpdcwqat" path="res://menu/pause_menu/pause_menu.tscn" id="7_8huk2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xg1d3"]
 bg_color = Color(0.6, 0.6, 0.6, 0.317647)
@@ -44,6 +46,7 @@ script = ExtResource("3_id33t")
 metadata/_edit_lock_ = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+visible = false
 
 [node name="Panel" type="Panel" parent="CanvasLayer"]
 anchors_preset = 11
@@ -88,8 +91,29 @@ layout_mode = 2
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
+offset_top = 5.0
+offset_bottom = 5.0
 grow_horizontal = 2
 size_flags_vertical = 8
+
+[node name="ScoreboardPanel" parent="." instance=ExtResource("6_mnpmd")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="pause_menu" parent="." instance=ExtResource("7_8huk2")]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
 
 [connection signal="toggled" from="CanvasLayer/Panel/GridContainer/CheckButton" to="CanvasLayer/Panel" method="_on_check_button_toggled"]
 [connection signal="toggled" from="CanvasLayer/Panel/GridContainer/CheckButton2" to="CanvasLayer/Panel" method="_on_check_button_toggled_2"]

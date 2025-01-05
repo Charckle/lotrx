@@ -9,19 +9,22 @@
 - the game currently has a couple of catle maps, based on real castles, none of them are functional, per say. You could place enemy units inside and then storm the castle, break the doors, but there is no functional AI to defend it
 
 # To Do
+- fix not being able to attack on the corner tiles
 - update maps to new tilesistem for new godot version
-- make battleStatus progress bar be its own component
-    - make the formula for calculating a universal thing as a resource
-    - make an outside resource where you set data for things like unit value, strenght, etc, so its more centralized
+- make an outside resource where you set data for things like unit value, strenght, etc, so its more centralized
 - waypoints
 - adding additional units to command groups
 - scroll zoom
 - AI:
-	- defending open map (being worked on)
+	- defending open map (works..kinda...eeee. should be dinamically)
 	- attacking open map
+            - dont make it go directly twords the enemy, but make him do hops trough the map, so that the units dont get too dispersed: horses reach the target first, pikeman last
 	- defending castle
 	- attacking castle
+- units:
+	- make stances: hold and agressive: when you defend, you dont want them to be aggressive
 - DONE - a new UI to open and close castle doors, for more granular control, and possibility of sneek attaks
+- DONE - main menu with...stuffs
 - siedge weapons
 - damage difference depending on the angle of attack (if you get hit in the back, auch)
 	- arrows deal more damage the closer they are shot at a target

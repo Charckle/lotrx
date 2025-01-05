@@ -21,7 +21,7 @@ var unit_strenght = 1 # for calculations
 @export var friendly_factions = []
 
 var selected = false
-@onready var box = $selectedBox
+@onready var agression_bar = $agression_bar
 @onready var lifebar = $lifebar
 @onready var control_group_label = $control_group_label
 @onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
@@ -72,6 +72,7 @@ func get_right_target():
 	else:
 		return null
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pinning_blocks = get_adjecent_blocks()
@@ -94,9 +95,9 @@ func set_timer(delta):
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if walking_in_agression == true:
-		box.visible = true
+		agression_bar.visible = true
 	else:
-		box.visible = false
+		agression_bar.visible = false
 		
 	set_timer(delta)
 		
@@ -458,11 +459,11 @@ func calclulate_if_in_agression():
 		##var cell_size = Vector2i(root_map.m_cell_size, root_map.m_cell_size)
 
 func draw_agression_rage():
-	if GlobalSettings.show_ranges == true:
+	if GlobalSettings.global_options["gameplay"]["agression_rage"] == true:
 		draw_arc(Vector2(0,0), aggression_rage_px + 2, 0, 260, 20, Color.WHITE)
 
 func draw_attack_rage():
-	if GlobalSettings.show_ranges == true:
+	if GlobalSettings.global_options["gameplay"]["attack_rage"] == true:
 		draw_arc(Vector2(0,0), attack_rage_px, 0, 260, 20, Color.FIREBRICK)
 	
 func draw_target():
