@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://ceun5xdoedpjf"]
+[gd_scene load_steps=5 format=3 uid="uid://ceun5xdoedpjf"]
 
 [ext_resource type="Script" path="res://menu/main_menu/main_menu.gd" id="1_hx8yy"]
 [ext_resource type="Script" path="res://menu/main_menu/settings_panel.gd" id="2_5gwv8"]
 [ext_resource type="AudioStream" uid="uid://3lwic37oxesx" path="res://audio/music/cymbalBird - Battle.mp3" id="2_kbc06"]
+[ext_resource type="Script" path="res://menu/main_menu/castles_maps.gd" id="2_knm2y"]
 
 [node name="MainMenu" type="Node2D"]
 script = ExtResource("1_hx8yy")
@@ -99,6 +100,30 @@ offset_left = 80.0
 offset_top = 80.0
 offset_right = 464.0
 offset_bottom = 400.0
+script = ExtResource("2_knm2y")
+
+[node name="castle_list" type="VBoxContainer" parent="other_menus/castles_maps"]
+layout_mode = 0
+offset_left = 64.0
+offset_right = 299.0
+offset_bottom = 40.0
+scale = Vector2(1, 0.995853)
+
+[node name="GridContainer" type="GridContainer" parent="other_menus/castles_maps/castle_list"]
+layout_mode = 2
+columns = 3
+
+[node name="map_name" type="Label" parent="other_menus/castles_maps/castle_list/GridContainer"]
+layout_mode = 2
+text = "Castle Socerb"
+
+[node name="attack" type="Button" parent="other_menus/castles_maps/castle_list/GridContainer"]
+layout_mode = 2
+text = "Attack"
+
+[node name="defend" type="Button" parent="other_menus/castles_maps/castle_list/GridContainer"]
+layout_mode = 2
+text = "Defend"
 
 [node name="about_panel" type="Panel" parent="other_menus"]
 visible = false
@@ -202,6 +227,8 @@ stream = ExtResource("2_kbc06")
 [connection signal="pressed" from="main_panel/quit_menu/quit_button" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="other_menus/open_maps/ItemList/small_test_map/attack" to="." method="_on_attack_pressed_small_test_map"]
 [connection signal="pressed" from="other_menus/open_maps/ItemList/small_test_map/defend" to="." method="_on_defend_pressed_small_test_map"]
+[connection signal="pressed" from="other_menus/castles_maps/castle_list/GridContainer/attack" to="other_menus/castles_maps" method="_on_attack_pressed_socerb"]
+[connection signal="pressed" from="other_menus/castles_maps/castle_list/GridContainer/defend" to="other_menus/castles_maps" method="_on_defend_pressed_socerb"]
 [connection signal="toggled" from="other_menus/settings_panel/GridContainer/music_enable_button" to="other_menus/settings_panel" method="_on_music_enable_button_toggled"]
 [connection signal="toggled" from="other_menus/settings_panel/GridContainer2/agression_range_button" to="other_menus/settings_panel" method="_on_agression_range_button_toggled"]
 [connection signal="toggled" from="other_menus/settings_panel/GridContainer2/attack_range_button" to="other_menus/settings_panel" method="_on_attack_range_button_toggled"]
