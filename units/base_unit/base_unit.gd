@@ -43,8 +43,9 @@ var agression_radius_array = [] #not in use
 @onready var aggression_rage_px = agression_range * root_map.m_cell_size
 var walking_in_agression = false
 
-@export var  attack_range = 1 # when it can accatck
-@onready var attack_rage_px = attack_range * root_map.m_cell_size
+@export var attack_range = 1 # when it can accatck
+@onready var attack_rage_px_base = attack_range * root_map.m_cell_size
+@onready var attack_rage_px = attack_rage_px_base
 @onready var damage_label = preload("res://weapons/random/damage_label.tscn")
 
 var selected_target = load("res://sprites/gui/selected_target.png")
@@ -204,21 +205,12 @@ func set_attack(unit_wr: WeakRef):
 	move_()
 
 func move_(target_move_to=null):
-	print_("walking here!")
-	print_("target move to")
-	print_(target_move_to)
-	print_("current path")
-	print_(current_id_path)
 	root_map.get_solid_points()
 	if target_move_to != null:
 		#var mouse_pos = get_global_mouse_position()
-
 		target_walk = title_map.local_to_map(target_move_to)
 		# set iddle position for returnign to it, if not in agro anymore
 		unit_position_iddle = Vector2i(target_walk.x, target_walk.y)
-	print_("target walk")
-	print_(target_walk)
-
 	
 	var unit_pos_for_calc = unit_position
 	
@@ -228,15 +220,12 @@ func move_(target_move_to=null):
 		new_id_path = []
 	else:
 		new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
-		print_("recalculating")
-		print_(new_id_path)
 	
 	if new_id_path.is_empty():
 		#print(find_nearest_vector(unit_position, target_walk))
 		# try to find the nearest, and if 56 cells around there is none, dont do anything? D:
 		var nearest = get_nearest_position(target_walk)
-		print_("neerest")
-		print_(nearest)
+
 		if typeof(nearest) == TYPE_BOOL:
 			current_id_path = [current_id_path.front()]
 		else:
@@ -244,9 +233,7 @@ func move_(target_move_to=null):
 			if new_id_path.size() == 2:
 				
 				new_id_path = new_id_path
-				
-				print_("iddle position")
-				print_(unit_position_iddle)
+
 			elif is_attacking:
 				# if unit is mele, walk to it in any case
 				if primary_mele_fighter == true:
@@ -261,16 +248,8 @@ func move_(target_move_to=null):
 			# if still path blocked, fcuck it
 			current_id_path = new_id_path
 	else:
-		
-		print_("new path is not empty?")
 		current_id_path = new_id_path
 	
-	print_("unit position")
-	#ČE UGOTOVI, DA JE NEEREST ZASEDEN, BI MORAL REKALKULIRAT OZ ZAČETNEGA TARGETA, NE PA OD NEEREST!!!!
-	
-	print_(unit_position)
-	print_("current path 2")
-	print_(current_id_path)
 	get_going_arraw_line()
 
 
@@ -296,7 +275,6 @@ func _physics_process(delta):
 	# check if the next step is free, otherwise, recalc the route
 	if astar_grid.is_point_solid(next_cell) and next_cell != unit_position:
 		#print(astar_grid.is_point_solid(title_map.map_to_local(current_id_path.front())))
-		print_("checking if step is free")
 		move_()
 		return
 
@@ -336,9 +314,7 @@ func get_nearest_position(target_walk_):
 	var neighbour_points = []
 	var center = target_walk_
 	var free_position
-	if selected:
-		print_("staring nearest")
-		print_(target_walk_)
+
 	for i in range(8):
 		var left = i + 1
 		var right = i + 2
@@ -347,8 +323,7 @@ func get_nearest_position(target_walk_):
 			for y in range(center[1] - left, center[1] + right):
 				# Check if the current point is the center point
 				var neighbour_point = Vector2(x, y)
-				if selected:
-					print_(neighbour_point)
+
 				if neighbour_point != center and not astar_grid.is_point_solid(neighbour_point):
 					neighbour_points.append(neighbour_point)
 		if neighbour_points.size() > 0:
@@ -366,11 +341,7 @@ func get_nearest_position(target_walk_):
 		free_position = points_farnes[0][0]
 	else:
 		free_position = false
-	if selected:
-		print_("free position")
-		print_(free_position)
-		print_("my position")
-		print_(unit_position)
+
 	return free_position
 
 #func get_aggression_cells():

@@ -57,8 +57,19 @@ func _process(delta: float) -> void:
 func check_hit_wall():
 	if timer_ % 2 == 0:
 		var arrow_pos_for_calc = title_map.local_to_map(global_position)
-		var tile_data_ = title_map.get_cell_tile_data(0,arrow_pos_for_calc)
-		if tile_data_ == null or tile_data_.get_custom_data("wall"):
+		var is_wall = false
+		var all_layers_null = true
+		
+		for layer in range(title_map.get_layers_count()):
+			var tile_data_ = title_map.get_cell_tile_data(layer, arrow_pos_for_calc)
+			
+			if tile_data_ != null:
+				all_layers_null = false
+
+				if tile_data_.get_custom_data("wall"):
+					is_wall = true
+
+		if is_wall or all_layers_null:
 			queue_free()
 
 
