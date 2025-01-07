@@ -1,6 +1,8 @@
 extends Node2D
 
 var unit_type = 1
+@export var faction = 1
+
 @export var priority = 1 # the higher, the more urgent
 
 # Called when the node enters the scene tree for the first time.

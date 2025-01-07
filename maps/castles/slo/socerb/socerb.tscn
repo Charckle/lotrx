@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dpq75kochn3i"]
+[gd_scene load_steps=10 format=3 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
 [ext_resource type="Script" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://iycf6hgid0wt" path="res://units/castle_units/small_door/map_placer/horizontal/small_door_horizontal_map_placer.tscn" id="6_673ex"]
 [ext_resource type="PackedScene" uid="uid://c5pey8052bhw8" path="res://units/other_units/archer/archer.tscn" id="6_ikml3"]
 [ext_resource type="PackedScene" uid="uid://d1306ntr6ywvh" path="res://units/castle_units/small_door/map_placer/vertical/small_door_vertical_map_placer.tscn" id="7_3t5sj"]
+[ext_resource type="PackedScene" uid="uid://b5wrwpj4nswnb" path="res://units/other_units/crossbow/crossbow.tscn" id="7_8yq8l"]
 
 [node name="socerb" instance=ExtResource("1_pay0i")]
 metadata/_edit_lock_ = true
@@ -89,6 +90,14 @@ faction = 2
 
 [node name="archer3" parent="units" index="18" instance=ExtResource("6_ikml3")]
 position = Vector2(464, -528)
+faction = 2
+
+[node name="crossbow" parent="units" index="19" instance=ExtResource("7_8yq8l")]
+position = Vector2(688, -848)
+faction = 2
+
+[node name="crossbow2" parent="units" index="20" instance=ExtResource("7_8yq8l")]
+position = Vector2(688, -816)
 faction = 2
 
 [node name="projectiles" parent="." index="6"]

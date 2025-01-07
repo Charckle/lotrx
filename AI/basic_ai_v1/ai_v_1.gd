@@ -26,7 +26,7 @@ var base_unit_group = {"units": [],
 func _ready():
 	self.units_on_map = root_map.get_all_units()
 	set_faction()
-	#evaluate_threat()
+	evaluate_threat(true)
 	initial_setup()
 
 
@@ -44,7 +44,7 @@ func print_units_groups():
 		print(unit_groups[gr].size())
 
 
-func evaluate_threat():
+func evaluate_threat(first:bool):
 	# evaluates who is winning and who is loosing
 	#print("evaluating_threats")
 	var units_on_map = root_map.get_all_units()
@@ -59,25 +59,42 @@ func evaluate_threat():
 			their_side += unit.unit_strenght
 	#print("my side: " + str(my_side))
 	#print("their side: " + str(their_side))
-	set_state(my_side, their_side)
+	set_state(my_side, their_side, first)
 
-func set_state(my_side, their_side):
-	if my_side > their_side:
-		print("Starting Attack!")
-		state_ = 1
+func set_state(my_side, their_side, first: bool):
+	if first:
+		if my_side > their_side:
+			print("Starting Attack!")
+			state_ = 1
+		else:
+			state_ = 2
+			print("Starting Defense!")
 	else:
-		state_ = 2
-		print("Starting Defense!")
+		if state_ == 1:
+			# if their > own * 1.2 = defense
+			if their_side > my_side * 1.2:
+				state_ = 2
+				print("Starting Defense!")
+			else:
+				state_ = 1
+				print("Still Attacking!")
+		else:
+			# if own > their * 1.2 = attack
+			if my_side > their_side * 1.2:
+				print("Starting Attack!")
+				state_ = 1
+			else:
+				state_ = 2
+				print("Still Defending!")
 
 
 func _on_timer_timeout():
 	if self.lost == false:
-		evaluate_threat()
+		evaluate_threat(false)
 		
-		if state_ == 1:
+		if self.state_ == 1:
 			manage_attack()
-		if state_ == 2:
-			print(self.lost)
+		if self.state_ == 2:
 			manage_defense_markers()
 	else:
 		print("GG!")
@@ -102,8 +119,9 @@ func set_markers(units_on_map):
 
 	
 	for marker in root_map.get_all_ai_markers():
-		var unit_id_ = marker.unit_type
-		markers[unit_id_].append(marker)
+		if marker.faction == self.faction:
+			var unit_id_ = marker.unit_type
+			markers[unit_id_].append(marker)
 	#print("current markers on map:")
 	#print(markers)
 
