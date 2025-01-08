@@ -2,6 +2,9 @@ extends Node2D
 
 const cooldown = 2
 var can_attack = true
+
+@onready var local_old_unit_position = null
+
 @onready var main_r = get_tree().root.get_child(1)
 @onready var parent_n = get_parent()
 @onready var arrow = load("res://weapons/range/arrow/arrow.tscn")
@@ -14,6 +17,27 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	# add range if on a high ground
+	var tile_map = parent_n.title_map
+	var unit_position = parent_n.unit_position
+
+	if unit_position != local_old_unit_position:
+		var height = 0
+		
+		for layer in range(tile_map.get_layers_count()):
+			var tile_data_ = tile_map.get_cell_tile_data(layer, unit_position)
+
+			if tile_data_ != null and tile_data_.get_custom_data("HIGH_G"):
+				var new_height = tile_data_.get_custom_data("HIGH_G")
+				
+				if new_height > height:
+					height = new_height
+		
+		var multiplier = 3
+		parent_n.attack_rage_px = parent_n.attack_rage_px_base + ((height * multiplier) * parent_n.root_map.m_cell_size)
+		local_old_unit_position = unit_position
+	
+	
 	if can_attack == true and parent_n.is_moving == false:
 		
 		if gr(parent_n.get_right_target()) != null:

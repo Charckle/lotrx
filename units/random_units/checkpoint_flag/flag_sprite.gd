@@ -1,6 +1,6 @@
 extends Sprite2D
 
-@onready var parent_n = get_parent().get_parent()
+@onready var parent_n = get_parent()
 
 var new_red: int
 var new_green: int
@@ -10,6 +10,13 @@ var my_shader: Shader
 @onready var shaded_sprite = preload("res://shaders/color_changer/my_shader.gdshader")
 
 func _ready():
+	set_flag_color()
+
+func color_from_rgb(r: int, g: int, b: int) -> Vector4:
+	return Vector4(r / 255.0, g / 255.0, b / 255.0, 1.0)
+
+
+func set_flag_color():
 	var my_faction = parent_n.faction
 
 	new_red = GlobalSettings.faction_colors[my_faction]["red"]
@@ -30,6 +37,3 @@ func _ready():
 	
 	material.set_shader_parameter("replaceColor", color_from_rgb(255, 255, 0))
 	material.set_shader_parameter("withColor", color_from_rgb(new_red, new_green, new_blue))
-
-func color_from_rgb(r: int, g: int, b: int) -> Vector4:
-	return Vector4(r / 255.0, g / 255.0, b / 255.0, 1.0)

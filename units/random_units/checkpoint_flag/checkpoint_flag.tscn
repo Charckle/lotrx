@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://bmc6el8pavh5"]
+
+[ext_resource type="Script" path="res://units/random_units/checkpoint_flag/checkpoint_flag.gd" id="1_pqv86"]
+[ext_resource type="Texture2D" uid="uid://dsffh5i50gp1b" path="res://sprites/castle/poi_flag/poi_flag_01.png" id="2_g8ayi"]
+[ext_resource type="Script" path="res://units/random_units/checkpoint_flag/flag_sprite.gd" id="3_v4x05"]
+
+[node name="CheckpointFlag" type="Node2D"]
+script = ExtResource("1_pqv86")
+
+[node name="flag_sprite" type="Sprite2D" parent="."]
+position = Vector2(16, 16)
+texture = ExtResource("2_g8ayi")
+script = ExtResource("3_v4x05")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
