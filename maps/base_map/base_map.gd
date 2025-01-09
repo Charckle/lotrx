@@ -125,6 +125,14 @@ func _get_units_in_area(area):
 				u.append(unit)
 	return u
 
+func is_there_a_unit_on_position_with_moving(tile_position):
+	for unit in self.get_all_units():
+		if unit.unit_position == tile_position:
+			if not unit.current_id_path.is_empty():
+				return true
+	
+	return false
+
 func deselect_all_units():
 	deselect_units($units)
 	units_selected.clear()

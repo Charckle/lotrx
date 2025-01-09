@@ -127,6 +127,7 @@ faction = 2
 
 [node name="peasant4" parent="units" index="30" instance=ExtResource("5_olda4")]
 position = Vector2(848, 176)
+debugging_ = true
 faction = 2
 
 [node name="peasant5" parent="units" index="31" instance=ExtResource("5_olda4")]

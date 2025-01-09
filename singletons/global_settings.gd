@@ -23,7 +23,8 @@ var global_options = {
 	"gameplay": {
 		"attack_rage": false,
 		"agression_rage": false,
-		"show_ai_POI": false
+		"show_ai_POI": false,
+		"global_debug": true
 	}
 }
 

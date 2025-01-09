@@ -13,8 +13,6 @@ var a_defense = 0
 var a_penetration = 0
 var unit_strenght = 1 # for calculations
 
-
-
 @export var m_speed = 100
 
 @export var faction = 1
@@ -24,6 +22,8 @@ var selected = false
 @onready var agression_bar = $agression_bar
 @onready var lifebar = $lifebar
 @onready var control_group_label = $control_group_label
+@onready var debug_label = $debug_label
+
 @onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
 @onready var title_map = root_map.get_node("TileMap")
 @onready var astar_grid = root_map.astar_grid
@@ -85,6 +85,7 @@ func _draw():
 		draw_attack_rage()
 		draw_target()
 		draw_control_group_id()
+		draw_debug_data()
 		
 
 func set_timer(delta):
@@ -141,6 +142,7 @@ func set_selected(value):
 		selected = value
 		lifebar.visible = value
 		control_group_label.visible = value
+		debug_label.visible = value
 
 func _on_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton:
@@ -206,6 +208,7 @@ func set_attack(unit_wr: WeakRef):
 
 func move_(target_move_to=null):
 	root_map.get_solid_points()
+	
 	if target_move_to != null:
 		#var mouse_pos = get_global_mouse_position()
 		target_walk = title_map.local_to_map(target_move_to)
@@ -264,6 +267,7 @@ func _physics_process(delta):
 	#WHEN MOVING IN GROUPS, THEY TRY TO FIND THE NEEREST OF THE ONE IN FRONT OF THEM, NOT THE TARGET ONE. ALWAYS THE TARGET ONE
 		
 	if current_id_path.is_empty():
+		is_moving = false
 		return
 	
 	var next_cell = current_id_path.front()
@@ -275,8 +279,11 @@ func _physics_process(delta):
 	# check if the next step is free, otherwise, recalc the route
 	if astar_grid.is_point_solid(next_cell) and next_cell != unit_position:
 		#print(astar_grid.is_point_solid(title_map.map_to_local(current_id_path.front())))
+		# check if there is a unit there. if it is, check if it has a value "target_walk"
+
 		move_()
 		return
+
 
 	astar_grid.set_point_solid(next_cell)
 	unit_position = next_cell
@@ -301,13 +308,8 @@ func _physics_process(delta):
 		if current_point_path.size() > 0:
 			current_point_path.remove_at(0)
 		
-		if current_id_path.is_empty() != false:
-			is_moving = false
-		
 
-	
-	
-	
+
 
 
 func get_nearest_position(target_walk_):
@@ -363,7 +365,6 @@ func get_nearest_position(target_walk_):
 
 
 func check_soroundings():
-	#print(is_moving)
 	if siege_weapon == true:
 		return
 	if is_moving:
@@ -371,6 +372,7 @@ func check_soroundings():
 	if gr(get_right_target()) == null and not is_moving:
 		if timer_ < 0:
 			calclulate_if_in_agression()
+			
 	if gr(target_attack_passive) != null:
 		if not $attack.in_range(target_attack_passive):
 			if aggressive and primary_mele_fighter:
@@ -446,9 +448,14 @@ func draw_control_group_id():
 	if control_group != null:
 		self.control_group_label.text = str(control_group)
 
+func draw_debug_data():
+	if GlobalSettings.global_options["gameplay"]["global_debug"] == true:
+		var string_ = str(aggressive) + "\n" + str(is_moving)
+		self.debug_label.text = str(string_)
 
 func set_act():
 	if GlobalSettings.my_faction == faction:
+		walking_in_agression = false
 		var mouse_pos = get_global_mouse_position()
 		var unit_wr = root_map.get_wr_unit_on_mouse_position()
 		#if location has a hostile unit attack, otherwise, move
@@ -578,6 +585,4 @@ func gr(weak_refer):
 		return null
 	else:
 		return weak_refer.get_ref()
-
-
 

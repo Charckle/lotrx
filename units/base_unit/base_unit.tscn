@@ -43,6 +43,13 @@ offset_top = -25.0
 offset_right = 21.0
 offset_bottom = -2.0
 
+[node name="debug_label" type="Label" parent="."]
+z_index = 600
+offset_left = 16.0
+offset_top = -16.0
+offset_right = 56.0
+offset_bottom = 7.0
+
 [connection signal="input_event" from="." to="." method="_on_input_event"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
