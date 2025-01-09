@@ -20,6 +20,8 @@ var lost = false
 var base_unit_group = {"units": [],
 				"task": null}
 
+var doors = []
+
 @onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
 
 # Called when the node enters the scene tree for the first time.
@@ -32,7 +34,7 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	empty_dead_units()
+	pass
 
 func set_faction():
 	self.faction = root_map.get_node("map_rules").ai_faction
@@ -89,13 +91,20 @@ func set_state(my_side, their_side, first: bool):
 
 
 func _on_timer_timeout():
+	empty_dead_units()
+	set_inner_doors(1)
+	
 	if self.lost == false:
 		evaluate_threat(false)
 		
 		if self.state_ == 1:
 			manage_attack()
 		if self.state_ == 2:
-			manage_defense_markers()
+			if root_map.get_node("map_rules").map_type == "castle":
+				manage_defense_castle()
+			else:
+				manage_defense_markers()
+
 	else:
 		print("GG!")
 
@@ -159,6 +168,14 @@ func manage_defense_markers():
 	send_groups_to_markers()
 	
 	check_range_units_pinned()
+	
+func manage_defense_castle():
+	
+	send_groups_to_markers()
+	
+	check_range_units_pinned()
+	
+	manage_doors()
 	
 func manage_attack():
 	set_center_ow_own_forces()
@@ -275,7 +292,10 @@ func check_range_units_pinned():
 		for group in unit_groups[unit_id]:
 			var pinned_unit = null
 			for unit_wr in group["units"]:
-				if gr(unit_wr).is_pinned == true:
+				var unit = gr(unit_wr)
+				if unit == null:
+					continue
+				elif unit.is_pinned == true:
 					pinned_unit = unit_wr
 			if pinned_unit != null:
 				# check which unit is pinning it at attack
@@ -307,7 +327,8 @@ func get_neerest_group_help(unit_in_need_wr, group_seeking_help):
 	groups_by_distance.sort_custom(func(a, b): return a[1] < b[1])
 	# check if they are not defending a pinning yet
 	# ...
-
+	if groups_by_distance.size() == 0:
+		return []
 	return groups_by_distance[0][0]
 
 
@@ -317,7 +338,58 @@ func group_sttack_unit(group, unit_to_attack_wr):
 		var unit_to_attack = gr(unit_to_attack_wr)
 		if unit != null and unit_to_attack != null:
 			unit.set_attack(unit_to_attack_wr)
+
+func manage_doors():
+	for door_rule in root_map.get_node("map_rules").defense_script["door_closure"]:	
+		for door_id in door_rule["doors_to_te_destroyed"]:
+			var is_destroyed = true
+			
+			for door_wr in doors:
+				var door = gr(door_wr)
+				
+				if door == null:
+					continue
+				elif door_id == door.siege_id:
+					is_destroyed = false
+			
+			# if didnt find the door on the map
+			if is_destroyed == true:
+				for door_id_2 in door_rule["doors_tc_close"]:
+					for door_wr in doors:
+						var door = gr(door_wr)
+						if door == null:
+							continue
+						elif door_id_2 == door.siege_id:
+							set_doors(door_id_2, 0)
+
+
+func get_all_doors():
+	for unit in root_map.get_node("units").get_children():
+		if "is_small_door" in unit and unit.faction == faction:
+			doors.append(weakref(unit))
+
+func set_inner_doors(state:int):
+	# 1 is open, 0 is closed
 	
+	get_all_doors()
+	for unit_wr in doors:
+		
+		var unit = gr(unit_wr)
+		if unit == null:
+			continue
+		if unit.faction == faction:
+			if unit.main_door == false:
+				unit.get_node("actions").set_state(state)
+				
+func set_doors(siege_id, state:int):
+	# 1 is open, 0 is closed
+	for unit_wr in doors:
+		var unit = gr(unit_wr)
+		if unit == null:
+			continue
+		elif unit.siege_id == siege_id and unit.faction == faction:
+			unit.get_node("actions").set_state(state)
+
 
 func empty_dead_units():
 	# remove dead units from control groups
@@ -331,6 +403,12 @@ func empty_dead_units():
 					group["units"].remove_at(index_)
 				else:
 					all_units_count += 1
+	
+	#remove destroyed doors
+	for unit_wr in doors:
+		if gr(unit_wr) == null:
+			var index_ = doors.find(unit_wr)
+			doors.remove_at(index_)
 	
 	if all_units_count == 0:
 		self.lost = true

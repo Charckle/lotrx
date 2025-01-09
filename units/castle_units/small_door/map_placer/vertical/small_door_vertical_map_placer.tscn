@@ -1,50 +1,10 @@
 [gd_scene load_steps=3 format=3 uid="uid://d1306ntr6ywvh"]
 
 [ext_resource type="Texture2D" uid="uid://ckbpg7tgea87x" path="res://sprites/units/castle/small_door/small_door_closed.png" id="1_abf5s"]
-
-[sub_resource type="GDScript" id="GDScript_l6x4b"]
-script/source = "extends Node2D
-
-@onready var small_door_obj = load(\"res://units/castle_units/small_door/small_door.tscn\")
-@onready var parent_n = get_parent()
-var units_node = null
-
-@export var faction = 1
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	place_doors()
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
-
-
-func place_doors():
-	var sprite_01 = $\"spriteNode/Sprite2D\"
-	var sprite_02 = $\"spriteNode/Sprite2D2\"
-
-	units_node = parent_n.get_parent().get_node(\"units\")
-	var new_siege_id = units_node.get_child_count()
-	create_instance(sprite_01.global_position, 1, new_siege_id)
-	create_instance(sprite_02.global_position, 3, new_siege_id)
-	
-	queue_free()
-
-
-func create_instance(coordinates_, direction_iddle_, new_siege_id):
-	var instance = small_door_obj.instantiate()
-	instance.position = coordinates_
-	instance.direction_iddle = direction_iddle_
-	instance.faction = faction
-	instance.siege_id = new_siege_id
-	units_node.add_child(instance)
-	print(instance.siege_id)
-"
+[ext_resource type="Script" path="res://units/castle_units/small_door/map_placer/vertical/small_door_vertical_map_placer.gd" id="1_novif"]
 
 [node name="SmallDoorVerticalMapPlacer" type="Node2D"]
-script = SubResource("GDScript_l6x4b")
+script = ExtResource("1_novif")
 
 [node name="spriteNode" type="Node2D" parent="."]
 position = Vector2(-16, -16)

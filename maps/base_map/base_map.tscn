@@ -28,3 +28,5 @@ metadata/_edit_lock_ = true
 [node name="spawners" type="Node2D" parent="."]
 
 [node name="checkpoints" type="Node2D" parent="."]
+
+[node name="othr" type="Node2D" parent="."]

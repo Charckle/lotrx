@@ -22,6 +22,7 @@ var camera_speed = 400    # Speed at which the camera moves
 func _ready():
 	draw_area(false)
 	connect("area_selected", Callable(map_root, "_on_area_selected"))
+	set_player_start_loc()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -106,3 +107,19 @@ func move_camera_if_bumped(delta):
 	
 	# Update the camera position
 	position = new_position
+
+
+func set_player_start_loc():
+	for child in map_root.get_node("othr").get_children():
+	 # Check if the child is of type PlayerStartLoc
+		if "is_player_start_point" in child:
+			# Check if the faction attribute is 1
+			if child.faction == GlobalSettings.my_faction:
+				# Move the camera to the center of this node
+				var viewport_size = get_viewport_rect().size
+				var new_position = Vector2()
+				new_position.x = child.position.x - (viewport_size.x / 2)
+				new_position.y = child.position.y - (viewport_size.y / 2)
+				position = new_position
+				break  # Stop after finding the first match
+

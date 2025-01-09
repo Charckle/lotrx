@@ -125,13 +125,6 @@ func _get_units_in_area(area):
 				u.append(unit)
 	return u
 
-func is_there_a_unit_on_position_with_moving(tile_position):
-	for unit in self.get_all_units():
-		if unit.unit_position == tile_position:
-			if not unit.current_id_path.is_empty():
-				return true
-	
-	return false
 
 func deselect_all_units():
 	deselect_units($units)
@@ -240,6 +233,7 @@ func get_wr_unit_on_mouse_position() -> WeakRef:
 
 		if unit_wr_obj.unit_position == mouse_pos_2i:
 			return unit_wr
+	
 	return null
 
 

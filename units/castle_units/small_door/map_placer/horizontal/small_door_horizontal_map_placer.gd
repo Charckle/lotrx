@@ -5,6 +5,9 @@ extends Node2D
 var units_node = null
 
 @export var faction = 1
+@export var main_door = false
+@export var new_siege_id = -1
+@export var door_health = 20
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -21,7 +24,8 @@ func place_doors():
 	var sprite_02 = $"spriteNode/Sprite2D2"
 
 	units_node = parent_n.get_parent().get_node("units")
-	var new_siege_id = units_node.get_child_count()
+	if new_siege_id == -1:
+		new_siege_id = units_node.get_child_count()
 	create_instance(sprite_01.global_position, 0, new_siege_id)
 	create_instance(sprite_02.global_position, 2, new_siege_id)
 	
@@ -33,6 +37,8 @@ func create_instance(coordinates_, direction_iddle_, new_siege_id):
 	instance.position = coordinates_
 	instance.direction_iddle = direction_iddle_
 	instance.faction = faction
+	instance.main_door = main_door
 	instance.siege_id = new_siege_id
+	instance.base_health = self.door_health
 	units_node.add_child(instance)
 	print(instance.siege_id)

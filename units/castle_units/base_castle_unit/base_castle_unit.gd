@@ -13,6 +13,9 @@ var all_siege_ids = [50]
 var a_defense = 100
 var unit_strenght = 1 # for calculations
 
+var is_small_door
+@export var main_door = false
+
 var selected = false
 
 @onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/

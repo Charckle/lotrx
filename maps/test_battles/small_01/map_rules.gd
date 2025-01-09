@@ -1,6 +1,7 @@
 extends Node2D
 
 var ai_faction = 99
+var map_type = "open"
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

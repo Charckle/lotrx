@@ -1,6 +1,9 @@
 extends Node2D
 
 var ai_faction = 99
+var map_type = "castle"
+
+var defense_script = {}
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -19,7 +22,18 @@ func initialize_map():
 	
 	GlobalSettings.my_faction = map_options["user_faction"]
 	self.ai_faction = map_options["ai_faction"]
+	
+	initialize_ai_defense_script()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
+
+
+func initialize_ai_defense_script():
+	self.defense_script = {
+		"door_closure": [
+			{"doors_to_te_destroyed": [300],
+			"doors_tc_close": [200]},
+			]
+	}

@@ -225,6 +225,12 @@ func move_(target_move_to=null):
 		new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
 	
 	if new_id_path.is_empty():
+		# remove no walk tile, calc again, if not emtpy, target walk to that tile
+		if astar_grid.is_point_solid(target_walk):
+			astar_grid.set_point_solid(target_walk, false)
+			new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
+			astar_grid.set_point_solid(target_walk)
+	if new_id_path.is_empty():
 		#print(find_nearest_vector(unit_position, target_walk))
 		# try to find the nearest, and if 56 cells around there is none, dont do anything? D:
 		var nearest = get_nearest_position(target_walk)
