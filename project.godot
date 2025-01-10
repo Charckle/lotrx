@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="lotrx"
-run/main_scene="res://maps/castles/slo/socerb/socerb.tscn"
+run/main_scene="res://menu/main_menu/main_menu.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://icon.svg"
 

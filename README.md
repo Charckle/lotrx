@@ -3,28 +3,31 @@
 - the basic idea is to reacapture the spirit of the game
 
 # Current status
-- The default map is a woods map, where you can fight enemy units.
-	- command groups work
-	- baiting enemy units wont work, since they return to their initial position
-- the game currently has a couple of catle maps, based on real castles, none of them are functional, per say. You could place enemy units inside and then storm the castle, break the doors, but there is no functional AI to defend it
+- one open map, one castle map.
+- the open map is playable: the AI will attack or defend. If the attacker is loosing, the AI will counterattack. If the AI is the attacker, it will retreat.
+- the castle map is...eeh... work in progress
+- archers have problems attacking enemies that are behind walls. Yeah, I know.
 
 # To Do
-- fix not being able to attack on the corner tiles
+- fix archer attacking if there is no path to unit
+- cranulations
+- agression stances
+- upgrade pathfinding
+- oil siege weapons
+- ram siege weapon (bigger units?)
 - update maps to new tilesistem for new godot version
 - make an outside resource where you set data for things like unit value, strenght, etc, so its more centralized
 - waypoints
 - adding additional units to command groups
 - scroll zoom
 - AI:
-	- defending open map (works..kinda...eeee. should be dinamically)
+	- defending open map
 	- attacking open map
             - dont make it go directly twords the enemy, but make him do hops trough the map, so that the units dont get too dispersed: horses reach the target first, pikeman last
 	- defending castle
 	- attacking castle
 - units:
 	- make stances: hold and agressive: when you defend, you dont want them to be aggressive
-- DONE - a new UI to open and close castle doors, for more granular control, and possibility of sneek attaks
-- DONE - main menu with...stuffs
 - siedge weapons
 - damage difference depending on the angle of attack (if you get hit in the back, auch)
 	- arrows deal more damage the closer they are shot at a target

@@ -18,8 +18,12 @@ signal start_move_selection
 var edge_threshold = 20  # Distance from the edge to start moving the camera
 var camera_speed = 400    # Speed at which the camera moves
 
+var drag_speer = 200    # Speed at which the camera moves
+var previous_mouse_position
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	
 	draw_area(false)
 	connect("area_selected", Callable(map_root, "_on_area_selected"))
 	set_player_start_loc()
@@ -27,11 +31,21 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	
 	var inpx = (int(Input.is_action_pressed("ui_right")) - int(Input.is_action_pressed("ui_left")))	
 	var inpy = (int(Input.is_action_pressed("ui_down")) - int(Input.is_action_pressed("ui_up")))
 	#position.x += inpx * speed * delta
 	position.x = lerp(position.x, position.x + inpx * speed, speed * delta)	
 	position.y = lerp(position.y, position.y + inpy * speed, speed * delta)
+	
+	# Handle middle mouse button dragging
+	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
+		previous_mouse_position = get_viewport().get_mouse_position()
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
+		var mouse_position = get_viewport().get_mouse_position()  # Current mouse position
+		var mouse_delta = mouse_position - previous_mouse_position  # Calculate delta
+		position += mouse_delta * drag_speer * delta  # Adjust camera position
+		previous_mouse_position = mouse_position  # Update for next frame
 	
 	move_camera_if_bumped(delta)
 	

@@ -345,8 +345,6 @@ func group_sttack_unit(group, unit_to_attack_wr):
 			unit.set_attack(unit_to_attack_wr)
 
 func manage_doors():
-	print("managing doors")
-	print(doors)
 	for door_rule in root_map.get_node("map_rules").defense_script["door_closure"]:	
 		for door_id in door_rule["doors_to_te_destroyed"]:
 			var is_destroyed = true

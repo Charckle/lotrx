@@ -256,7 +256,3 @@ faction = 2
 position = Vector2(-112, 464)
 
 [node name="Ai_v_1" parent="ai_stuff" index="1" instance=ExtResource("10_mynax")]
-is_siege = false
-is_siege_defending = false
-faction = 99
-friendly_factions = []
