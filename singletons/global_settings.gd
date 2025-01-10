@@ -24,7 +24,7 @@ var global_options = {
 		"attack_rage": false,
 		"agression_rage": false,
 		"show_ai_POI": false,
-		"global_debug": true
+		"global_debug": false
 	}
 }
 

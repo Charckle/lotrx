@@ -225,28 +225,31 @@ func move_(target_move_to=null):
 		new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
 	
 	if new_id_path.is_empty():
+		
 		# remove no walk tile, calc again, if not emtpy, target walk to that tile
 		if astar_grid.is_point_solid(target_walk):
 			astar_grid.set_point_solid(target_walk, false)
 			new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
 			astar_grid.set_point_solid(target_walk)
+		if new_id_path.size() < 3:
+			new_id_path = []
+			
 	if new_id_path.is_empty():
 		#print(find_nearest_vector(unit_position, target_walk))
 		# try to find the nearest, and if 56 cells around there is none, dont do anything? D:
 		var nearest = get_nearest_position(target_walk)
-
+		
 		if typeof(nearest) == TYPE_BOOL:
 			current_id_path = [current_id_path.front()]
 		else:
 			new_id_path = astar_grid.get_id_path(unit_pos_for_calc, nearest)
 			if new_id_path.size() == 2:
-				
-				new_id_path = new_id_path
+				pass
 
 			elif is_attacking:
 				# if unit is mele, walk to it in any case
 				if primary_mele_fighter == true:
-					new_id_path = new_id_path
+					pass
 				else:
 					# if target in range, do nothing
 					if $attack.in_range(target_attack):
@@ -286,7 +289,7 @@ func _physics_process(delta):
 	if astar_grid.is_point_solid(next_cell) and next_cell != unit_position:
 		#print(astar_grid.is_point_solid(title_map.map_to_local(current_id_path.front())))
 		# check if there is a unit there. if it is, check if it has a value "target_walk"
-
+		
 		move_()
 		return
 
@@ -456,7 +459,7 @@ func draw_control_group_id():
 
 func draw_debug_data():
 	if GlobalSettings.global_options["gameplay"]["global_debug"] == true:
-		var string_ = str(aggressive) + "\n" + str(is_moving)
+		var string_ = str(aggressive) + "\n" + str(is_moving) + "\n" +  str(current_id_path.size())
 		self.debug_label.text = str(string_)
 
 func set_act():

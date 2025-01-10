@@ -135,6 +135,7 @@ faction = 2
 
 [node name="archer20" parent="units" index="29" instance=ExtResource("6_ikml3")]
 position = Vector2(816, -592)
+debugging_ = true
 faction = 2
 
 [node name="archer21" parent="units" index="30" instance=ExtResource("6_ikml3")]
@@ -196,7 +197,7 @@ position = Vector2(528, -432)
 faction = 2
 main_door = true
 new_siege_id = 300
-door_health = 200
+door_health = 20
 
 [node name="PoiFlag" parent="checkpoints" index="0" instance=ExtResource("8_vih8o")]
 position = Vector2(688, -208)

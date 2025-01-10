@@ -189,6 +189,8 @@ func set_center_ow_own_forces():
 	var all_units = 0
 	
 	for unit_wr in self.all_own_units():
+		if unit_wr == null:
+			pass
 		total_position += gr(unit_wr).global_position  # Sum up global positions
 		all_units += 1
 
@@ -304,7 +306,8 @@ func check_range_units_pinned():
 				group_sttack_unit(group, pinning_unit_wr)
 				# and the closest other group
 				var group_helping = get_neerest_group_help(pinned_unit, group)
-				group_sttack_unit(group_helping, pinning_unit_wr)
+				if group_helping != null:
+					group_sttack_unit(group_helping, pinning_unit_wr)
 
 func get_neerest_group_help(unit_in_need_wr, group_seeking_help):
 	var groups_by_distance = []
@@ -321,15 +324,17 @@ func get_neerest_group_help(unit_in_need_wr, group_seeking_help):
 						var distance = int(unit_in_need_obj.global_position.distance_to(unit_obj.global_position))
 						units_by_distance.append([unit_obj, distance])
 					
-					units_by_distance.sort_custom(func(a, b): return a[1] < b[1])
-					groups_by_distance.append([group, units_by_distance[0][1]])
+					if units_by_distance.size() != 0:
+						units_by_distance.sort_custom(func(a, b): return a[1] < b[1])
+						groups_by_distance.append([group, units_by_distance[0][1]])
 	
 	groups_by_distance.sort_custom(func(a, b): return a[1] < b[1])
 	# check if they are not defending a pinning yet
 	# ...
 	if groups_by_distance.size() == 0:
-		return []
-	return groups_by_distance[0][0]
+		return null
+	else:
+		return groups_by_distance[0][0]
 
 
 func group_sttack_unit(group, unit_to_attack_wr):
@@ -340,6 +345,8 @@ func group_sttack_unit(group, unit_to_attack_wr):
 			unit.set_attack(unit_to_attack_wr)
 
 func manage_doors():
+	print("managing doors")
+	print(doors)
 	for door_rule in root_map.get_node("map_rules").defense_script["door_closure"]:	
 		for door_id in door_rule["doors_to_te_destroyed"]:
 			var is_destroyed = true
