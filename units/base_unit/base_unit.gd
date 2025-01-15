@@ -3,6 +3,7 @@ extends Area2D
 @export var debugging_ = false
 
 var unit_id = 0
+var ranged_unit_ids = [1,2]
 var primary_mele_fighter = true
 var siege_weapon = false
 #@export var siege_id = 0
@@ -37,9 +38,12 @@ var old_target_walk: Vector2
 var current_id_path: Array
 var current_point_path: PackedVector2Array
 
+@export var stance = 0 #(0: attack, 1 is defense)
+
 var agression_radius = 6 #not in use
 var agression_radius_array = [] #not in use
-@export var agression_range = 5 # when it gets aggressive
+@export var agression_range_base = 5 # when it gets aggressive
+@export var agression_range = agression_range_base
 @onready var aggression_rage_px = agression_range * root_map.m_cell_size
 var walking_in_agression = false
 
@@ -77,6 +81,7 @@ func get_right_target():
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pinning_blocks = get_adjecent_blocks()
+	set_stance(self.stance)
 	pass
 
 func _draw():
@@ -93,6 +98,15 @@ func set_timer(delta):
 		timer_ = 1
 	timer_ -= 1 * delta
 	
+func check_stance():
+	if selected and faction == GlobalSettings.my_faction:
+		if stance == 0:
+			# normal stance
+			$stance_sprite.visible = false
+		else:
+			$stance_sprite.visible = true
+	else:
+		$stance_sprite.visible = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -100,6 +114,8 @@ func _process(delta):
 		agression_bar.visible = true
 	else:
 		agression_bar.visible = false
+		
+	self.check_stance()
 		
 	set_timer(delta)
 		
@@ -264,6 +280,15 @@ func move_(target_move_to=null):
 	
 	get_going_arraw_line()
 
+func set_stance(stance:int):
+	if unit_id not in ranged_unit_ids:
+		self.stance = stance
+		if stance == 1:
+			agression_range = 1.5
+		else:
+			agression_range = self.agression_range_base
+
+		self.aggression_rage_px = agression_range * root_map.m_cell_size
 
 func get_going_arraw_line():
 	current_point_path = astar_grid.get_point_path(

@@ -189,9 +189,10 @@ func set_center_ow_own_forces():
 	var all_units = 0
 	
 	for unit_wr in self.all_own_units():
-		if unit_wr == null:
-			pass
-		total_position += gr(unit_wr).global_position  # Sum up global positions
+		var unit = gr(unit_wr)
+		if unit == null:
+			continue
+		total_position += unit.global_position  # Sum up global positions
 		all_units += 1
 
 	self.own_forces_center = total_position / all_units
@@ -217,6 +218,8 @@ func attack_unit_w_all(enemy: Node2D):
 	
 	for unit_wr in own_units:
 		var enemy_wr = weakref(enemy)
+		if gr(unit_wr) == null:
+			continue
 		gr(unit_wr).set_attack(enemy_wr)
 	
 func all_own_units():
@@ -291,6 +294,8 @@ func check_range_units_pinned():
 	var ranged_units_ids= [1,2]
 	
 	for unit_id in ranged_units_ids:
+		if unit_id not in unit_groups:
+			continue
 		for group in unit_groups[unit_id]:
 			var pinned_unit = null
 			for unit_wr in group["units"]:

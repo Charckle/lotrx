@@ -64,6 +64,9 @@ func _input(event):
 		if units_selected.size() > 0:
 			set_assign_control_group(event)
 		get_assign_control_group(event)
+	
+	if event is InputEventKey and event.pressed and event.keycode == Key.KEY_D:
+		set_stance_defence_selected()
 
 
 func get_assign_control_group(event):
@@ -115,8 +118,16 @@ func _on_area_selected(object):
 	if units_selected.size() != 0:
 		Input.set_custom_mouse_cursor(cursor_move, Input.CURSOR_ARROW, Vector2(20,20))
 
+func set_stance_defence_selected():
+	var stance = 0
+	if units_selected.size() > 0:
+		if units_selected[0].stance == stance:
+			stance = 1
 
-	
+	for unit in units_selected:
+		unit.set_stance(stance) 
+
+
 func _get_units_in_area(area):
 	var u = []
 	for unit in $units.get_children():
