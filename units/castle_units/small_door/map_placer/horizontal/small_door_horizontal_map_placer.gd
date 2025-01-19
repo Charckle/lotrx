@@ -41,4 +41,4 @@ func create_instance(coordinates_, direction_iddle_, new_siege_id):
 	instance.siege_id = new_siege_id
 	instance.base_health = self.door_health
 	units_node.add_child(instance)
-	print(instance.siege_id)
+

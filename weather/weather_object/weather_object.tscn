@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://crd42v5ih7yfd"]
+
+[ext_resource type="Script" path="res://weather/weather_object/weather_object.gd" id="1_fta08"]
+
+[node name="WeatherObject" type="Node2D"]
+script = ExtResource("1_fta08")
+
+[node name="raincolor_notinuse" type="CanvasModulate" parent="."]
+visible = false
+color = Color(0, 0, 0, 1)
+
+[node name="cloud_Timer" type="Timer" parent="."]
+
+[node name="rain_Timer" type="Timer" parent="."]
+wait_time = 0.5
+
+[connection signal="timeout" from="cloud_Timer" to="." method="_on_timer_timeout"]
+[connection signal="timeout" from="rain_Timer" to="." method="_on_rain_timer_timeout"]

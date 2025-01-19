@@ -15,7 +15,7 @@ var global_map_sectors := [] # not in use
 
 var cursor_default = load("res://sprites/gui/defaut_cursor.png")
 var cursor_move = load("res://sprites/gui/move_to.png")
-
+var going_marker = load("uid://cqhiif4h6eys0")
 
 func _enter_tree():
 	GlobalSettings.game_stats = {
@@ -44,6 +44,7 @@ func _input(event):
 		pass
 	
 	if Input.is_action_just_pressed("right_click"):
+		self.create_going_marker()
 		# move/attack with units, is they are selected
 		if units_selected.size() != 0:
 			# instruct the selected units
@@ -232,6 +233,13 @@ func global_map_sectors_generate():
 	print(global_map_sectors)
 	print("-------")
 
+
+func create_going_marker():
+	var instance = going_marker.instantiate()
+
+	instance.position =  get_global_mouse_position()
+	
+	self.get_node("othr").add_child(instance)
 
 
 func get_wr_unit_on_mouse_position() -> WeakRef:

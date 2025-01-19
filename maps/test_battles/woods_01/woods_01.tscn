@@ -9,16 +9,16 @@ position = Vector2(-48, 16)
 
 [node name="TileMap" parent="." index="0" instance=ExtResource("3_vcley")]
 
-[node name="units" parent="." index="1"]
+[node name="units" parent="." index="2"]
 position = Vector2(64, 0)
-metadata/_edit_lock_ = true
-
-[node name="projectiles" parent="." index="5"]
 metadata/_edit_lock_ = true
 
 [node name="units_spawner" parent="." index="6" instance=ExtResource("2_qpsy2")]
 position = Vector2(416, 320)
 unit_numbers = 6
 
-[node name="on_map_texts" parent="." index="7"]
+[node name="projectiles" parent="." index="7"]
+metadata/_edit_lock_ = true
+
+[node name="on_map_texts" parent="." index="8"]
 metadata/_edit_lock_ = true
