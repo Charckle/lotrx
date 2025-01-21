@@ -41,3 +41,10 @@ func _on_show_ai_poi_button_toggled(toggled_on):
 		GlobalSettings.global_options["gameplay"]["show_ai_POI"] = true
 	else:
 		GlobalSettings.global_options["gameplay"]["show_ai_POI"] = false
+
+
+func _on_show_weather_toggled(toggled_on):
+	if toggled_on == true:
+		GlobalSettings.global_options["video"]["weather_show"] = true
+	else:
+		GlobalSettings.global_options["video"]["weather_show"] = false

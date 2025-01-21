@@ -51,7 +51,7 @@ position = Vector2(336, 528)
 position = Vector2(368, 528)
 
 [node name="knight16" parent="units" index="6" instance=ExtResource("3_uqr84")]
-position = Vector2(368, 528)
+position = Vector2(272, 528)
 
 [node name="knight2" parent="units" index="7" instance=ExtResource("3_uqr84")]
 position = Vector2(688, -976)

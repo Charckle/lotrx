@@ -217,6 +217,30 @@ text = "Show AI POI"
 [node name="show_ai_poi_button" type="CheckButton" parent="other_menus/settings_panel/GridContainer2"]
 layout_mode = 2
 
+[node name="Label3" type="Label" parent="other_menus/settings_panel"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 256.0
+offset_right = 142.0
+offset_bottom = 279.0
+text = "Video Settings"
+
+[node name="GridContainer3" type="GridContainer" parent="other_menus/settings_panel"]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 288.0
+offset_right = 131.0
+offset_bottom = 328.0
+columns = 2
+
+[node name="Label" type="Label" parent="other_menus/settings_panel/GridContainer3"]
+layout_mode = 2
+text = "Weather"
+
+[node name="show_weather" type="CheckButton" parent="other_menus/settings_panel/GridContainer3"]
+layout_mode = 2
+button_pressed = true
+
 [node name="AudioPlayer" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("2_kbc06")
 
@@ -233,3 +257,4 @@ stream = ExtResource("2_kbc06")
 [connection signal="toggled" from="other_menus/settings_panel/GridContainer2/agression_range_button" to="other_menus/settings_panel" method="_on_agression_range_button_toggled"]
 [connection signal="toggled" from="other_menus/settings_panel/GridContainer2/attack_range_button" to="other_menus/settings_panel" method="_on_attack_range_button_toggled"]
 [connection signal="toggled" from="other_menus/settings_panel/GridContainer2/show_ai_poi_button" to="other_menus/settings_panel" method="_on_show_ai_poi_button_toggled"]
+[connection signal="toggled" from="other_menus/settings_panel/GridContainer3/show_weather" to="other_menus/settings_panel" method="_on_show_weather_toggled"]

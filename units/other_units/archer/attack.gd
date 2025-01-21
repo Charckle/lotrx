@@ -2,6 +2,7 @@ extends Node2D
 
 const cooldown = 2
 var can_attack = true
+var current_height = 0
 
 @onready var local_old_unit_position = null
 
@@ -26,12 +27,13 @@ func _process(delta: float) -> void:
 		
 		for layer in range(tile_map.get_layers_count()):
 			var tile_data_ = tile_map.get_cell_tile_data(layer, unit_position)
-
-			if tile_data_ != null and tile_data_.get_custom_data("HIGH_G"):
+			
+			if tile_data_ != null:
 				var new_height = tile_data_.get_custom_data("HIGH_G")
 				
-				if new_height > height:
+				if new_height and (new_height > height):
 					height = new_height
+					current_height = new_height
 		
 		var multiplier = 3
 		parent_n.attack_rage_px = parent_n.attack_rage_px_base + ((height * multiplier) * parent_n.root_map.m_cell_size)
@@ -60,6 +62,7 @@ func attack_range(att_object):
 		instance.target = att_object
 		instance.attack_dmg = parent_n.attack_dmg_range
 		instance.a_penetration = parent_n.a_penetration
+		instance.high_ground = self.current_height
 		#instance.spawnPos = global_position
 		#instance.spawnRot = rotation
 		#

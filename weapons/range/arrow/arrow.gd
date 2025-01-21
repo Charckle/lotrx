@@ -11,6 +11,13 @@ var a_penetration
 
 var timer_ = 1
 
+var high_ground:int
+
+var autodestroy = 0
+var good_to_be_deleted = false
+var previous_cell
+
+
 @onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
 @onready var title_map = root_map.get_node("TileMap")
 
@@ -35,7 +42,8 @@ func _process(delta: float) -> void:
 	
 	check_hit_wall()
 	check_hit_target()
-	
+
+
 	if stuck == false:
 		if $Sprite2D.self_modulate.a < 1:
 			$Sprite2D.self_modulate.a += 0.1
@@ -56,9 +64,19 @@ func _process(delta: float) -> void:
 
 func check_hit_wall():
 	if timer_ % 2 == 0:
+
+		var local_high_ground = 0
 		var arrow_pos_for_calc = title_map.local_to_map(global_position)
 		var is_wall = false
 		var all_layers_null = true
+		var is_cranullation = false
+		
+		#check for cranulations
+		if good_to_be_deleted == true:
+			if previous_cell != arrow_pos_for_calc:
+				autodestroy += 1
+				if autodestroy > 1:
+					queue_free()
 		
 		for layer in range(title_map.get_layers_count()):
 			var tile_data_ = title_map.get_cell_tile_data(layer, arrow_pos_for_calc)
@@ -68,9 +86,17 @@ func check_hit_wall():
 
 				if tile_data_.get_custom_data("wall"):
 					is_wall = true
+					
+				if tile_data_.get_custom_data("cranullations"):
+					local_high_ground = tile_data_.get_custom_data("HIGH_G")
+					is_cranullation = true
 
 		if is_wall or all_layers_null:
 			queue_free()
+		
+		if is_cranullation and (local_high_ground != high_ground):
+			good_to_be_deleted = true
+			previous_cell = arrow_pos_for_calc
 
 
 func check_hit_target():

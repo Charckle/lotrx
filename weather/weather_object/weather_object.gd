@@ -37,8 +37,9 @@ func _ready():
 	
 	self.wind_direction = random_sign()
 	self.wind_speed = randi() % 3
-
-	self.decide_weather()
+	
+	if GlobalSettings.global_options["video"]["weather_show"] == true:
+		self.decide_weather()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

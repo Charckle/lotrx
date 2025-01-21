@@ -25,6 +25,9 @@ var global_options = {
 		"agression_rage": false,
 		"show_ai_POI": false,
 		"global_debug": false
+	},
+	"video": {
+		"weather_show": true
 	}
 }
 
