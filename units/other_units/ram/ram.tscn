@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://ca6v18yb265rd"]
+
+[ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_cotxa"]
+[ext_resource type="Script" path="res://units/other_units/ram/properties.gd" id="2_lr6x6"]
+[ext_resource type="Texture2D" uid="uid://cwa0ldk8od0o1" path="res://sprites/units/castle/ram/ram.png" id="2_symhr"]
+[ext_resource type="Script" path="res://units/other_units/ram/attack.gd" id="3_7eeqs"]
+
+[node name="ram" instance=ExtResource("1_cotxa")]
+
+[node name="sprite_unit" parent="sprite_base" index="0"]
+texture = ExtResource("2_symhr")
+
+[node name="attack" type="Node2D" parent="." index="4"]
+script = ExtResource("3_7eeqs")
+
+[node name="Timer" type="Timer" parent="attack" index="0"]
+
+[node name="properties" type="Node2D" parent="." index="5"]
+script = ExtResource("2_lr6x6")

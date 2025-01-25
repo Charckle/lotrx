@@ -30,7 +30,8 @@ func get_unit_(unit_type_):
 		3: "knight",
 		4: "maceman",
 		5: "pikeman",
-		6: "swordsman"
+		6: "swordsman",
+		7: "ram"
 	}
 	
 	return units_[unit_type_]

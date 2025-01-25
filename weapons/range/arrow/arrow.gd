@@ -71,7 +71,7 @@ func check_hit_wall():
 		var all_layers_null = true
 		var is_cranullation = false
 		
-		#check for cranulations
+		# check for cranulations effects
 		if good_to_be_deleted == true:
 			if previous_cell != arrow_pos_for_calc:
 				autodestroy += 1
@@ -94,6 +94,7 @@ func check_hit_wall():
 		if is_wall or all_layers_null:
 			queue_free()
 		
+		# check if if hit cranulations
 		if is_cranullation and (local_high_ground != high_ground):
 			good_to_be_deleted = true
 			previous_cell = arrow_pos_for_calc

@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dpq75kochn3i"]
+[gd_scene load_steps=18 format=3 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
 [ext_resource type="Script" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://bk172ovhtx36a" path="res://AI/POI/archer_POI/ai_poi_archer.tscn" id="8_hu1y8"]
 [ext_resource type="PackedScene" uid="uid://cgvtodceqeriv" path="res://units/other_units/maceman/maceman.tscn" id="8_q04mq"]
 [ext_resource type="PackedScene" uid="uid://bmc6el8pavh5" path="res://units/random_units/checkpoint_flag/checkpoint_flag.tscn" id="8_vih8o"]
+[ext_resource type="PackedScene" uid="uid://ca6v18yb265rd" path="res://units/other_units/ram/ram.tscn" id="9_54hdq"]
 [ext_resource type="PackedScene" uid="uid://ceq8am3wk5830" path="res://AI/POI/crossbow_POI/ai_poi_crossbow.tscn" id="9_l5eac"]
 [ext_resource type="PackedScene" uid="uid://b80mlkmflbfbj" path="res://AI/basic_ai_v1/ai_v_1.tscn" id="9_w1qor"]
 [ext_resource type="PackedScene" uid="uid://cw62l2a8kja3j" path="res://AI/POI/pikeman_POI/ai_poi_pikeman.tscn" id="10_sg6le"]
@@ -206,6 +207,9 @@ position = Vector2(496, 528)
 
 [node name="maceman9" parent="units" index="50" instance=ExtResource("8_q04mq")]
 position = Vector2(496, 528)
+
+[node name="ram" parent="units" index="51" instance=ExtResource("9_54hdq")]
+position = Vector2(240, 528)
 
 [node name="projectiles" parent="." index="7"]
 metadata/_edit_lock_ = true
