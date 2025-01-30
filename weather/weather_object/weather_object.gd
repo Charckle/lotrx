@@ -3,7 +3,7 @@ extends Node2D
 @onready var cloud = load("uid://clnwljw6l1vvo")
 @onready var rain = load("uid://bhfx5elseokmx")
 
-@onready var map_root = get_tree().root.get_child(1)
+@onready var map_root = get_tree().root.get_node("game")
 @onready var tilemap = map_root.get_node("TileMap")
 var map_x_size:int
 var map_y_size:int

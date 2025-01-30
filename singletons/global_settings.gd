@@ -27,7 +27,7 @@ var global_options = {
 		"global_debug": false
 	},
 	"video": {
-		"weather_show": true
+		"weather_show": false
 	}
 }
 

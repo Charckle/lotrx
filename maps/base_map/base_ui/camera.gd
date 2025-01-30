@@ -12,7 +12,7 @@ var endV = Vector2()
 var isDragging = false
 signal area_selected
 signal start_move_selection
-@onready var map_root = get_tree().root.get_child(1)
+@onready var map_root = get_tree().root.get_node("game")
 #var speed := 20.0
 
 var edge_threshold = 20  # Distance from the edge to start moving the camera

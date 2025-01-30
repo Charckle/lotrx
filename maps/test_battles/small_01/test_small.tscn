@@ -19,7 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://ceq8am3wk5830" path="res://AI/POI/crossbow_POI/ai_poi_crossbow.tscn" id="16_hc4nr"]
 [ext_resource type="Script" path="res://maps/test_battles/small_01/map_rules.gd" id="18_k3dlq"]
 
-[node name="test_small" instance=ExtResource("1_2r6a5")]
+[node name="game" instance=ExtResource("1_2r6a5")]
 
 [node name="map_rules" type="Node2D" parent="." index="0"]
 script = ExtResource("18_k3dlq")

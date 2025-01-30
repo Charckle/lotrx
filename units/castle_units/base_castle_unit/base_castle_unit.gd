@@ -18,7 +18,7 @@ var is_small_door
 
 var selected = false
 
-@onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
+@onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 @onready var title_map = root_map.get_node("TileMap")
 @onready var astar_grid = root_map.astar_grid
 @onready var unit_position = title_map.local_to_map(global_position)

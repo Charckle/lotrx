@@ -6,7 +6,7 @@ var current_height = 0
 
 @onready var local_old_unit_position = null
 
-@onready var main_r = get_tree().root.get_child(1)
+@onready var main_r = get_tree().root.get_node("game")
 @onready var parent_n = get_parent()
 @onready var arrow = load("res://weapons/range/arrow/arrow.tscn")
 @onready var sword = load("res://weapons/mele/sword/sword.tscn")

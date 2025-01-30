@@ -22,7 +22,7 @@ var base_unit_group = {"units": [],
 
 var doors = []
 
-@onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
+@onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -254,6 +254,8 @@ func move_to_initial_markers():
 			var to_marker_number = 0
 			for group in unit_groups[unit_id]:
 				for unit_wr in group["units"]:
+					if gr(unit_wr) == null:
+						continue
 					var market_position = markers[unit_id][to_marker_number].global_position
 					gr(unit_wr).set_move(market_position)
 				to_marker_number += 1

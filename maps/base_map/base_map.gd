@@ -6,11 +6,27 @@ const m_cell_size := 32
 const sector_size := 15.0 #how many cells in a sector. not used, since the processor will be enough..prolly
 @onready var title_map = $TileMap
 
+# needed for multiplayer sync, since you cannot send object references via the rpc func
+var incremental_unit_ids = 0
+var all_units_w_unique_id = {}
 
 var walking_map_tiles_taken
 var units_selected = []
 var control_units_selected = [[],[],[],[],[],[],[],[],[],[]]
 var global_map_sectors := [] # not in use
+
+# multiplayer tick system
+# Tick system variables
+var tick_rate = 5  # Ticks per second, every 350 miliseconds wthich is super dooper cool for multiplayer
+var tick_interval = 1.0 / tick_rate  # Time between ticks
+var tick_timer = 0.0  # Timer to accumulate delta time
+var current_tick = 0  # Current tick count
+
+var commands_in_last_tick = [] # current clinet current tick commands
+var commands_from_other_players_last_tick = [] # commands that the server is gathering from all players
+var all_player_commands = [] # commands send back from the server, combined from all players
+var commands_to_execute = [] # current player commands to execute
+# multiplayer system stop
 
 
 var cursor_default = load("res://sprites/gui/defaut_cursor.png")
@@ -33,6 +49,70 @@ func _ready():
 func _process(delta):
 	queue_redraw()
 
+# multiplayer tick system for running commands
+func _physics_process(delta):
+	# Tick system update
+	tick_timer += delta
+	while tick_timer >= tick_interval:
+		tick_timer -= tick_interval
+		
+		execute_the_commands()
+		
+		current_tick += 1
+		sync_tick_clients.rpc(current_tick)
+		
+		send_commands_to_server.rpc_id(1, commands_in_last_tick)
+
+		# single players and server will have this TRUE
+		if multiplayer.is_server() and len(commands_from_other_players_last_tick) != 0:
+			send_combined_commandsto_clients.rpc(commands_from_other_players_last_tick)
+		
+		commands_in_last_tick = []
+		commands_from_other_players_last_tick = []
+
+
+func execute_the_commands():
+	#commands_to_execute = remove_duplicate_dicts(commands_to_execute) # I wager I save a couple of frames per seconds with this one
+	commands_to_execute.append_array(all_player_commands)
+	all_player_commands = []
+	
+	var not_executed_commands = []
+	
+	for command in commands_to_execute:
+		if (command["curr_tick"] + 2) <= current_tick:
+			#command["func"].callv(command["args"])  # Call the function with its arguments
+			var unit = all_units_w_unique_id[command["map_unique_id"]]
+			unit.callv(command["func"], command["args"]) 
+		else:
+			not_executed_commands.append(command)
+	commands_to_execute.clear()
+	commands_to_execute = not_executed_commands
+
+
+@rpc("authority", "call_remote", "reliable")
+func sync_tick_clients(server_tick:int):
+	#current_tick = server_tick
+	#tick_timer = 0.0
+	
+	
+	var tick_difference = server_tick - current_tick
+	
+	if tick_difference > 0:
+		# Client is behind, speed up slightly
+		tick_interval *= 0.9  # Reduce interval (process faster)
+	elif tick_difference < 0:
+		# Client is ahead, slow down slightly
+		tick_interval *= 1.1  # Increase interval (process slower)
+
+# users send their commands to the server
+@rpc("any_peer", "call_local", "reliable")
+func send_commands_to_server(player_commands):
+	player_commands = remove_duplicate_dicts(player_commands)
+	commands_from_other_players_last_tick.append_array(player_commands)
+
+@rpc("authority", "call_local", "reliable")
+func send_combined_commandsto_clients(combined_player_commands):
+	all_player_commands = combined_player_commands
 
 func _draw():
 	#draw_rect(Rect2(5,5,5,5), Color.GREEN_YELLOW)
@@ -270,6 +350,43 @@ func get_all_ai_markers():
 
 func remove_all_gui():
 	_remove_all_children($gui_windows)
+
+
+func remove_duplicate_dicts(list_of_dicts):
+	var unique_dicts = []  # Stores unique dictionaries
+	
+	for dict in list_of_dicts:
+		var is_duplicate = false
+		
+		# Compare with already added unique dictionaries
+		for unique_dict in unique_dicts:
+			if are_dicts_equal(dict, unique_dict):
+				is_duplicate = true
+				break  # No need to check further
+		
+		# Add to the list only if it's not a duplicate
+		if not is_duplicate:
+			unique_dicts.append(dict)
+
+	return unique_dicts
+
+# Helper function to compare two dictionaries (without converting to JSON)
+func are_dicts_equal(dict1, dict2):
+	# Compare keys and values except for function references
+	if dict1.keys() != dict2.keys():
+		return false
+	
+	for key in dict1.keys():
+		if key == "func":
+			# Compare function references directly
+			if dict1[key] != dict2[key]:  
+				return false
+		else:
+			# Compare other values normally
+			if dict1[key] != dict2[key]:  
+				return false
+	
+	return true
 
 func _remove_all_children(node_to_delete_children_of):
 	# Iterate over a copy of the children list

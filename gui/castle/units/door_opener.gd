@@ -42,7 +42,7 @@ func change_state_of_all(state_: int):
 
 	for unit in door_wr_obj.root_map.get_all_units():
 		if "siege_id" in unit and unit.siege_id == door_unit_id:
-			unit.get_node("actions").set_state(state_)
+			unit.get_node("actions").set_state.rpc(state_)
 
 func gr(weak_refer):
 	if weak_refer == null:

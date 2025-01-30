@@ -1,6 +1,6 @@
 extends Control
 
-@onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
+@onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 @onready var progress_bar = $ProgressBar
 @onready var scoreboard_panel = get_parent().get_node("ScoreboardPanel")
 

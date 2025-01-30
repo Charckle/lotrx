@@ -18,7 +18,7 @@ var good_to_be_deleted = false
 var previous_cell
 
 
-@onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
+@onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 @onready var title_map = root_map.get_node("TileMap")
 
 # Called when the node enters the scene tree for the first time.

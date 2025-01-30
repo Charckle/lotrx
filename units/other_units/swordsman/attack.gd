@@ -2,7 +2,7 @@ extends Node2D
 
 const cooldown = 2
 var can_attack = true
-@onready var main_r = get_tree().root.get_child(1)
+@onready var main_r = get_tree().root.get_node("game")
 @onready var parent_n = get_parent()
 @onready var sword = load("res://weapons/mele/sword/sword.tscn")
 

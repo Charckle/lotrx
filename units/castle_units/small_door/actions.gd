@@ -18,7 +18,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-
+@rpc("any_peer", "call_local", "reliable")
 func set_state(open_: int):
 	if open_ == 1:
 		base_sprite.set_texture(open_door)

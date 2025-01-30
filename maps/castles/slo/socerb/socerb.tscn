@@ -18,7 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://cw62l2a8kja3j" path="res://AI/POI/pikeman_POI/ai_poi_pikeman.tscn" id="10_sg6le"]
 [ext_resource type="PackedScene" uid="uid://6k5bqys5j8x4" path="res://maps/othr/player_start_loc/player_start_loc.tscn" id="13_o55kd"]
 
-[node name="socerb" instance=ExtResource("1_pay0i")]
+[node name="game" instance=ExtResource("1_pay0i")]
 metadata/_edit_lock_ = true
 
 [node name="map_rules" type="Node2D" parent="." index="0"]

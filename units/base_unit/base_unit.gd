@@ -2,6 +2,7 @@ extends Area2D
 
 @export var debugging_ = false
 
+var map_unique_id
 var unit_id = 0
 var ranged_unit_ids = [1,2]
 var primary_mele_fighter = true
@@ -25,7 +26,7 @@ var selected = false
 @onready var control_group_label = $control_group_label
 @onready var debug_label = $debug_label
 
-@onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
+@onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 @onready var title_map = root_map.get_node("TileMap")
 @onready var astar_grid = root_map.astar_grid
 @onready var unit_position = title_map.local_to_map(global_position)
@@ -82,6 +83,7 @@ func get_right_target():
 func _ready():
 	pinning_blocks = get_adjecent_blocks()
 	set_stance(self.stance)
+	register_unit_w_map()
 	pass
 
 func _draw():
@@ -493,13 +495,26 @@ func set_act():
 		var mouse_pos = get_global_mouse_position()
 		var unit_wr = root_map.get_wr_unit_on_mouse_position()
 		#if location has a hostile unit attack, otherwise, move
+		# root_map.all_units_w_unique_id[self.map_unique_id]
 		if gr(unit_wr) == null:
-			set_move(mouse_pos)
+			root_map.commands_in_last_tick.append({"func": "set_move",
+			 "args": [mouse_pos],
+			 "map_unique_id": self.map_unique_id,
+			 "curr_tick": root_map.current_tick})
+			#set_move(mouse_pos)
 		else:
 			if gr(unit_wr).faction == GlobalSettings.my_faction:
-				set_move(mouse_pos)
+				root_map.commands_in_last_tick.append({"func": "set_move",
+				 "args": [mouse_pos], 
+				"map_unique_id": self.map_unique_id,
+				"curr_tick": root_map.current_tick})
+				#set_move(mouse_pos)
 			else:
-				set_attack(unit_wr)
+				root_map.commands_in_last_tick.append({"func": "set_attack", 
+				"args": [unit_wr], 
+				"map_unique_id": self.map_unique_id,
+				"curr_tick": root_map.current_tick})
+				#set_attack(unit_wr)
 
 
 func get_adjecent_blocks(circle=1):
@@ -603,11 +618,22 @@ func get_died():
 
 	astar_grid.set_point_solid(unit_position, false)
 	
+	unregister_unit_w_map()
 	queue_free()
+	
 	if units_selected.size() == 0:
 		#Input.set_custom_mouse_cursor(cursor_default)
 		root_map.get_node("UI").get_node("cursors").set_default_cursor()
 
+# this is needed for multiplayer sync
+func register_unit_w_map():
+	root_map.incremental_unit_ids += 1
+	self.map_unique_id = root_map.incremental_unit_ids
+	root_map.all_units_w_unique_id[self.map_unique_id] = self
+
+func unregister_unit_w_map():
+	root_map.all_units_w_unique_id.erase(self.map_unique_id)
+	
 func print_(my_string):
 	if debugging_ == true:
 		print(my_string)
