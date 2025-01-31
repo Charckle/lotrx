@@ -18,4 +18,3 @@ func _process(delta: float) -> void:
 	#print(global_position)
 	if label_go_up > label_go_up_max:
 		queue_free()
-

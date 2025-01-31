@@ -48,5 +48,3 @@ func draw_solid_map():
 				if astar_grid.is_in_boundsv(position_):
 					if astar_grid.is_point_solid(position_):
 						draw_rect(Rect2(position_ * cell_size, cell_size), Color.GREEN_YELLOW)
-
-

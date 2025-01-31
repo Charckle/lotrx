@@ -136,4 +136,3 @@ func set_player_start_loc():
 				new_position.y = child.position.y - (viewport_size.y / 2)
 				position = new_position
 				break  # Stop after finding the first match
-

@@ -364,6 +364,7 @@ func _physics_process(delta):
 			is_moving = false
 			
 			current_id_path = [next_cell]
+			update_global_pos.rpc(global_position)
 			return
 
 
@@ -372,7 +373,7 @@ func _physics_process(delta):
 		if current_point_path.size() > 0:
 			current_point_path.remove_at(0)
 	
-	if  old_global_position != global_position:
+	if old_global_position != global_position:
 		update_global_pos.rpc(global_position)
 	
 @rpc("authority", "call_remote", "unreliable_ordered")
@@ -689,4 +690,3 @@ func gr(weak_refer):
 		return null
 	else:
 		return weak_refer.get_ref()
-

@@ -19,5 +19,3 @@ func _ready() -> void:
 	sprite2d.new_red = 255
 	sprite2d.new_green = 255
 	sprite2d.new_blue = 255
-
-
