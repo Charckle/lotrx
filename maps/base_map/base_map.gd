@@ -65,7 +65,8 @@ func _physics_process(delta):
 
 		# single players and server will have this TRUE
 		if multiplayer.is_server() and len(commands_from_other_players_last_tick) != 0:
-			send_combined_commandsto_clients.rpc(commands_from_other_players_last_tick)
+			#send_combined_commandsto_clients.rpc(commands_from_other_players_last_tick)
+			send_combined_commandsto_clients(commands_from_other_players_last_tick)
 		
 		commands_in_last_tick = []
 		commands_from_other_players_last_tick = []
@@ -79,6 +80,7 @@ func execute_the_commands():
 	var not_executed_commands = []
 	
 	for command in commands_to_execute:
+		print(command)
 		if (command["curr_tick"] + 2) <= current_tick:
 			#command["func"].callv(command["args"])  # Call the function with its arguments
 			var unit = all_units_w_unique_id[command["map_unique_id"]]
@@ -206,7 +208,12 @@ func set_stance_defence_selected():
 			stance = 1
 
 	for unit in units_selected:
-		unit.set_stance(stance) 
+		#unit.set_stance(stance) 
+		update__process_func_clients.rpc(unit.map_unique_id,stance)
+
+@rpc("any_peer", "call_local", "reliable")
+func update__process_func_clients(map_unique_id, stance):
+	all_units_w_unique_id[map_unique_id].set_stance(stance)
 
 
 func _get_units_in_area(area):
@@ -328,9 +335,8 @@ func get_wr_unit_on_mouse_position() -> WeakRef:
 	
 	for unit in $units.get_children():
 		var unit_wr = weakref(unit)
-		var unit_wr_obj = unit_wr.get_ref()
 
-		if unit_wr_obj.unit_position == mouse_pos_2i:
+		if unit.unit_position == mouse_pos_2i:
 			return unit_wr
 	
 	return null

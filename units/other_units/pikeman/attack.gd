@@ -13,18 +13,26 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	# multiplayer cut-off
+	if not multiplayer.is_server():
+		return
+	
 	if can_attack == true and parent_n.is_moving == false:
-		if gr(parent_n.get_right_target()) != null and in_range(parent_n.get_right_target()):
-			attack_mele(parent_n.get_right_target())
-	pass
+		var right_target = gr(parent_n.get_right_target())
+		
+		if right_target != null and in_range(weakref(right_target)):
+			var right_target_id = right_target.map_unique_id
+			attack_mele.rpc(right_target_id)
 
 
 func _on_timer_timeout() -> void:
 	can_attack = true
 
 
-func attack_mele(att_object):
-	#print("attacked!")
+@rpc("authority", "call_local", "reliable")
+func attack_mele(right_target_id):
+	var att_object = weakref(main_r.all_units_w_unique_id[right_target_id])
+	
 	can_attack = false
 	$Timer.start()
 	var instance = sword.instantiate()

@@ -59,14 +59,15 @@ position = Vector2(688, -976)
 faction = 2
 
 [node name="knight3" parent="units" index="8" instance=ExtResource("3_uqr84")]
-position = Vector2(624, -976)
+position = Vector2(336, -272)
+debugging_ = true
 faction = 2
 
 [node name="pikeman" parent="units" index="9" instance=ExtResource("5_2f677")]
 position = Vector2(688, 496)
 
 [node name="pikeman5" parent="units" index="10" instance=ExtResource("5_2f677")]
-position = Vector2(656, 496)
+position = Vector2(16, -112)
 
 [node name="pikeman6" parent="units" index="11" instance=ExtResource("5_2f677")]
 position = Vector2(624, 496)

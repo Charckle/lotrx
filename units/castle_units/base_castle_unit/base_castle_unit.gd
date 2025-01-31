@@ -2,6 +2,7 @@ extends Node2D
 
 @export var faction = 99
 
+var map_unique_id
 var unit_id = 0
 @export var siege_id = 0
 var all_siege_ids = [50]
@@ -33,6 +34,7 @@ var selected = false
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	set_direction_sprite()
+	register_unit_w_map()
 	pass # Replace with function body.
 
 
@@ -108,13 +110,16 @@ func get_damaged(damage: int, penetration: int, ):
 	damage_other_parts(damage)
 	
 	if health <= 0:
-		get_died()
+		update_death.rpc()
 
 func lower_health(damage: int,):
 	health -= damage
 	if health <= 0:
-		get_died()
+		update_death.rpc()
 
+@rpc("authority", "call_local", "reliable")
+func update_death():
+	get_died()
 
 func get_died():
 	# remove from selection list
@@ -135,10 +140,20 @@ func get_died():
 	astar_grid.set_point_solid(unit_position, false)
 	
 	queue_free()
+	unregister_unit_w_map()
+	
 	if units_selected.size() == 0:
 		#Input.set_custom_mouse_cursor(cursor_defau.get_ref() lt)
 		root_map.get_node("UI").get_node("cursors").set_default_cursor()
 
+# this is needed for multiplayer sync
+func register_unit_w_map():
+	root_map.incremental_unit_ids += 1
+	self.map_unique_id = root_map.incremental_unit_ids
+	root_map.all_units_w_unique_id[self.map_unique_id] = self
+
+func unregister_unit_w_map():
+	root_map.all_units_w_unique_id.erase(self.map_unique_id)
 
 func gr(weak_refer):
 	if weak_refer == null:

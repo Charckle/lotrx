@@ -112,23 +112,28 @@ func check_stance():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	if walking_in_agression == true:
-		agression_bar.visible = true
-	else:
-		agression_bar.visible = false
-		
 	self.check_stance()
-		
+
+	agression_bar.visible = walking_in_agression
+	
+	if selected:
+		queue_redraw()
+	
+	# multiplayer cut-off
+	if not multiplayer.is_server():
+		return
+	
 	set_timer(delta)
 		
 	# remove the target, if it dies
 	# what aour passive???
-	if gr(target_attack) == null:
-		target_attack = null
+	if target_attack != null and gr(target_attack) == null:
+		update_target_attack.rpc(null)
 	
 	
-	if gr(target_attack_passive) == null:
-		target_attack_passive = null
+	if target_attack_passive != null and gr(target_attack_passive) == null:
+		update_target_attack_passive.rpc(null)
+	
 	if gr(get_right_target()) != null:
 		alert_target()
 	
@@ -146,12 +151,29 @@ func _process(delta):
 		pinning_blocks = get_adjecent_blocks()
 	
 
-	if selected:
-		queue_redraw()
+	
 	# get_aggression_cells()
 	
 	# this shit....
 	check_soroundings()
+	
+	
+	
+
+@rpc("authority", "call_local", "reliable")
+func update_target_attack(target_attack_id):
+	if target_attack_id == null:
+		target_attack = null
+	else:
+		target_attack = weakref(root_map.all_units_w_unique_id[target_attack_id])
+
+@rpc("authority", "call_local", "reliable")
+func update_target_attack_passive(target_attack_passive_id):
+	if target_attack_passive_id == null:
+		target_attack_passive = null
+	else:
+		target_attack_passive = weakref(root_map.all_units_w_unique_id[target_attack_passive_id])
+
 
 
 func set_selected(value):
@@ -206,22 +228,23 @@ func check_who_pinning_me():
 			# change target to one who is pinning
 			if get_right_target() != null:
 				if gr(get_right_target()).unit_position not in pinning_blocks:
-					target_attack = null
-					target_attack_passive = null
+					update_target_attack.rpc(null)
+					update_target_attack_passive.rpc(null)
 			
 		else:
 			is_pinned = false
 
 #func set_move(recalc=false):
 func set_move(target_move_to=null): # null means it will just recalculate the old target
-	target_attack = null
+	update_target_attack.rpc(null)
 	is_attacking = false
 	move_(target_move_to)
 
-func set_attack(unit_wr: WeakRef):
-	target_attack = unit_wr
+func set_attack(unit_map_unique_id: int):
+	update_target_attack.rpc(unit_map_unique_id)
 	is_attacking = true
-	target_walk = gr(unit_wr).unit_position
+	target_walk = root_map.all_units_w_unique_id[unit_map_unique_id].unit_position
+	
 	move_()
 
 func move_(target_move_to=null):
@@ -292,6 +315,8 @@ func set_stance(stance:int):
 
 		self.aggression_rage_px = agression_range * root_map.m_cell_size
 
+
+
 func get_going_arraw_line():
 	current_point_path = astar_grid.get_point_path(
 		unit_position, target_walk
@@ -300,8 +325,11 @@ func get_going_arraw_line():
 		current_point_path[i] = current_point_path[i] + Vector2(21,21)
 
 func _physics_process(delta):
-	#WHEN MOVING IN GROUPS, THEY TRY TO FIND THE NEEREST OF THE ONE IN FRONT OF THEM, NOT THE TARGET ONE. ALWAYS THE TARGET ONE
-		
+	if not multiplayer.is_server():
+		return
+	# WHEN MOVING IN GROUPS, THEY TRY TO FIND THE NEEREST OF THE ONE IN FRONT OF THEM, NOT THE TARGET ONE. ALWAYS THE TARGET ONE
+	var old_global_position = global_position
+	
 	if current_id_path.is_empty():
 		is_moving = false
 		return
@@ -343,7 +371,13 @@ func _physics_process(delta):
 		current_id_path.pop_front()
 		if current_point_path.size() > 0:
 			current_point_path.remove_at(0)
-		
+	
+	if  old_global_position != global_position:
+		update_global_pos.rpc(global_position)
+	
+@rpc("authority", "call_remote", "unreliable_ordered")
+func update_global_pos(global_position_):
+	global_position = global_position_
 
 
 
@@ -404,7 +438,8 @@ func check_soroundings():
 	if siege_weapon == true:
 		return
 	if is_moving:
-		target_attack_passive = null
+		update_target_attack_passive.rpc(null)
+	
 	if gr(get_right_target()) == null and not is_moving:
 		if timer_ < 0:
 			calclulate_if_in_agression()
@@ -414,11 +449,15 @@ func check_soroundings():
 			if aggressive and primary_mele_fighter:
 				target_walk = gr(target_attack_passive).unit_position
 				print_("agressive!!!")
-				walking_in_agression = true
+				set_walk_in_aggression.rpc(true)
 				move_()
 			else:
-				target_attack_passive = null
+				update_target_attack_passive.rpc(null)
 
+
+@rpc("authority", "call_local", "reliable")
+func set_walk_in_aggression(yes_no):
+	walking_in_agression = yes_no
 
 
 func calclulate_if_in_agression():
@@ -445,12 +484,12 @@ func calclulate_if_in_agression():
 	
 	if not close_units.is_empty():
 		close_units.sort_custom(func(a, b): return a[1] > b[1])
-		target_attack_passive = close_units[0][0]
+		update_target_attack_passive.rpc(gr(close_units[0][0]).map_unique_id)
 	# return to iddle position if not agro anymore
 	elif unit_position_iddle != unit_position:
 		if walking_in_agression:
 			target_walk = unit_position_iddle
-		walking_in_agression = false
+		set_walk_in_aggression.rpc(false)
 		move_()
 
 
@@ -487,7 +526,7 @@ func draw_control_group_id():
 func draw_debug_data():
 	if GlobalSettings.global_options["gameplay"]["global_debug"] == true:
 		var string_ = str(aggressive) + "\n" + str(is_moving) + "\n" +  str(current_id_path.size())
-		self.debug_label.text = str(string_)
+		self.debug_label.text = string_
 
 func set_act():
 	if GlobalSettings.my_faction == faction:
@@ -511,7 +550,8 @@ func set_act():
 				#set_move(mouse_pos)
 			else:
 				root_map.commands_in_last_tick.append({"func": "set_attack", 
-				"args": [unit_wr], 
+				#"args": [unit_wr], 
+				"args": [gr(unit_wr).map_unique_id], 
 				"map_unique_id": self.map_unique_id,
 				"curr_tick": root_map.current_tick})
 				#set_attack(unit_wr)
@@ -592,13 +632,17 @@ func get_damaged(damage: int, penetration: int, ):
 	root_map.get_node("on_map_texts").add_child(instance)
 	
 	if health <= 0:
-		get_died()
+		update_death.rpc()
 	
 
 func lower_health(damage: int,):
 	health -= damage
 	if health <= 0:
-		get_died()
+		update_death.rpc()
+
+@rpc("authority", "call_local", "reliable")
+func update_death():
+	get_died()
 
 func get_died():
 	# remove from selection list
