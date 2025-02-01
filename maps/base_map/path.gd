@@ -16,7 +16,7 @@ func _process(delta):
 
 
 func draw_pathway():
-	var show_path = GlobalSettings.show_path
+	var show_path = GlobalSettings.global_options["debug"]["show_path"]
 	
 	if show_path == true:
 		for unit in units:
@@ -29,7 +29,7 @@ func draw_pathway():
 					draw_polyline(unit.current_point_path, Color.RED)
 					
 func draw_solid_map():
-	var show_solid_tiles = GlobalSettings.show_solid_tiles
+	var show_solid_tiles = GlobalSettings.global_options["debug"]["show_solid_tiles"]
 	
 	if show_solid_tiles == true:
 		var astar_grid = parent_node.astar_grid

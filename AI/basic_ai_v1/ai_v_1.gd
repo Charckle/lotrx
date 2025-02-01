@@ -220,7 +220,7 @@ func attack_unit_w_all(enemy: Node2D):
 		var enemy_wr = weakref(enemy)
 		if gr(unit_wr) == null:
 			continue
-		gr(unit_wr).set_attack(enemy_wr)
+		gr(unit_wr).set_attack(enemy.map_unique_id)
 	
 func all_own_units():
 	var own_units = []
@@ -349,7 +349,7 @@ func group_sttack_unit(group, unit_to_attack_wr):
 		var unit = gr(unit_wr)
 		var unit_to_attack = gr(unit_to_attack_wr)
 		if unit != null and unit_to_attack != null:
-			unit.set_attack(unit_to_attack_wr)
+			unit.set_attack(unit_to_attack.map_unique_id)
 
 func manage_doors():
 	for door_rule in root_map.get_node("map_rules").defense_script["door_closure"]:	

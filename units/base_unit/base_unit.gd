@@ -54,6 +54,7 @@ var walking_in_agression = false
 @onready var damage_label = preload("res://weapons/random/damage_label.tscn")
 
 var selected_target = load("res://sprites/gui/selected_target.png")
+var sprite_walk_target = load("res://sprites/gui/going_mark.png")
 
 var units_pining_me = []
 var pinning_blocks = []
@@ -81,6 +82,8 @@ func get_right_target():
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	target_walk = unit_position
+	
 	pinning_blocks = get_adjecent_blocks()
 	set_stance(self.stance)
 	register_unit_w_map()
@@ -93,6 +96,7 @@ func _draw():
 		draw_target()
 		draw_control_group_id()
 		draw_debug_data()
+		draw_target_walk()
 		
 
 func set_timer(delta):
@@ -165,7 +169,8 @@ func update_target_attack(target_attack_id):
 	if target_attack_id == null:
 		target_attack = null
 	else:
-		target_attack = weakref(root_map.all_units_w_unique_id[target_attack_id])
+		if target_attack_id in root_map.all_units_w_unique_id:
+			target_attack = weakref(root_map.all_units_w_unique_id[target_attack_id])
 
 @rpc("authority", "call_local", "reliable")
 func update_target_attack_passive(target_attack_passive_id):
@@ -243,8 +248,10 @@ func set_move(target_move_to=null): # null means it will just recalculate the ol
 func set_attack(unit_map_unique_id: int):
 	update_target_attack.rpc(unit_map_unique_id)
 	is_attacking = true
-	target_walk = root_map.all_units_w_unique_id[unit_map_unique_id].unit_position
-	
+	if unit_map_unique_id in root_map.all_units_w_unique_id:
+		target_walk = root_map.all_units_w_unique_id[unit_map_unique_id].unit_position
+	else:
+		root_map.all_units_w_unique_id.erase(unit_map_unique_id)
 	move_()
 
 func move_(target_move_to=null):
@@ -260,48 +267,19 @@ func move_(target_move_to=null):
 	
 	# if attacking, it will always be 0
 	var new_id_path
-	if is_attacking:
-		new_id_path = []
-	else:
-		new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
+	var return_solid = false
+	var solid_tile = target_walk
+	if astar_grid.is_point_solid(target_walk):
+		astar_grid.set_point_solid(solid_tile, false)
+		return_solid = true
+		
+	new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk, true)
+	target_walk = new_id_path[-1]
 	
-	if new_id_path.is_empty():
-		
-		# remove no walk tile, calc again, if not emtpy, target walk to that tile
-		if astar_grid.is_point_solid(target_walk):
-			astar_grid.set_point_solid(target_walk, false)
-			new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk)
-			astar_grid.set_point_solid(target_walk)
-		if new_id_path.size() < 3:
-			new_id_path = []
-			
-	if new_id_path.is_empty():
-		#print(find_nearest_vector(unit_position, target_walk))
-		# try to find the nearest, and if 56 cells around there is none, dont do anything? D:
-		var nearest = get_nearest_position(target_walk)
-		
-		if typeof(nearest) == TYPE_BOOL:
-			current_id_path = [current_id_path.front()]
-		else:
-			new_id_path = astar_grid.get_id_path(unit_pos_for_calc, nearest)
-			if new_id_path.size() == 2:
-				pass
-
-			elif is_attacking:
-				# if unit is mele, walk to it in any case
-				if primary_mele_fighter == true:
-					pass
-				else:
-					# if target in range, do nothing
-					if $attack.in_range(target_attack):
-						new_id_path = [current_id_path.front()]
-			if walking_in_agression == false:
-				unit_position_iddle = Vector2i(nearest.x, nearest.y)
-
-			# if still path blocked, fcuck it
-			current_id_path = new_id_path
-	else:
-		current_id_path = new_id_path
+	if return_solid:
+		astar_grid.set_point_solid(solid_tile)
+	
+	current_id_path = new_id_path
 	
 	get_going_arraw_line()
 
@@ -344,8 +322,12 @@ func _physics_process(delta):
 	if astar_grid.is_point_solid(next_cell) and next_cell != unit_position:
 		#print(astar_grid.is_point_solid(title_map.map_to_local(current_id_path.front())))
 		# check if there is a unit there. if it is, check if it has a value "target_walk"
-		
-		move_()
+
+		if next_cell == Vector2i(target_walk):
+			current_id_path = []
+			target_walk = unit_position
+		else:
+			move_()
 		return
 
 
@@ -381,41 +363,6 @@ func update_global_pos(global_position_):
 	global_position = global_position_
 
 
-
-
-func get_nearest_position(target_walk_):
-	var neighbour_points = []
-	var center = target_walk_
-	var free_position
-
-	for i in range(8):
-		var left = i + 1
-		var right = i + 2
-		#print("in range: " + str(i))
-		for x in range(center[0] - left, center[0] + right):
-			for y in range(center[1] - left, center[1] + right):
-				# Check if the current point is the center point
-				var neighbour_point = Vector2(x, y)
-
-				if neighbour_point != center and not astar_grid.is_point_solid(neighbour_point):
-					neighbour_points.append(neighbour_point)
-		if neighbour_points.size() > 0:
-			break
-	
-	# check which point is the nearest to the player
-	var points_farnes = []
-	var unit_pos_for_calc = title_map.local_to_map(global_position)
-	if neighbour_points.size() > 0:
-		for np in neighbour_points:
-			current_id_path = astar_grid.get_id_path(unit_pos_for_calc, np)
-			points_farnes.append([np, current_id_path.size()])
-		
-		points_farnes.sort_custom(func(a, b): return a[1] < b[1])
-		free_position = points_farnes[0][0]
-	else:
-		free_position = false
-
-	return free_position
 
 #func get_aggression_cells():
 	#agression_radius_array.clear()
@@ -519,13 +466,16 @@ func draw_target():
 	if get_right_target() != null and faction == GlobalSettings.my_faction:
 		var draw_loc = gr(get_right_target()).global_position - global_position - Vector2(20, 20)
 		draw_texture(selected_target,draw_loc)
-		
+
+func draw_target_walk():
+	draw_texture(sprite_walk_target, Vector2(title_map.map_to_local(target_walk))-global_position - Vector2(20, 20))
+	
 func draw_control_group_id():
 	if control_group != null:
 		self.control_group_label.text = str(control_group)
 
 func draw_debug_data():
-	if GlobalSettings.global_options["gameplay"]["global_debug"] == true:
+	if GlobalSettings.global_options["debug"]["global_debug"] == true:
 		var string_ = str(aggressive) + "\n" + str(is_moving) + "\n" +  str(current_id_path.size())
 		self.debug_label.text = string_
 
@@ -676,8 +626,8 @@ func register_unit_w_map():
 	self.map_unique_id = root_map.incremental_unit_ids
 	root_map.all_units_w_unique_id[self.map_unique_id] = self
 
-func unregister_unit_w_map():
-	root_map.all_units_w_unique_id.erase(self.map_unique_id)
+func unregister_unit_w_map(target=self):
+	root_map.all_units_w_unique_id.erase(target.map_unique_id)
 	
 func print_(my_string):
 	if debugging_ == true:

@@ -1,10 +1,11 @@
 extends Panel
 
+
 @onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -14,14 +15,20 @@ func _process(delta):
 
 func _input(event):
 	if Input.is_action_just_pressed("escape_button"):
-		if self.visible == false:
-			self.visible = true
-		else:
-			self.visible = false
+		enable_pause_menu.rpc(true)
 
+
+@rpc("any_peer", "call_local", "reliable")
+func enable_pause_menu(yes_no):
+	if yes_no:
+		get_tree().paused = true
+		self.visible = true
+	else:
+		self.visible = false
+		get_tree().paused = false
 
 func _on_resume_button_pressed():
-	self.visible = false
+	enable_pause_menu.rpc(false)
 
 
 func _on_quit_game_button_pressed():

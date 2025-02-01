@@ -80,7 +80,6 @@ func execute_the_commands():
 	var not_executed_commands = []
 	
 	for command in commands_to_execute:
-		print(command)
 		if (command["curr_tick"] + 2) <= current_tick:
 			#command["func"].callv(command["args"])  # Call the function with its arguments
 			var unit = all_units_w_unique_id[command["map_unique_id"]]
