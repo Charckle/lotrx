@@ -9,9 +9,6 @@
 - archers have problems attacking enemies that are behind walls. Yeah, I know.
 
 # To Do
-- fix archer attacking if there is no path to unit
-- cranulations
-- agression stances
 - upgrade pathfinding
 - oil siege weapons
 - ram siege weapon (bigger units?)
@@ -26,14 +23,14 @@
             - dont make it go directly twords the enemy, but make him do hops trough the map, so that the units dont get too dispersed: horses reach the target first, pikeman last
 	- defending castle
 	- attacking castle
-- units:
-	- make stances: hold and agressive: when you defend, you dont want them to be aggressive
 - siedge weapons
 - damage difference depending on the angle of attack (if you get hit in the back, auch)
 	- arrows deal more damage the closer they are shot at a target
 	- castle walls give extra range
 - a campaign
-- LAN multiplayer
+- LAN multiplayer - working
+    - but its a non sync, poor mans multiplayer. prolly good only on lan
+	- and currently it does not have a good menu to run it
 
 # Goal
 - multiple campaign, trough which you could explore parts of history and real castles.
