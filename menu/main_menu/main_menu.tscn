@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://ceun5xdoedpjf"]
+[gd_scene load_steps=6 format=3 uid="uid://ceun5xdoedpjf"]
 
 [ext_resource type="Script" path="res://menu/main_menu/main_menu.gd" id="1_hx8yy"]
 [ext_resource type="Script" path="res://menu/main_menu/settings_panel.gd" id="2_5gwv8"]
 [ext_resource type="AudioStream" uid="uid://3lwic37oxesx" path="res://audio/music/cymbalBird - Battle.mp3" id="2_kbc06"]
 [ext_resource type="Script" path="res://menu/main_menu/castles_maps.gd" id="2_knm2y"]
+[ext_resource type="PackedScene" uid="uid://btkp0ce6d02cv" path="res://menu/muliplayer_menu/mutiplayer_menu.tscn" id="5_dwoyk"]
 
 [node name="MainMenu" type="Node2D"]
 script = ExtResource("1_hx8yy")
@@ -29,6 +30,10 @@ text = "Open Maps"
 layout_mode = 2
 size_flags_vertical = 8
 text = "Castle Maps"
+
+[node name="multiplayer_menu" type="Button" parent="main_panel/upper_menu"]
+layout_mode = 2
+text = "Poor Man's Multiplayer"
 
 [node name="settings_menu" type="VBoxContainer" parent="main_panel"]
 layout_mode = 0
@@ -124,6 +129,13 @@ text = "Attack"
 [node name="defend" type="Button" parent="other_menus/castles_maps/castle_list/GridContainer"]
 layout_mode = 2
 text = "Defend"
+
+[node name="MutiplayerMenu" parent="other_menus" instance=ExtResource("5_dwoyk")]
+visible = false
+offset_left = 144.0
+offset_top = 48.0
+offset_right = 144.0
+offset_bottom = 48.0
 
 [node name="about_panel" type="Panel" parent="other_menus"]
 visible = false
@@ -246,6 +258,7 @@ stream = ExtResource("2_kbc06")
 
 [connection signal="pressed" from="main_panel/upper_menu/open_maps" to="." method="_on_open_maps_pressed"]
 [connection signal="pressed" from="main_panel/upper_menu/castle_maps" to="." method="_on_castle_maps_pressed"]
+[connection signal="pressed" from="main_panel/upper_menu/multiplayer_menu" to="." method="_on_multiplayer_menu_pressed"]
 [connection signal="pressed" from="main_panel/settings_menu/settings_menu" to="." method="_on_settings_menu_pressed"]
 [connection signal="pressed" from="main_panel/settings_menu/about_menu" to="." method="_on_about_menu_pressed"]
 [connection signal="pressed" from="main_panel/quit_menu/quit_button" to="." method="_on_button_pressed"]

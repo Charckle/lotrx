@@ -1,0 +1,145 @@
+[gd_scene load_steps=4 format=3 uid="uid://ds28k06qeir42"]
+
+[ext_resource type="Script" path="res://menu/multiplayer_lobby/multiplayer_lobby.gd" id="1_khp07"]
+[ext_resource type="Script" path="res://menu/multiplayer_lobby/chat_panel.gd" id="2_qb0ln"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p2ty0"]
+bg_color = Color(0.314316, 0.314316, 0.314316, 1)
+
+[node name="MultiplayerLobby" type="Node2D"]
+script = ExtResource("1_khp07")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="main_panel" type="Panel" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="chat_panel" type="Panel" parent="CanvasLayer/main_panel"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 48.0
+offset_top = -272.0
+offset_right = -816.0
+offset_bottom = 208.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_p2ty0")
+script = ExtResource("2_qb0ln")
+
+[node name="LineEdit" type="LineEdit" parent="CanvasLayer/main_panel/chat_panel"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 433.0
+offset_right = 384.0
+offset_bottom = 464.0
+
+[node name="messages_panel" type="Panel" parent="CanvasLayer/main_panel/chat_panel"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 384.0
+offset_bottom = 416.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/main_panel/chat_panel/messages_panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/main_panel/chat_panel/messages_panel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="player_panel" type="Panel" parent="CanvasLayer/main_panel"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 656.0
+offset_top = 16.0
+offset_right = -48.0
+offset_bottom = 208.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_p2ty0")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/main_panel/player_panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/main_panel/player_panel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="game_panel" type="Panel" parent="CanvasLayer/main_panel"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 656.0
+offset_top = -272.0
+offset_right = -48.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_p2ty0")
+
+[node name="bottom_panel" type="Panel" parent="CanvasLayer/main_panel"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = 254.0
+offset_bottom = 302.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_p2ty0")
+
+[node name="leave_game" type="Button" parent="CanvasLayer/main_panel/bottom_panel"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 30.0
+offset_top = -15.0
+offset_right = 176.0
+offset_bottom = 16.0
+grow_vertical = 2
+text = "Leave Game"
+
+[node name="start_game" type="Button" parent="CanvasLayer/main_panel/bottom_panel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -304.0
+offset_top = -15.0
+offset_right = -38.0
+offset_bottom = 16.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "Start Game"
+
+[connection signal="text_submitted" from="CanvasLayer/main_panel/chat_panel/LineEdit" to="CanvasLayer/main_panel/chat_panel" method="_on_line_edit_text_submitted"]
+[connection signal="pressed" from="CanvasLayer/main_panel/bottom_panel/leave_game" to="." method="_on_leave_game_pressed"]
+[connection signal="pressed" from="CanvasLayer/main_panel/bottom_panel/start_game" to="." method="_on_start_game_pressed"]

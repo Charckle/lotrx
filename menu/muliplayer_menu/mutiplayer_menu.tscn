@@ -1,36 +1,125 @@
-[gd_scene load_steps=2 format=3 uid="uid://btkp0ce6d02cv"]
+[gd_scene load_steps=4 format=3 uid="uid://btkp0ce6d02cv"]
 
 [ext_resource type="Script" path="res://menu/muliplayer_menu/mutiplayer_menu.gd" id="1_xpwny"]
+[ext_resource type="Script" path="res://menu/muliplayer_menu/error_msg.gd" id="2_4m72o"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v5qo6"]
+bg_color = Color(0.176419, 0.176419, 0.176419, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
 
 [node name="MutiplayerMenu" type="Control"]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_xpwny")
 
-[node name="host" type="Button" parent="."]
+[node name="type_multiplayer_panel" type="Panel" parent="."]
 layout_mode = 0
 offset_left = 16.0
-offset_top = 16.0
-offset_right = 144.0
-offset_bottom = 48.0
-text = "host"
+offset_top = 80.0
+offset_right = 464.0
+offset_bottom = 400.0
 
-[node name="join" type="Button" parent="."]
+[node name="host" type="Button" parent="type_multiplayer_panel"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 96.0
+offset_right = 416.0
+offset_bottom = 128.0
+text = "Host a Game"
+
+[node name="join" type="Button" parent="type_multiplayer_panel"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 192.0
+offset_right = 209.0
+offset_bottom = 224.0
+text = "Join an existing game"
+
+[node name="player_name" type="LineEdit" parent="type_multiplayer_panel"]
+layout_mode = 0
+offset_left = 139.0
+offset_top = 32.0
+offset_right = 416.0
+offset_bottom = 63.0
+placeholder_text = "King Richard The Bold?"
+
+[node name="player_name_label" type="Label" parent="type_multiplayer_panel"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 72.0
+offset_bottom = 55.0
+text = "Player name:"
+
+[node name="join_ip_address" type="LineEdit" parent="type_multiplayer_panel"]
+layout_mode = 0
+offset_left = 224.0
+offset_top = 192.0
+offset_right = 416.0
+offset_bottom = 223.0
+text = "127.0.0.1"
+placeholder_text = "192.168.0.155 ?"
+
+[node name="or" type="Label" parent="type_multiplayer_panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "- or -"
+
+[node name="start" type="Button" parent="."]
 layout_mode = 0
 offset_left = 176.0
 offset_top = 16.0
 offset_right = 304.0
 offset_bottom = 48.0
-text = "join"
-
-[node name="start" type="Button" parent="."]
-layout_mode = 0
-offset_left = 336.0
-offset_top = 16.0
-offset_right = 464.0
-offset_bottom = 48.0
 text = "start"
 
-[connection signal="button_down" from="host" to="." method="_on_host_button_down"]
-[connection signal="button_down" from="join" to="." method="_on_join_button_down"]
-[connection signal="button_down" from="start" to="." method="_on_start_button_down"]
+[node name="error_msg" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 207.0
+offset_top = 76.0
+offset_right = 657.0
+offset_bottom = 340.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_v5qo6")
+script = ExtResource("2_4m72o")
+
+[node name="Button" type="Button" parent="error_msg"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -48.0
+offset_top = -42.0
+offset_right = 48.0
+offset_bottom = -11.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "OK
+"
+
+[node name="error_text" type="RichTextLabel" parent="error_msg"]
+layout_mode = 0
+offset_left = 33.0
+offset_top = 36.0
+offset_right = 417.0
+offset_bottom = 196.0
+text = "This be the error!"
+
+[connection signal="button_down" from="type_multiplayer_panel/host" to="." method="_on_host_button_down"]
+[connection signal="button_down" from="type_multiplayer_panel/join" to="." method="_on_join_button_down"]
+[connection signal="pressed" from="error_msg/Button" to="error_msg" method="_on_button_pressed"]

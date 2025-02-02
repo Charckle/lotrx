@@ -60,3 +60,8 @@ func _on_about_menu_pressed():
 func _on_settings_menu_pressed():
 	close_all_other_menus()
 	other_menus.get_node("settings_panel").visible = true
+
+
+func _on_multiplayer_menu_pressed() -> void:
+	close_all_other_menus()
+	other_menus.get_node("MutiplayerMenu").visible = true

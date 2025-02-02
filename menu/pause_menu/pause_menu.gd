@@ -5,6 +5,7 @@ extends Panel
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	$CanvasLayer.visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
@@ -22,9 +23,9 @@ func _input(event):
 func enable_pause_menu(yes_no):
 	if yes_no:
 		get_tree().paused = true
-		self.visible = true
+		$CanvasLayer.visible = true
 	else:
-		self.visible = false
+		$CanvasLayer.visible = false
 		get_tree().paused = false
 
 func _on_resume_button_pressed():
