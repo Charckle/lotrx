@@ -53,6 +53,7 @@ func send_smg(msg: String):
 	chat_panel.receive_chat_message.rpc(msg)
 
 func remove_multiplayer_peer():
+	GlobalSettings.multiplayer_data["players"].clear()
 	multiplayer.multiplayer_peer = null
 
 func _on_leave_game_pressed() -> void:

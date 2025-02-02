@@ -53,7 +53,7 @@ func _local_on_connected_ok():
 	player_info["name"] = player_name
 	
 	#GlobalSettings.multiplayer_data["players"][peer_id] = player_info
-	print(player_info)
+	
 	_register_player_on_server.rpc_id(1, player_info)
 	#player_connected.emit(peer_id, player_info)
 	#print("Connected successfully")
@@ -187,8 +187,8 @@ func return_valid_player_name(player_name):
 		while true:
 			new_player_name = "Player" + str(seq_num)
 			
-			for player in GlobalSettings.multiplayer_data["players"]:
-				if player.has("name") and player["name"] == "alfred":
+			for player_id in GlobalSettings.multiplayer_data["players"]:
+				if GlobalSettings.multiplayer_data["players"][player_id]["name"] == new_player_name:
 					name_ok = false
 					break
 			if name_ok == true:
