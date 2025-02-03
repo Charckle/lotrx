@@ -78,14 +78,6 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "- or -"
 
-[node name="start" type="Button" parent="."]
-layout_mode = 0
-offset_left = 176.0
-offset_top = 16.0
-offset_right = 304.0
-offset_bottom = 48.0
-text = "start"
-
 [node name="error_msg" type="Panel" parent="."]
 visible = false
 layout_mode = 0

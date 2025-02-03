@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://ds28k06qeir42"]
+[gd_scene load_steps=5 format=3 uid="uid://ds28k06qeir42"]
 
 [ext_resource type="Script" path="res://menu/multiplayer_lobby/multiplayer_lobby.gd" id="1_khp07"]
 [ext_resource type="Script" path="res://menu/multiplayer_lobby/chat_panel.gd" id="2_qb0ln"]
+[ext_resource type="Script" path="res://menu/multiplayer_lobby/game_panel.gd" id="3_5lrq1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p2ty0"]
 bg_color = Color(0.314316, 0.314316, 0.314316, 1)
@@ -39,6 +40,7 @@ offset_left = 32.0
 offset_top = 433.0
 offset_right = 384.0
 offset_bottom = 464.0
+placeholder_text = ">.."
 
 [node name="messages_panel" type="Panel" parent="CanvasLayer/main_panel/chat_panel"]
 layout_mode = 0
@@ -67,7 +69,7 @@ anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
 offset_left = 656.0
-offset_top = 16.0
+offset_top = 80.0
 offset_right = -48.0
 offset_bottom = 208.0
 grow_horizontal = 2
@@ -96,10 +98,52 @@ anchor_bottom = 0.5
 offset_left = 656.0
 offset_top = -272.0
 offset_right = -48.0
-offset_bottom = -16.0
+offset_bottom = 48.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_p2ty0")
+script = ExtResource("3_5lrq1")
+
+[node name="map_selection_panel" type="Panel" parent="CanvasLayer/main_panel/game_panel"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 288.0
+offset_bottom = 288.0
+
+[node name="map_buttons" type="ScrollContainer" parent="CanvasLayer/main_panel/game_panel/map_selection_panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/main_panel/game_panel/map_selection_panel/map_buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="map_details_panel" type="Panel" parent="CanvasLayer/main_panel/game_panel"]
+layout_mode = 0
+offset_left = 320.0
+offset_top = 32.0
+offset_right = 544.0
+offset_bottom = 288.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/main_panel/game_panel/map_details_panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="map_description" type="RichTextLabel" parent="CanvasLayer/main_panel/game_panel/map_details_panel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Map description"
 
 [node name="bottom_panel" type="Panel" parent="CanvasLayer/main_panel"]
 layout_mode = 1

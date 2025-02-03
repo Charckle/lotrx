@@ -24,7 +24,7 @@ func _on_start_game_pressed() -> void:
 # this function is to slow or speed up the ticks on too fast or too slow clients, to try to match the servers
 @rpc("any_peer", "call_local", "reliable")
 func start_game():
-	var scene = load("res://maps/castles/slo/socerb/socerb.tscn").instantiate()
+	var scene = load(GlobalSettings.multiplayer_data["mapt_to_load"]).instantiate()
 	get_tree().root.add_child(scene)
 	$CanvasLayer.hide()
 
@@ -35,8 +35,7 @@ func give_users_their_settings():
 		var map_options = {
 			"user_faction": faction,
 			"ai_faction": 0}
-		print(key)
-		print(map_options)
+		
 		set_map_config.rpc_id(key, map_options)
 
 		if faction == 2:

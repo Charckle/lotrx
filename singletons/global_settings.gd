@@ -32,7 +32,8 @@ var global_options = {
 }
 
 var multiplayer_data = {
-	"players": {}
+	"players": {},
+	"mapt_to_load": ""
 }
 
 # Called when the node enters the scene tree for the first time.
