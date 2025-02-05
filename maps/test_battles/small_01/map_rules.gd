@@ -18,7 +18,7 @@ func initialize_map():
 	if GlobalSettings.map_options != null:
 		map_options = GlobalSettings.map_options
 	
-	GlobalSettings.my_faction = map_options["user_faction"]
+	#GlobalSettings.my_faction = map_options["user_faction"]
 	self.ai_faction = map_options["ai_faction"]
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

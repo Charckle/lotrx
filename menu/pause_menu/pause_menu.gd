@@ -1,7 +1,7 @@
 extends Panel
 
 
-@onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
+@onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -37,4 +37,5 @@ func _on_quit_game_button_pressed():
 
 
 func _on_to_main_menu_button_pressed():
+	get_tree().paused = false
 	root_map.exit_to_main_menu()

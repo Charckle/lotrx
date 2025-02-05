@@ -18,11 +18,12 @@ func _process(delta: float) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func receive_chat_message(message: String):
 	var chat_label = Label.new()
-	var peer_id = multiplayer.get_unique_id()
+	var peer_id = multiplayer.get_remote_sender_id()
 	
 	var player_name = GlobalSettings.multiplayer_data["players"][peer_id]["name"]
 	
 	chat_label.text = player_name + ": " + message
+	chat_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	msg_log_container.add_child(chat_label)
 
 

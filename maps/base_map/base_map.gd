@@ -400,7 +400,10 @@ func _remove_all_children(node_to_delete_children_of):
 
 func reset_global_game_settings():
 	GlobalSettings.map_options = null
+	multiplayer.multiplayer_peer = null
+	GlobalSettings.multiplayer_data["players"].clear()
 
 func exit_to_main_menu():
 	reset_global_game_settings()
 	get_tree().change_scene_to_file("uid://ceun5xdoedpjf")
+	self.queue_free()

@@ -22,7 +22,7 @@ var global_options = {
 		"show_ai_POI": false
 	},
 	"video": {
-		"weather_show": false
+		"weather_show": true
 	},
 	"debug": {
 		"show_solid_tiles": false,
@@ -33,7 +33,7 @@ var global_options = {
 
 var multiplayer_data = {
 	"players": {},
-	"mapt_to_load": ""
+	"map_to_load": null
 }
 
 # Called when the node enters the scene tree for the first time.

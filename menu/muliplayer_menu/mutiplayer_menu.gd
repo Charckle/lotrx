@@ -41,9 +41,14 @@ func _register_player_NOT_IN_USE(new_player_info):
 
 
 func _on_player_disconnected(id):
+	var msg = GlobalSettings.multiplayer_data["players"][id]["name"] + " disconnected."
+	get_tree().root.get_node("MultiplayerLobby").send_smg(msg)
 	GlobalSettings.multiplayer_data["players"].erase(id)
+	_update_players_data_on_clients.rpc(GlobalSettings.multiplayer_data["players"])
+	_reload_player_list_gui.rpc()
 	#player_disconnected.emit(id)
-	print("player " + str(id) + " disconnected.")
+	#print("player " + str(id) + " disconnected.")
+	
 
 
 func _local_on_connected_ok():
@@ -72,6 +77,7 @@ func _register_player_on_server(new_player_info):
 	get_tree().root.get_node("MultiplayerLobby").send_smg(msg)
 
 
+
 @rpc("authority", "call_remote", "reliable")
 func _update_players_data_on_clients(all_player_info):
 	#var new_player_id = multiplayer.get_remote_sender_id()
@@ -79,6 +85,13 @@ func _update_players_data_on_clients(all_player_info):
 
 	GlobalSettings.multiplayer_data["players"] = all_player_info
 	player_info = all_player_info[peer_id]
+	
+	_reload_player_list_gui.rpc()
+	
+
+@rpc("any_peer", "call_local", "reliable")
+func _reload_player_list_gui():
+	get_tree().root.get_node("MultiplayerLobby").set_player_list_gui()
 
 
 func _local_on_connected_fail():
@@ -115,9 +128,9 @@ func create_game():
 	
 	# send message for joined player
 	var msg = player_info["name"] + " created the game."
-	print(msg)
-	print(GlobalSettings.multiplayer_data["players"])
 	scene.send_smg(msg)
+	
+	_reload_player_list_gui.rpc()
 	
 	# hide the rest
 	main_menu.hide()

@@ -89,6 +89,20 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/main_panel/player_panel/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/main_panel/player_panel/ScrollContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Player 1"
+
+[node name="OptionButton" type="OptionButton" parent="CanvasLayer/main_panel/player_panel/ScrollContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+selected = 0
+item_count = 1
+popup/item_0/text = "Faction 1"
+
 [node name="game_panel" type="Panel" parent="CanvasLayer/main_panel"]
 layout_mode = 1
 anchors_preset = 14
@@ -182,7 +196,16 @@ offset_right = -38.0
 offset_bottom = 16.0
 grow_horizontal = 0
 grow_vertical = 2
+scale = Vector2(1, 1.01113)
 text = "Start Game"
+
+[node name="selected_map_name" type="Label" parent="CanvasLayer/main_panel/bottom_panel"]
+layout_mode = 0
+offset_left = 496.0
+offset_top = 18.0
+offset_right = 536.0
+offset_bottom = 41.0
+text = "Selected map"
 
 [connection signal="text_submitted" from="CanvasLayer/main_panel/chat_panel/LineEdit" to="CanvasLayer/main_panel/chat_panel" method="_on_line_edit_text_submitted"]
 [connection signal="pressed" from="CanvasLayer/main_panel/bottom_panel/leave_game" to="." method="_on_leave_game_pressed"]

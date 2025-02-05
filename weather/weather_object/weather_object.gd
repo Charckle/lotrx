@@ -39,7 +39,15 @@ func _ready():
 	self.wind_speed = randi() % 3
 	
 	if GlobalSettings.global_options["video"]["weather_show"] == true:
-		self.decide_weather()
+		print("kurac2")
+		if multiplayer.is_server():
+			print("kurac")
+			var weather_ = self.decide_weather()
+			var wind_direction = random_sign()
+			
+			set_weather.rpc(weather_, wind_direction)
+			
+			
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -92,6 +100,12 @@ func decide_weather():
 	
 	var is_weather = weather[randi() % weather.size()]
 	
+	return is_weather
+
+@rpc("any_peer", "call_local", "reliable")
+func set_weather(is_weather, wind_direction):
+	self.wind_direction = wind_direction
+	print(is_weather)
 	if is_weather == "rain":
 		$rain_Timer.start()
 	if is_weather == "clouds":

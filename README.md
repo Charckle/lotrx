@@ -9,10 +9,35 @@
 - archers have problems attacking enemies that are behind walls. Yeah, I know.
 
 # To Do
-- upgrade pathfinding
-- oil siege weapons
-- ram siege weapon (bigger units?)
+- upgrade pathfinding a second time
+
+- siege lvl 1
+	- ram siege weapon (bigger units?)
+	- oil siege weapons
+	- larger single door
+	- drawbridge
+	- mote, that units can fill
+- siege lvl 2
+	- trebuchets
+		- only fire where you tell them, they dont attack by themselfs
+	- destroyable walls
+		- make the tiles have the value of the destruction, so its easier, less objects
+- siege lvl 3:
+	- siege tower?
+- create basic maps:
+	- enclosed norman keep
+	- enclosed castle
+	- linked castle
+	- concentric castle
+	- poli warded castle
 - update maps to new tilesistem for new godot version
+- weather
+	- check if you can use multimashinstance2d for weather objects
+	- set weather for all players the same
+	- add fog
+	- add wind
+- make trees react to the wind, make them an object and movable
+	- assign a value to the tiles, and the at the start of the game, just add tree objects
 - make an outside resource where you set data for things like unit value, strenght, etc, so its more centralized
 - waypoints
 - adding additional units to command groups
@@ -30,7 +55,6 @@
 - a campaign
 - LAN multiplayer - working
     - but its a non sync, poor mans multiplayer. prolly good only on lan
-	- and currently it does not have a good menu to run it
 
 # Goal
 - multiple campaign, trough which you could explore parts of history and real castles.

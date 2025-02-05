@@ -1,5 +1,6 @@
 extends Panel
 
+@onready var multiplayer_lobby = get_tree().root.get_node("MultiplayerLobby")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -23,9 +24,20 @@ func populate_maps():
 		$map_selection_panel/map_buttons/VBoxContainer.add_child(button)
 
 func _load_map_settings(map_settings_dic):
-	var map_Desc_element = $map_details_panel/ScrollContainer/map_description
-	map_Desc_element.text = map_settings_dic["desc"]
-	GlobalSettings.multiplayer_data["mapt_to_load"] = map_settings_dic["path"]
+	var map_desc_element = $map_details_panel/ScrollContainer/map_description
+	map_desc_element.text = map_settings_dic["desc"]
+	
+	if multiplayer.is_server():
+		set_selected_map.rpc(map_settings_dic["name"], map_settings_dic["path"])
+		var map_options = map_settings_dic["map_options"]
+		multiplayer_lobby.set_player_list_gui.rpc(map_options)
+
+@rpc("authority", "call_local", "reliable")
+func set_selected_map(map_name, map_resource):
+	var selected_map_name = multiplayer_lobby.selected_map_name
+	selected_map_name.text = "Selected map: " + map_name
+	GlobalSettings.multiplayer_data["map_to_load"] = map_resource
+
 
 func get_all_maps():
 	var maps = []
@@ -34,8 +46,10 @@ func get_all_maps():
 		"name": "open: Small test map 01",
 		"desc": "A small forest map.",
 		"path" : "uid://f367vqq2srko",
-		"attacking_faction": 1,
-		"defending_faction": 2
+		"map_options": {
+			"ai_faction": 0,
+			"playabe_factions": [1,2]
+			}
 	}
 	maps.append(small_test_map)
 	
@@ -43,8 +57,10 @@ func get_all_maps():
 		"name": "siege: Socerb castle",
 		"desc": "A siege of the small castle Socerb",
 		"path" : "uid://dpq75kochn3i",
-		"attacking_faction": 1,
-		"defending_faction": 2
+		"map_options": {
+			"ai_faction": 0,
+			"playabe_factions": [1,2]
+			}
 	}
 	maps.append(castle_socerb)
 	
