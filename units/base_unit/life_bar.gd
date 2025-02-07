@@ -8,8 +8,8 @@ var health = 0
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	#health = parent_node.health
-	progress_bar.max_value = base_health
-	progress_bar.value = base_health
+	#progress_bar.max_value = base_health
+	#progress_bar.value = base_health
 	#print(parent_node.get_node("Sprite2D").texture.get_size())
 	position.x -= parent_node.get_node("sprite_base").texture.get_size()[0] / 2
 	position.y -= parent_node.get_node("sprite_base").texture.get_size()[1] - 6

@@ -35,7 +35,7 @@ func place_doors():
 func create_instance(coordinates_, direction_iddle_, new_siege_id):
 	var instance = small_door_obj.instantiate()
 	instance.position = coordinates_
-	instance.direction_iddle = direction_iddle_
+	instance.get_node("actions").direction_iddle = direction_iddle_
 	instance.faction = faction
 	instance.main_door = main_door
 	instance.siege_id = new_siege_id

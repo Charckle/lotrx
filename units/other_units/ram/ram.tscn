@@ -18,6 +18,9 @@ texture = ExtResource("2_symhr")
 script = ExtResource("3_7eeqs")
 
 [node name="Timer" type="Timer" parent="attack" index="0"]
+wait_time = 2.0
 
 [node name="properties" type="Node2D" parent="." index="5"]
 script = ExtResource("2_lr6x6")
+
+[connection signal="timeout" from="attack/Timer" to="attack" method="_on_timer_timeout"]

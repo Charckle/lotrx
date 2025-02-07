@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://cjd72j0eficpc"]
+
+[ext_resource type="PackedScene" uid="uid://cjw36056lh3pj" path="res://units/castle_units/base_castle_unit/base_castle_unit.tscn" id="1_qretf"]
+[ext_resource type="Texture2D" uid="uid://0fvjofih63ul" path="res://sprites/castle/portcullis/portcullis.png" id="2_rs1mw"]
+[ext_resource type="Script" path="res://units/castle_units/portcullis/actions.gd" id="3_4xyl7"]
+[ext_resource type="Texture2D" uid="uid://bryddrcedc2tf" path="res://sprites/castle/portcullis/portcullis_shadow.png" id="3_w3t6p"]
+[ext_resource type="Script" path="res://units/castle_units/portcullis/area_2d.gd" id="4_84mjw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uqqm5"]
+size = Vector2(32, 32)
+
+[node name="portcullis" instance=ExtResource("1_qretf")]
+
+[node name="base_sprite" parent="spriteNode" index="0"]
+texture = ExtResource("2_rs1mw")
+
+[node name="shadow" type="Sprite2D" parent="." index="1"]
+texture = ExtResource("3_w3t6p")
+
+[node name="actions" type="Node2D" parent="." index="2"]
+script = ExtResource("3_4xyl7")
+
+[node name="Area2D" type="Area2D" parent="." index="3"]
+script = ExtResource("4_84mjw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" index="0"]
+shape = SubResource("RectangleShape2D_uqqm5")
+
+[node name="close_door" type="Timer" parent="." index="4"]
+wait_time = 2.0
+one_shot = true
+
+[node name="open_door" type="Timer" parent="." index="5"]
+one_shot = true
+
+[connection signal="input_event" from="Area2D" to="Area2D" method="_on_input_event"]
+[connection signal="timeout" from="close_door" to="actions" method="_on_close_door_timeout"]
+[connection signal="timeout" from="open_door" to="actions" method="_on_open_door_timeout"]

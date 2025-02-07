@@ -5,7 +5,6 @@
 
 [node name="base_castle_unit" type="Node2D"]
 script = ExtResource("1_sh7lu")
-direction_iddle = 1
 
 [node name="spriteNode" type="Node2D" parent="."]
 

@@ -17,25 +17,25 @@ var autodestroy = 0
 var good_to_be_deleted = false
 var previous_cell
 
+var arrow_pos_for_calc
+
 
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 @onready var title_map = root_map.get_node("TileMap")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	target_coordinate = gr(target).global_position  # Example target coordinate
-	#print(target_coordinate)
-	#print(global_position)
+	target_coordinate = gr(target).global_position
 	# Calculate the angle between the node's position and the target coordinate
 	var angle = global_position.angle_to_point(target_coordinate)
 	rotation = angle
 	$Sprite2D.self_modulate.a = 1
-	#print(rotation)
-	#global_position = target_coordinate
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	arrow_pos_for_calc = title_map.local_to_map(global_position)
+	
 	if timer_ < 0:
 		timer_ = 10
 	timer_ -= 1
@@ -60,13 +60,13 @@ func _process(delta: float) -> void:
 			##print($Sprite2D.self_modulate.a)
 		#else:
 			#queue_free()
-	pass
+
 
 func check_hit_wall():
 	if timer_ % 2 == 0:
 
 		var local_high_ground = 0
-		var arrow_pos_for_calc = title_map.local_to_map(global_position)
+		
 		var is_wall = false
 		var all_layers_null = true
 		var is_cranullation = false
@@ -101,9 +101,9 @@ func check_hit_wall():
 
 
 func check_hit_target():
-	if target_coordinate == global_position and stuck == false:
+	if title_map.local_to_map(target_coordinate) == arrow_pos_for_calc and stuck == false:
 		stuck = true
-		if gr(target) != null and global_position == gr(target).global_position:
+		if gr(target) != null and arrow_pos_for_calc == gr(target).unit_position:
 			queue_free()
 			gr(target).get_damaged(attack_dmg, a_penetration)
 

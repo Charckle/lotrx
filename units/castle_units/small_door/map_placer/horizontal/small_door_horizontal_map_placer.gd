@@ -1,13 +1,13 @@
 extends Node2D
 
 @onready var small_door_obj = load("res://units/castle_units/small_door/small_door.tscn")
-@onready var parent_n = get_parent()
+@onready var root_map = get_tree().root.get_node("game")
 var units_node = null
 
 @export var faction = 1
 @export var main_door = false
 @export var new_siege_id = -1
-@export var door_health = 20
+@export var door_health = 200
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -23,7 +23,7 @@ func place_doors():
 	var sprite_01 = $"spriteNode/Sprite2D"
 	var sprite_02 = $"spriteNode/Sprite2D2"
 
-	units_node = parent_n.get_parent().get_node("units")
+	units_node = root_map.get_node("units")
 	if new_siege_id == -1:
 		new_siege_id = units_node.get_child_count()
 	create_instance(sprite_01.global_position, 0, new_siege_id)
@@ -35,7 +35,7 @@ func place_doors():
 func create_instance(coordinates_, direction_iddle_, new_siege_id):
 	var instance = small_door_obj.instantiate()
 	instance.position = coordinates_
-	instance.direction_iddle = direction_iddle_
+	instance.get_node("actions").direction_iddle = direction_iddle_
 	instance.faction = faction
 	instance.main_door = main_door
 	instance.siege_id = new_siege_id

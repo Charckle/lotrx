@@ -36,6 +36,7 @@ func _on_check_button_toggled(toggled_on):
 		change_state_of_all(0)
 		#root_map.astar_grid.set_point_solid(unit_wr_obj.unit_position)
 
+
 func change_state_of_all(state_: int):
 	door_wr_obj = door_wr.get_ref()
 	door_unit_id = door_wr_obj.siege_id

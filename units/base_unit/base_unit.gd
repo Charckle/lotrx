@@ -82,6 +82,8 @@ func get_right_target():
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	lifebar.progress_bar.max_value = base_health
+	lifebar.progress_bar.value = base_health
 	target_walk = unit_position
 	
 	pinning_blocks = get_adjecent_blocks()
@@ -560,7 +562,7 @@ func being_attacked_by(unit_wr_obj):
 		is_pinned = true
 		units_pining_me.append(unit_wr_obj)
 
-func get_damaged(damage: int, penetration: int, ):
+func get_damaged(damage: int, penetration: int, modifier= null):
 	#dmg
 	#a_pen
 	#a_defense
@@ -572,8 +574,13 @@ func get_damaged(damage: int, penetration: int, ):
 	if defense < 0:
 		defense = 0
 	damage = damage - defense
-	if damage < 0:
+	if damage <= 0:
 		damage = 5
+	
+	if modifier != null:
+		if "oil" and self.unit_id == 7:
+			damage = 30
+	
 	health -= damage
 	
 	# create label

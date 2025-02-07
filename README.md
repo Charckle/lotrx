@@ -20,6 +20,7 @@
 - siege lvl 2
 	- trebuchets
 		- only fire where you tell them, they dont attack by themselfs
+		- limited projectiles
 	- destroyable walls
 		- make the tiles have the value of the destruction, so its easier, less objects
 - siege lvl 3:
@@ -36,8 +37,13 @@
 	- set weather for all players the same
 	- add fog
 	- add wind
+	- rain puddles
+	- thunder
+	- night/day
+- shaders shaders shaders
 - make trees react to the wind, make them an object and movable
 	- assign a value to the tiles, and the at the start of the game, just add tree objects
+- make dynamic water with whaders or smtg, make it look like in monkey island 3
 - make an outside resource where you set data for things like unit value, strenght, etc, so its more centralized
 - waypoints
 - adding additional units to command groups

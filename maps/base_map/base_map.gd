@@ -340,6 +340,16 @@ func get_wr_unit_on_mouse_position() -> WeakRef:
 	
 	return null
 
+func get_wr_unit_on_position(global_pos) -> WeakRef:
+	var mouse_pos_2i = title_map.local_to_map(global_pos)
+	
+	for unit in $units.get_children():
+		var unit_wr = weakref(unit)
+
+		if unit.unit_position == mouse_pos_2i:
+			return unit_wr
+	
+	return null
 
 func get_all_units():
 	var units_ = []

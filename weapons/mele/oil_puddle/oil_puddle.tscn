@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://ipyfqveuxx8i"]
+
+[ext_resource type="Script" path="res://weapons/mele/oil_puddle/oil_puddle.gd" id="1_3x0av"]
+[ext_resource type="Texture2D" uid="uid://nvow3h2yrb7i" path="res://sprites/weapons/range/oil/oil_puddle.png" id="2_x2wjb"]
+
+[node name="OilPuddle" type="Node2D"]
+script = ExtResource("1_3x0av")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_x2wjb")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 8.0
+autostart = true
+
+[node name="steam_timer" type="Timer" parent="."]
+wait_time = 0.3
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="timeout" from="steam_timer" to="." method="_on_steam_timer_timeout"]

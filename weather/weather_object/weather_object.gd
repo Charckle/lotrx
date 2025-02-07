@@ -39,9 +39,7 @@ func _ready():
 	self.wind_speed = randi() % 3
 	
 	if GlobalSettings.global_options["video"]["weather_show"] == true:
-		print("kurac2")
 		if multiplayer.is_server():
-			print("kurac")
 			var weather_ = self.decide_weather()
 			var wind_direction = random_sign()
 			
@@ -105,7 +103,7 @@ func decide_weather():
 @rpc("any_peer", "call_local", "reliable")
 func set_weather(is_weather, wind_direction):
 	self.wind_direction = wind_direction
-	print(is_weather)
+	
 	if is_weather == "rain":
 		$rain_Timer.start()
 	if is_weather == "clouds":

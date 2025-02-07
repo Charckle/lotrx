@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cpihifv2c42kt"
-path="res://.godot/imported/oil.png-598af174bf9af60068ee3ab44d063e8f.ctex"
+uid="uid://so31cd8ns3kr"
+path="res://.godot/imported/oil.png-89857ce1f5d27eb065ca7856b421ceb9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/units/castle/oil/oil.png"
-dest_files=["res://.godot/imported/oil.png-598af174bf9af60068ee3ab44d063e8f.ctex"]
+source_file="res://sprites/weapons/range/oil/oil.png"
+dest_files=["res://.godot/imported/oil.png-89857ce1f5d27eb065ca7856b421ceb9.ctex"]
 
 [params]
 

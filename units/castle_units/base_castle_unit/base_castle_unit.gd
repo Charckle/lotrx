@@ -3,16 +3,16 @@ extends Node2D
 @export var faction = 99
 
 var map_unique_id
-var unit_id = 0
+var unit_id = 501
 @export var siege_id = 0
 var all_siege_ids = [50]
 
-@export var direction_iddle = 0 # cunterclockwise, 1-4
+
 
 @export var base_health = 20
 @onready var health = base_health
 var a_defense = 100
-var unit_strenght = 1 # for calculations
+var unit_strenght = 2 # for calculations
 
 var is_small_door
 @export var main_door = false
@@ -27,13 +27,14 @@ var selected = false
 
 @onready var damage_label = preload("res://weapons/random/damage_label.tscn")
 
-@onready var door_sprite_node = $"spriteNode"
+
 
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	set_direction_sprite()
+	#set_direction_sprite()
+	
 	register_unit_w_map()
 	pass # Replace with function body.
 
@@ -56,26 +57,6 @@ func damage_other_parts(damage: int):
 			unit_wr_obj.lower_health(damage)
 
 
-func set_direction_sprite():
-
-	var r
-	var rotation_
-	#print(direction_iddle)
-	if direction_iddle == 1:
-		r = deg_to_rad(90)
-		rotation_ = r
-	elif direction_iddle == 2:
-		r = deg_to_rad(180)
-		rotation_ = r
-	elif direction_iddle == 3:
-		r = deg_to_rad(270)
-		rotation_ = r
-	else:
-		rotation_ = 0
-	
-	door_sprite_node.rotation = rotation_
-	
-	
 func set_selected(value):
 	#queue_redraw()
 	if selected != value:
@@ -85,7 +66,7 @@ func set_selected(value):
 func being_attacked_by(unit_wr_obj):
 	pass
 
-func get_damaged(damage: int, penetration: int, ):
+func get_damaged(damage: int, penetration: int, modifier=null):
 	#dmg
 	#a_pen
 	#a_defense
@@ -99,6 +80,11 @@ func get_damaged(damage: int, penetration: int, ):
 	damage = damage - defense
 	if damage < 0:
 		damage = 5
+	
+	if modifier != null:
+		if modifier == "ram" and self.unit_id in [500, 501]: # if a ram is attacking a castle door
+			damage = 100
+	
 	health -= damage
 	
 	# create label

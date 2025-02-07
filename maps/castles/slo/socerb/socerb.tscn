@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://dpq75kochn3i"]
+[gd_scene load_steps=20 format=3 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
 [ext_resource type="Script" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
@@ -15,8 +15,10 @@
 [ext_resource type="PackedScene" uid="uid://ca6v18yb265rd" path="res://units/other_units/ram/ram.tscn" id="9_54hdq"]
 [ext_resource type="PackedScene" uid="uid://ceq8am3wk5830" path="res://AI/POI/crossbow_POI/ai_poi_crossbow.tscn" id="9_l5eac"]
 [ext_resource type="PackedScene" uid="uid://b80mlkmflbfbj" path="res://AI/basic_ai_v1/ai_v_1.tscn" id="9_w1qor"]
+[ext_resource type="PackedScene" uid="uid://bdo428sgd8fug" path="res://units/other_units/cauldron/cauldron.tscn" id="10_ixc38"]
 [ext_resource type="PackedScene" uid="uid://cw62l2a8kja3j" path="res://AI/POI/pikeman_POI/ai_poi_pikeman.tscn" id="10_sg6le"]
 [ext_resource type="PackedScene" uid="uid://6k5bqys5j8x4" path="res://maps/othr/player_start_loc/player_start_loc.tscn" id="13_o55kd"]
+[ext_resource type="PackedScene" uid="uid://ipyfqveuxx8i" path="res://weapons/mele/oil_puddle/oil_puddle.tscn" id="18_3epg0"]
 
 [node name="game" instance=ExtResource("1_pay0i")]
 metadata/_edit_lock_ = true
@@ -59,15 +61,14 @@ position = Vector2(688, -976)
 faction = 2
 
 [node name="knight3" parent="units" index="8" instance=ExtResource("3_uqr84")]
-position = Vector2(336, -272)
-debugging_ = true
+position = Vector2(656, -976)
 faction = 2
 
 [node name="pikeman" parent="units" index="9" instance=ExtResource("5_2f677")]
 position = Vector2(688, 496)
 
 [node name="pikeman5" parent="units" index="10" instance=ExtResource("5_2f677")]
-position = Vector2(16, -112)
+position = Vector2(656, 496)
 
 [node name="pikeman6" parent="units" index="11" instance=ExtResource("5_2f677")]
 position = Vector2(624, 496)
@@ -94,10 +95,10 @@ position = Vector2(688, -560)
 faction = 2
 
 [node name="archer6" parent="units" index="18" instance=ExtResource("6_ikml3")]
-position = Vector2(816, 496)
+position = Vector2(48, 528)
 
 [node name="archer7" parent="units" index="19" instance=ExtResource("6_ikml3")]
-position = Vector2(848, 496)
+position = Vector2(80, 528)
 
 [node name="archer8" parent="units" index="20" instance=ExtResource("6_ikml3")]
 position = Vector2(880, 496)
@@ -106,10 +107,10 @@ position = Vector2(880, 496)
 position = Vector2(912, 496)
 
 [node name="archer22" parent="units" index="22" instance=ExtResource("6_ikml3")]
-position = Vector2(816, 528)
+position = Vector2(48, 560)
 
 [node name="archer23" parent="units" index="23" instance=ExtResource("6_ikml3")]
-position = Vector2(848, 528)
+position = Vector2(80, 560)
 
 [node name="archer24" parent="units" index="24" instance=ExtResource("6_ikml3")]
 position = Vector2(880, 528)
@@ -154,7 +155,7 @@ position = Vector2(720, -688)
 faction = 2
 
 [node name="archer19" parent="units" index="35" instance=ExtResource("6_ikml3")]
-position = Vector2(816, -528)
+position = Vector2(816, -624)
 faction = 2
 
 [node name="archer20" parent="units" index="36" instance=ExtResource("6_ikml3")]
@@ -163,7 +164,7 @@ debugging_ = true
 faction = 2
 
 [node name="archer21" parent="units" index="37" instance=ExtResource("6_ikml3")]
-position = Vector2(816, -560)
+position = Vector2(816, -688)
 faction = 2
 
 [node name="crossbow" parent="units" index="38" instance=ExtResource("7_8yq8l")]
@@ -182,35 +183,53 @@ faction = 2
 position = Vector2(624, -720)
 faction = 2
 
-[node name="maceman" parent="units" index="42" instance=ExtResource("8_q04mq")]
+[node name="crossbow5" parent="units" index="42" instance=ExtResource("7_8yq8l")]
+position = Vector2(176, 496)
+
+[node name="crossbow6" parent="units" index="43" instance=ExtResource("7_8yq8l")]
+position = Vector2(176, 464)
+
+[node name="crossbow7" parent="units" index="44" instance=ExtResource("7_8yq8l")]
+position = Vector2(208, 496)
+
+[node name="crossbow8" parent="units" index="45" instance=ExtResource("7_8yq8l")]
+position = Vector2(208, 464)
+
+[node name="maceman" parent="units" index="46" instance=ExtResource("8_q04mq")]
 position = Vector2(528, 528)
 
-[node name="maceman2" parent="units" index="43" instance=ExtResource("8_q04mq")]
+[node name="maceman2" parent="units" index="47" instance=ExtResource("8_q04mq")]
 position = Vector2(560, 528)
 
-[node name="maceman3" parent="units" index="44" instance=ExtResource("8_q04mq")]
+[node name="maceman3" parent="units" index="48" instance=ExtResource("8_q04mq")]
 position = Vector2(560, 496)
 
-[node name="maceman4" parent="units" index="45" instance=ExtResource("8_q04mq")]
+[node name="maceman4" parent="units" index="49" instance=ExtResource("8_q04mq")]
 position = Vector2(528, 496)
 
-[node name="maceman5" parent="units" index="46" instance=ExtResource("8_q04mq")]
+[node name="maceman5" parent="units" index="50" instance=ExtResource("8_q04mq")]
 position = Vector2(496, 496)
 
-[node name="maceman6" parent="units" index="47" instance=ExtResource("8_q04mq")]
+[node name="maceman6" parent="units" index="51" instance=ExtResource("8_q04mq")]
 position = Vector2(464, 496)
 
-[node name="maceman7" parent="units" index="48" instance=ExtResource("8_q04mq")]
+[node name="maceman7" parent="units" index="52" instance=ExtResource("8_q04mq")]
 position = Vector2(464, 528)
 
-[node name="maceman8" parent="units" index="49" instance=ExtResource("8_q04mq")]
+[node name="maceman8" parent="units" index="53" instance=ExtResource("8_q04mq")]
 position = Vector2(496, 528)
 
-[node name="maceman9" parent="units" index="50" instance=ExtResource("8_q04mq")]
+[node name="maceman9" parent="units" index="54" instance=ExtResource("8_q04mq")]
 position = Vector2(496, 528)
 
-[node name="ram" parent="units" index="51" instance=ExtResource("9_54hdq")]
-position = Vector2(240, 528)
+[node name="ram" parent="units" index="55" instance=ExtResource("9_54hdq")]
+position = Vector2(112, 528)
+debugging_ = true
+aggressive = false
+
+[node name="cauldron" parent="units" index="56" instance=ExtResource("10_ixc38")]
+position = Vector2(112, 144)
+faction = 2
 
 [node name="projectiles" parent="." index="7"]
 metadata/_edit_lock_ = true
@@ -283,3 +302,6 @@ position = Vector2(656, 368)
 [node name="PlayerStartLoc2" parent="othr" index="1" instance=ExtResource("13_o55kd")]
 position = Vector2(688, -688)
 faction = 2
+
+[node name="OilPuddle" parent="aoe_objects" index="0" instance=ExtResource("18_3epg0")]
+position = Vector2(528, 368)
