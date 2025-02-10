@@ -27,11 +27,12 @@ var selected = false
 @onready var debug_label = $debug_label
 
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
-@onready var title_map = root_map.get_node("TileMap")
+@onready var title_map_node = root_map.get_node("TileMap")
+@onready var first_tilemap_layer = title_map_node.get_node("base_layer")
 @onready var astar_grid = root_map.astar_grid
-@onready var unit_position = title_map.local_to_map(global_position)
-@onready var old_unit_position = title_map.local_to_map(global_position)
-@onready var unit_position_iddle = title_map.local_to_map(global_position) # return to this position if baited, but enemy out of agro range
+@onready var unit_position = first_tilemap_layer.local_to_map(global_position)
+@onready var old_unit_position = first_tilemap_layer.local_to_map(global_position)
+@onready var unit_position_iddle = first_tilemap_layer.local_to_map(global_position) # return to this position if baited, but enemy out of agro range
 
 var is_moving: bool
 var target_walk: Vector2
@@ -261,7 +262,7 @@ func move_(target_move_to=null):
 	
 	if target_move_to != null:
 		#var mouse_pos = get_global_mouse_position()
-		target_walk = title_map.local_to_map(target_move_to)
+		target_walk = first_tilemap_layer.local_to_map(target_move_to)
 		# set iddle position for returnign to it, if not in agro anymore
 		unit_position_iddle = Vector2i(target_walk.x, target_walk.y)
 	
@@ -318,7 +319,7 @@ func _physics_process(delta):
 	# needed, because godot is retarded
 	if next_cell == null:
 		return
-	var next_cell_global = title_map.map_to_local(next_cell)
+	var next_cell_global = first_tilemap_layer.map_to_local(next_cell)
 	
 	# check if the next step is free, otherwise, recalc the route
 	if astar_grid.is_point_solid(next_cell) and next_cell != unit_position:
@@ -470,7 +471,7 @@ func draw_target():
 		draw_texture(selected_target,draw_loc)
 
 func draw_target_walk():
-	draw_texture(sprite_walk_target, Vector2(title_map.map_to_local(target_walk))-global_position - Vector2(20, 20))
+	draw_texture(sprite_walk_target, Vector2(first_tilemap_layer.map_to_local(target_walk))-global_position - Vector2(20, 20))
 	
 func draw_control_group_id():
 	if control_group != null:
@@ -635,7 +636,26 @@ func register_unit_w_map():
 
 func unregister_unit_w_map(target=self):
 	root_map.all_units_w_unique_id.erase(target.map_unique_id)
-	
+
+func get_tilemap_bounds(tilemapnode: Node2D) -> Rect2i:
+	var used_rect = Rect2i()
+	var first = true
+
+	for layer_node in tilemapnode.get_children():
+		var layer_rect = layer_node.get_used_rect()
+		
+		# Initialize the rect with the first layer
+		if first:
+			used_rect = layer_rect
+			first = false
+		else:
+			# Expand to include all layers
+			used_rect = used_rect.expand(layer_rect.position)
+			used_rect = used_rect.expand(layer_rect.end)  # `.end` is bottom-right corner
+
+	return used_rect
+
+
 func print_(my_string):
 	if debugging_ == true:
 		print(my_string)

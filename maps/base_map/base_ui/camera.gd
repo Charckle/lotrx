@@ -92,9 +92,9 @@ func move_camera_if_bumped(delta):
 	var camera_movement = Vector2()
 	
 	# Define the bounds of your tilemap
-	var tilemap = self.map_root.get_node("TileMap")
-	var map_size = tilemap.get_used_rect().size * Vector2i(self.map_root.m_cell_size, self.map_root.m_cell_size)
-	var map_start = tilemap.get_used_rect().position * Vector2i(self.map_root.m_cell_size, self.map_root.m_cell_size)
+	var first_tilemap_layer = self.map_root.first_tilemap_layer
+	var map_size = first_tilemap_layer.get_used_rect().size * Vector2i(self.map_root.m_cell_size, self.map_root.m_cell_size)
+	var map_start = first_tilemap_layer.get_used_rect().position * Vector2i(self.map_root.m_cell_size, self.map_root.m_cell_size)
 
 	# Check if the mouse is near the left edge
 	if mouse_position.x <= edge_threshold:

@@ -4,7 +4,9 @@ extends Node2D
 @onready var rain = load("uid://bhfx5elseokmx")
 
 @onready var map_root = get_tree().root.get_node("game")
-@onready var tilemap = map_root.get_node("TileMap")
+@onready var title_map_node = map_root.get_node("TileMap")
+@onready var first_tilemap_layer = title_map_node.get_node("base_layer")
+
 var map_x_size:int
 var map_y_size:int
 
@@ -22,13 +24,15 @@ var wind_speed: int
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	var map_size = tilemap.get_used_rect().size
+	var map_rectangle = first_tilemap_layer.get_used_rect()
+	var map_size = map_rectangle.size # the first tilemaplayer should be the biggest
+
 	var m_cell_size =  self.map_root.m_cell_size
 	self.map_x_size = map_size.x * m_cell_size
 	self.map_y_size = map_size.y * m_cell_size
 	self.m_cell_size = self.map_root.m_cell_size
 	
-	var cloud_create_position = tilemap.get_used_rect().position * Vector2i(m_cell_size, m_cell_size)
+	var cloud_create_position = map_rectangle.position * Vector2i(m_cell_size, m_cell_size)
 	self.cloud_create_x = cloud_create_position.x - 400
 	self.cloud_create_y_min = cloud_create_position.y
 	self.cloud_create_y_max = cloud_create_position.y + self.map_y_size

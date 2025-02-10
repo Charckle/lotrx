@@ -21,7 +21,8 @@ var arrow_pos_for_calc
 
 
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
-@onready var title_map = root_map.get_node("TileMap")
+@onready var title_map_node = root_map.get_node("TileMap")
+@onready var first_tilemap_layer = title_map_node.get_node("base_layer")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -34,7 +35,7 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	arrow_pos_for_calc = title_map.local_to_map(global_position)
+	arrow_pos_for_calc = first_tilemap_layer.local_to_map(global_position)
 	
 	if timer_ < 0:
 		timer_ = 10
@@ -78,8 +79,10 @@ func check_hit_wall():
 				if autodestroy > 1:
 					queue_free()
 		
-		for layer in range(title_map.get_layers_count()):
-			var tile_data_ = title_map.get_cell_tile_data(layer, arrow_pos_for_calc)
+		for layer_num in range(title_map_node.get_child_count()):
+			var layer = title_map_node.get_child(layer_num)
+			
+			var tile_data_ = layer.get_cell_tile_data(arrow_pos_for_calc)
 			
 			if tile_data_ != null:
 				all_layers_null = false
@@ -101,7 +104,7 @@ func check_hit_wall():
 
 
 func check_hit_target():
-	if title_map.local_to_map(target_coordinate) == arrow_pos_for_calc and stuck == false:
+	if first_tilemap_layer.local_to_map(target_coordinate) == arrow_pos_for_calc and stuck == false:
 		stuck = true
 		if gr(target) != null and arrow_pos_for_calc == gr(target).unit_position:
 			queue_free()

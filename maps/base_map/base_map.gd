@@ -4,7 +4,8 @@ var astar_grid := AStarGrid2D.new()
 var grid_size
 const m_cell_size := 32
 const sector_size := 15.0 #how many cells in a sector. not used, since the processor will be enough..prolly
-@onready var title_map = $TileMap
+@onready var title_map_node = $TileMap
+@onready var first_tilemap_layer = title_map_node.get_node("base_layer")
 
 # needed for multiplayer sync, since you cannot send object references via the rpc func
 var incremental_unit_ids = 0
@@ -229,23 +230,35 @@ func deselect_all_units():
 	units_selected.clear()
 
 func setup_astar_grid():
-	print("setting up grid and units")
-	astar_grid.region = title_map.get_used_rect()
+	#print("setting up grid and units")
+	var first_tilemap_layer = title_map_node.get_child(0) # the first layer should be the biggest, over ALL
+	var map_size = first_tilemap_layer.get_used_rect() 
+	astar_grid.region = map_size
 	astar_grid.cell_size = Vector2(m_cell_size,m_cell_size)
 	astar_grid.update()
 	grid_size = astar_grid.get_size()
-	print(grid_size)
+	#print(map_size)
+	#print(grid_size)
+	
 	#walking_map_tiles_taken = create_empty_array(astar_grid.get_size())
-	for layer in range(title_map.get_layers_count()):
-		for x in title_map.get_used_rect().size.x:
-			for y in title_map.get_used_rect().size.y:
-				var tile_position = Vector2i(x + title_map.get_used_rect().position.x,y + title_map.get_used_rect().position.y)
-				
-				var tile_data = title_map.get_cell_tile_data(layer,tile_position)
-				if layer == 0:
+	for layer_num in range(title_map_node.get_child_count()):
+		var layer = title_map_node.get_child(layer_num)
+		for x in map_size.size.x:
+			
+			for y in map_size.size.y:
+				# get the tile position on the base layer, which we use to create the astargrid
+				var tile_position = Vector2i(x + map_size.position.x, y + map_size.position.y)
+				# get global position of the tile 
+				var tile_global_position = first_tilemap_layer.map_to_local(tile_position)
+				# get the tile position on the layer we are working on
+				var layer_tile_position = layer.local_to_map(tile_global_position)
+				# get the tile data in the layer
+				var tile_data = layer.get_cell_tile_data(layer_tile_position)
+
+				if layer_num == 0:
 					if tile_data == null or tile_data.get_custom_data("not_walkable"):
 						astar_grid.set_point_solid(tile_position, true)
-				if layer == 1:
+				if layer_num == 1:
 					if  tile_data == null:
 						continue
 					if tile_data.get_custom_data("not_walkable"):
@@ -330,7 +343,7 @@ func create_going_marker():
 
 func get_wr_unit_on_mouse_position() -> WeakRef:
 	var mouse_pos = get_global_mouse_position()
-	var mouse_pos_2i = title_map.local_to_map(mouse_pos)
+	var mouse_pos_2i = first_tilemap_layer.local_to_map(mouse_pos)
 	
 	for unit in $units.get_children():
 		var unit_wr = weakref(unit)
@@ -341,7 +354,7 @@ func get_wr_unit_on_mouse_position() -> WeakRef:
 	return null
 
 func get_wr_unit_on_position(global_pos) -> WeakRef:
-	var mouse_pos_2i = title_map.local_to_map(global_pos)
+	var mouse_pos_2i = first_tilemap_layer.local_to_map(global_pos)
 	
 	for unit in $units.get_children():
 		var unit_wr = weakref(unit)
@@ -402,6 +415,7 @@ func are_dicts_equal(dict1, dict2):
 				return false
 	
 	return true
+
 
 func _remove_all_children(node_to_delete_children_of):
 	# Iterate over a copy of the children list

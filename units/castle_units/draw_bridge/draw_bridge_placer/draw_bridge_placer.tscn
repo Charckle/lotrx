@@ -1,0 +1,112 @@
+[gd_scene load_steps=6 format=3 uid="uid://cc11e7qt83lbt"]
+
+[ext_resource type="Texture2D" uid="uid://d0vwx278mq8e6" path="res://sprites/castle/draw_bridge/closed_01.png" id="1_oqtvi"]
+[ext_resource type="Script" path="res://units/castle_units/draw_bridge/draw_bridge_placer/draw_bridge_placer.gd" id="1_x0pgu"]
+[ext_resource type="Texture2D" uid="uid://dxf6fl1l2cnhu" path="res://sprites/castle/draw_bridge/closed_02.png" id="2_v30rl"]
+[ext_resource type="Texture2D" uid="uid://c4xim0vavc4ri" path="res://sprites/castle/draw_bridge/open_02.png" id="4_dw3s6"]
+[ext_resource type="Texture2D" uid="uid://2qvga4xod4uv" path="res://sprites/castle/draw_bridge/open_01.png" id="5_ndr72"]
+
+[node name="DrawBridgePlacer" type="Node2D"]
+script = ExtResource("1_x0pgu")
+
+[node name="spriteNode" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="spriteNode"]
+texture = ExtResource("1_oqtvi")
+
+[node name="Sprite2D2" type="Sprite2D" parent="spriteNode"]
+position = Vector2(32, 0)
+texture = ExtResource("2_v30rl")
+
+[node name="Sprite2D3" type="Sprite2D" parent="spriteNode"]
+position = Vector2(64, 0)
+texture = ExtResource("2_v30rl")
+
+[node name="Sprite2D4" type="Sprite2D" parent="spriteNode"]
+position = Vector2(96, 0)
+texture = ExtResource("1_oqtvi")
+flip_h = true
+
+[node name="secondary_sprites" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(0, 32)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D2" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(0, 96)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D13" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(0, 128)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D3" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(0, 64)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D4" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(32, 32)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D5" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(32, 96)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D14" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(32, 128)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D6" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(32, 64)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D7" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(64, 32)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D8" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(64, 96)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D15" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(64, 128)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D9" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(64, 64)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D10" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(96, 32)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D11" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(96, 96)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D16" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(96, 128)
+texture = ExtResource("4_dw3s6")
+
+[node name="Sprite2D12" type="Sprite2D" parent="secondary_sprites"]
+position = Vector2(96, 64)
+texture = ExtResource("4_dw3s6")
+
+[node name="endings_sprites" type="Node2D" parent="."]
+
+[node name="Sprite2D2" type="Sprite2D" parent="endings_sprites"]
+position = Vector2(0, 160)
+texture = ExtResource("5_ndr72")
+
+[node name="Sprite2D3" type="Sprite2D" parent="endings_sprites"]
+position = Vector2(32, 160)
+texture = ExtResource("5_ndr72")
+
+[node name="Sprite2D4" type="Sprite2D" parent="endings_sprites"]
+position = Vector2(64, 160)
+texture = ExtResource("5_ndr72")
+
+[node name="Sprite2D5" type="Sprite2D" parent="endings_sprites"]
+position = Vector2(96, 160)
+texture = ExtResource("5_ndr72")

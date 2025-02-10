@@ -12,9 +12,9 @@
 - upgrade pathfinding a second time
 
 - siege lvl 1
-	- ram siege weapon (bigger units?)
-	- oil siege weapons
-	- larger single door
+	- ram siege weapon DONE (bigger units?) 
+	- oil siege weapons DONE
+	- larger single door DONE
 	- drawbridge
 	- mote, that units can fill
 - siege lvl 2
@@ -31,7 +31,12 @@
 	- linked castle
 	- concentric castle
 	- poli warded castle
-- update maps to new tilesistem for new godot version
+- skirmish:
+    - decide what siege weapons youll have
+	- decide what the ration of your army will be
+- ingame chat
+    - also, make the chat in the lobby persistent
+- tooltip when hovering over a unit
 - weather
 	- check if you can use multimashinstance2d for weather objects
 	- set weather for all players the same

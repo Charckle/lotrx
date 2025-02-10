@@ -3,6 +3,9 @@ extends Node2D
 const cooldown = 2
 var can_attack = true
 
+var current_height = 0
+
+
 @onready var local_old_unit_position = null
 
 @onready var main_r = get_tree().root.get_node("game")
@@ -18,20 +21,29 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	# add range if on a high ground
-	var tile_map = parent_n.title_map
+	var title_map_node = parent_n.title_map_node
+	var first_tilemap_layer = parent_n.first_tilemap_layer
 	var unit_position = parent_n.unit_position
 
 	if unit_position != local_old_unit_position:
 		var height = 0
 		
-		for layer in range(tile_map.get_layers_count()):
-			var tile_data_ = tile_map.get_cell_tile_data(layer, unit_position)
+		for layer_num in range(title_map_node.get_child_count()):
+			var layer = title_map_node.get_child(layer_num)
+			
+			# get global position of the tile 
+			var tile_global_position = first_tilemap_layer.local_to_map(unit_position)
+			# get the tile position on the layer we are working on
+			var layer_tile_position = layer.map_to_local(tile_global_position)
+			# get the tile data in the layer
+			var tile_data_ = layer.get_cell_tile_data(layer_tile_position)
 
-			if tile_data_ != null and tile_data_.get_custom_data("HIGH_G"):
+			if tile_data_ != null:
 				var new_height = tile_data_.get_custom_data("HIGH_G")
 				
-				if new_height > height:
+				if new_height and (new_height > height):
 					height = new_height
+					current_height = new_height
 		
 		var multiplier = 3
 		parent_n.attack_rage_px = parent_n.attack_rage_px_base + ((height * multiplier) * parent_n.root_map.m_cell_size)
@@ -71,6 +83,7 @@ func attack_range(right_target_id):
 		instance.target = att_object
 		instance.attack_dmg = parent_n.attack_dmg_range
 		instance.a_penetration = parent_n.a_penetration
+		instance.high_ground = self.current_height
 		#instance.spawnPos = global_position
 		#instance.spawnRot = rotation
 		#

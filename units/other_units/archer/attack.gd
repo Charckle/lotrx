@@ -19,15 +19,23 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	# add range if on a high ground
-	var tile_map = parent_n.title_map
+	var title_map_node = parent_n.title_map_node
+	var first_tilemap_layer = parent_n.first_tilemap_layer
 	var unit_position = parent_n.unit_position
 
 	if unit_position != local_old_unit_position:
 		var height = 0
 		
-		for layer in range(tile_map.get_layers_count()):
-			var tile_data_ = tile_map.get_cell_tile_data(layer, unit_position)
+		for layer_num in range(title_map_node.get_child_count()):
+			var layer = title_map_node.get_child(layer_num)
 			
+			# get global position of the tile 
+			var tile_global_position = first_tilemap_layer.local_to_map(unit_position)
+			# get the tile position on the layer we are working on
+			var layer_tile_position = layer.map_to_local(tile_global_position)
+			# get the tile data in the layer
+			var tile_data_ = layer.get_cell_tile_data(layer_tile_position)
+
 			if tile_data_ != null:
 				var new_height = tile_data_.get_custom_data("HIGH_G")
 				
