@@ -1,6 +1,6 @@
 extends Node
 
-var my_faction = 1
+var my_faction = 2
 var friendly_factions = []
 
 #var game_unit_count_start = null
@@ -27,7 +27,7 @@ var global_options = {
 	"debug": {
 		"show_solid_tiles": false,
 		"show_path": false,
-		"global_debug": true
+		"global_debug": false
 	}
 }
 

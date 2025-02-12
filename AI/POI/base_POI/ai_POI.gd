@@ -34,7 +34,8 @@ func get_unit_(unit_type_):
 		7: "ram",
 		8: "cauldron",
 		500: "small_door",
-		501: "portcullis"
+		501: "portcullis",
+		502: "draw_bridge"
 	}
 	
 	return units_[unit_type_]

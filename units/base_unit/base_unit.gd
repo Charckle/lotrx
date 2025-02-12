@@ -329,6 +329,12 @@ func _physics_process(delta):
 		if next_cell == Vector2i(target_walk):
 			current_id_path = []
 			target_walk = unit_position
+			
+			# check if net cell is moat. if its moat, dig
+			for moat_obj in root_map.get_node("moat").get_children():
+				if moat_obj.unit_position == next_cell:
+					# make digging magic
+					print("kurac")
 		else:
 			move_()
 		return

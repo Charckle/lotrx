@@ -15,7 +15,7 @@ func _enter_tree():
 
 func initialize_map():
 	var map_options = {"user_faction": 1,
-						"ai_faction": 2}
+						"ai_faction": 99}
 	
 	if GlobalSettings.map_options != null:
 		map_options = GlobalSettings.map_options

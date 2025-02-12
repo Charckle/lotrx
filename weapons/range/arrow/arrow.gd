@@ -65,7 +65,6 @@ func _process(delta: float) -> void:
 
 func check_hit_wall():
 	if timer_ % 2 == 0:
-
 		var local_high_ground = 0
 		
 		var is_wall = false
@@ -82,7 +81,13 @@ func check_hit_wall():
 		for layer_num in range(title_map_node.get_child_count()):
 			var layer = title_map_node.get_child(layer_num)
 			
-			var tile_data_ = layer.get_cell_tile_data(arrow_pos_for_calc)
+			# get global position of the tile 
+			var tile_global_position = first_tilemap_layer.map_to_local(arrow_pos_for_calc)
+			# get the tile position on the layer we are working on
+			var layer_tile_position = layer.local_to_map(tile_global_position)
+			# get the tile data in the layer
+			
+			var tile_data_ = layer.get_cell_tile_data(layer_tile_position)
 			
 			if tile_data_ != null:
 				all_layers_null = false
@@ -99,6 +104,8 @@ func check_hit_wall():
 		
 		# check if if hit cranulations
 		if is_cranullation and (local_high_ground != high_ground):
+			#print(local_high_ground)
+			#print(high_ground)
 			good_to_be_deleted = true
 			previous_cell = arrow_pos_for_calc
 

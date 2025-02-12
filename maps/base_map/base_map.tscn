@@ -39,3 +39,5 @@ metadata/_edit_lock_ = true
 [node name="weather_objects" type="Node2D" parent="."]
 
 [node name="aoe_objects" type="Node2D" parent="."]
+
+[node name="moat" type="Node2D" parent="."]

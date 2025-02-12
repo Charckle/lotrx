@@ -30,15 +30,17 @@ func _process(delta: float) -> void:
 			var layer = title_map_node.get_child(layer_num)
 			
 			# get global position of the tile 
-			var tile_global_position = first_tilemap_layer.local_to_map(unit_position)
+			var tile_global_position = first_tilemap_layer.map_to_local(unit_position)
 			# get the tile position on the layer we are working on
-			var layer_tile_position = layer.map_to_local(tile_global_position)
+			var layer_tile_position = layer.local_to_map(tile_global_position)
 			# get the tile data in the layer
+			
 			var tile_data_ = layer.get_cell_tile_data(layer_tile_position)
-
+			#parent_n.print_(layer_tile_position)
+			#parent_n.print_(layer_num)
 			if tile_data_ != null:
 				var new_height = tile_data_.get_custom_data("HIGH_G")
-				
+				parent_n.print_(new_height)
 				if new_height and (new_height > height):
 					height = new_height
 					current_height = new_height

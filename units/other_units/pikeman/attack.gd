@@ -4,7 +4,7 @@ const cooldown = 2
 var can_attack = true
 @onready var main_r = get_tree().root.get_node("game")
 @onready var parent_n = get_parent()
-@onready var sword = load("res://weapons/mele/sword/sword.tscn")
+@onready var sword = load("res://weapons/mele/halebard/halebard.tscn")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

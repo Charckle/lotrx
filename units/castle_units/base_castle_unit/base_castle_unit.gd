@@ -3,7 +3,7 @@ extends Node2D
 @export var faction = 99
 
 var map_unique_id
-var unit_id = 501
+var unit_id = 0 # set in settings?
 @export var siege_id = 0
 var all_siege_ids = [50]
 
