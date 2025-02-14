@@ -1,8 +1,12 @@
 extends Node2D
 
+var moat_depth = 20
+
 var tile_id
 var atlas_coords
 var alternative_tile
+
+var map_unique_id
 
 var scheduled_to_be_deleted = false
 
@@ -20,6 +24,7 @@ func _ready() -> void:
 	get_underliying_tile()
 	#astar_grid.set_point_solid(unit_position)
 	self.visible = false
+	register_unit_w_map()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -72,7 +77,36 @@ func get_underliying_tile():
 
 func return_to_base_tile():
 	first_tilemap_layer.set_cell(unit_position, tile_id, atlas_coords, alternative_tile)
-	first_tilemap_layer.set_cells_terrain_connect([unit_position], -1, -1)
+	
 	scheduled_to_be_deleted = true
 	queue_free()
 	root_map.re_create_moat()
+	astar_grid.set_point_solid(unit_position, false)
+
+
+func being_attacked_by(placeholder):
+	pass
+
+func get_filled(dig_dmg):
+	moat_depth -= dig_dmg
+
+	if moat_depth <= 0:
+		update_death.rpc()
+
+@rpc("authority", "call_local", "reliable")
+func update_death():
+	get_died()
+
+func get_died():
+	unregister_unit_w_map()
+	return_to_base_tile()
+
+
+# this is needed for multiplayer sync
+func register_unit_w_map():
+	root_map.incremental_unit_ids += 1
+	self.map_unique_id = root_map.incremental_unit_ids
+	root_map.all_units_w_unique_id[self.map_unique_id] = self
+
+func unregister_unit_w_map(target=self):
+	root_map.all_units_w_unique_id.erase(target.map_unique_id)

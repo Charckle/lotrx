@@ -43,7 +43,7 @@ func _enter_tree():
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	setup_astar_grid()
-	re_create_moat()
+	re_create_moat(true)
 
 	#global_map_sectors_generate()
 
@@ -377,12 +377,14 @@ func get_all_ai_markers():
 		markers.append(marker)
 	return markers
 
-func re_create_moat():
+func re_create_moat(first_make=false):
 	var moat_tiles = []
 	
 	for moat_obj in $moat.get_children():
 		if moat_obj.scheduled_to_be_deleted == false:
-			moat_obj.make_walkable(false)
+			if first_make:
+				moat_obj.make_walkable(false)
+			first_tilemap_layer.erase_cell(moat_obj.unit_position)
 			moat_tiles.append(moat_obj.unit_position)
 	
 	first_tilemap_layer.set_cells_terrain_connect(moat_tiles, 0, 0)

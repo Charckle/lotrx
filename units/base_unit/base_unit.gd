@@ -2,10 +2,14 @@ extends Area2D
 
 @export var debugging_ = false
 
+enum State { IDLE, ATTACKING, DEFENDING, RETREATING, DIGGING }
+var current_state = State.IDLE # ATM just for digging
+
 var map_unique_id
 var unit_id = 0
 var ranged_unit_ids = [1,2]
 var primary_mele_fighter = true
+var can_dig = true
 var siege_weapon = false
 #@export var siege_id = 0
 @export var aggressive = true
@@ -53,6 +57,7 @@ var walking_in_agression = false
 @onready var attack_rage_px_base = attack_range * root_map.m_cell_size
 @onready var attack_rage_px = attack_rage_px_base
 @onready var damage_label = preload("res://weapons/random/damage_label.tscn")
+@onready var dig_att = load("res://weapons/mele/dig_att/dig_att.tscn")
 
 var selected_target = load("res://sprites/gui/selected_target.png")
 var sprite_walk_target = load("res://sprites/gui/going_mark.png")
@@ -120,7 +125,7 @@ func check_stance():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	self.check_stance()
-
+	
 	agression_bar.visible = walking_in_agression
 	
 	if selected:
@@ -258,6 +263,7 @@ func set_attack(unit_map_unique_id: int):
 	move_()
 
 func move_(target_move_to=null):
+	current_state = State.IDLE # used for digging ATM
 	root_map.get_solid_points()
 	
 	if target_move_to != null:
@@ -331,10 +337,13 @@ func _physics_process(delta):
 			target_walk = unit_position
 			
 			# check if net cell is moat. if its moat, dig
-			for moat_obj in root_map.get_node("moat").get_children():
-				if moat_obj.unit_position == next_cell:
-					# make digging magic
-					print("kurac")
+			if can_dig == true:
+				for moat_obj in root_map.get_node("moat").get_children():
+					if moat_obj.unit_position == next_cell:
+						# make digging magic
+						target_attack = weakref(moat_obj)
+						current_state = State.DIGGING
+
 		else:
 			move_()
 		return
@@ -397,6 +406,10 @@ func check_soroundings():
 	if is_moving:
 		update_target_attack_passive.rpc(null)
 	
+	if current_state == State.DIGGING:
+		# check for clossst moat, go there
+		get_closest_moat()
+	
 	if gr(get_right_target()) == null and not is_moving:
 		if timer_ < 0:
 			calclulate_if_in_agression()
@@ -417,16 +430,37 @@ func set_walk_in_aggression(yes_no):
 	walking_in_agression = yes_no
 
 
+func get_closest_moat():
+	var close_moats = []
+	
+	for moat in root_map.get_node("moat").get_children():
+		var moat_wr = weakref(moat)
+		var distance = int(global_position.distance_to(moat.global_position))
+		var in_range = aggression_rage_px - distance
+		
+		if in_range > 0:
+			close_moats.append([moat_wr, in_range])
+		
+		if not close_moats.is_empty():
+			close_moats.sort_custom(func(a, b): return a[1] > b[1])
+			update_target_attack.rpc(gr(close_moats[0][0]).map_unique_id)
+			
+		else:
+			current_state = State.IDLE # used for digging ATM
+			
+
+
 func calclulate_if_in_agression():
 	var close_units = []
+	
 	for unit in root_map.get_all_units():
 		var unit_wr = weakref(unit)
-		var unit_wr_obj = unit_wr.get_ref()
+		#var unit_wr_obj = unit_wr.get_ref()
 		if unit == self:
 			continue
-		if unit_wr_obj.faction == self.faction or unit_wr_obj.faction in self.friendly_factions:
+		if unit.faction == self.faction or unit.faction in self.friendly_factions:
 			continue
-		var distance = int(global_position.distance_to(unit_wr_obj.global_position))
+		var distance = int(global_position.distance_to(unit.global_position))
 		#print(distance)
 		var in_range = aggression_rage_px - distance
 		#print(aggression_rage_px)
@@ -633,6 +667,23 @@ func get_died():
 	if units_selected.size() == 0:
 		#Input.set_custom_mouse_cursor(cursor_default)
 		root_map.get_node("UI").get_node("cursors").set_default_cursor()
+
+
+@rpc("authority", "call_local", "reliable")
+func dig_moat(right_target_id):
+	#var all_moats = root_map.get_node("moat").get_children()
+	var att_object = weakref(root_map.all_units_w_unique_id[right_target_id])
+	
+	$attack.can_attack = false
+	$attack/Timer.start()
+	var instance = dig_att.instantiate()
+	instance.position = global_position
+	instance.target = att_object
+	#instance.spawnPos = global_position
+	#instance.spawnRot = rotation
+	#
+	root_map.get_node("projectiles").add_child(instance)
+
 
 # this is needed for multiplayer sync
 func register_unit_w_map():

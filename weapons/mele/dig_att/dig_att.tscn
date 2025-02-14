@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://b5ukon12admoh"]
+
+[ext_resource type="Script" path="res://weapons/mele/dig_att/dig_att.gd" id="1_xh35s"]
+[ext_resource type="Texture2D" uid="uid://bbn0naab8ijiy" path="res://sprites/weapons/mele/dig/dig.png" id="2_fc80a"]
+
+[node name="DigAtt" type="Node2D"]
+script = ExtResource("1_xh35s")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_fc80a")

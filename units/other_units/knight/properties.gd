@@ -8,6 +8,7 @@ func _ready() -> void:
 	parent_n.attack_range = 1
 	parent_n.m_speed = 300
 	parent_n.primary_mele_fighter = true
+	parent_n.can_dig = false
 	parent_n.attack_dmg_range = 0
 	parent_n.attack_dmg_mele = 50
 	

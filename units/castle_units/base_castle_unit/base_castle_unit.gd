@@ -21,7 +21,7 @@ var selected = false
 
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 @onready var title_map_node = root_map.get_node("TileMap")
-@onready var first_tilemap_layer = title_map_node.get_child(0)
+@onready var first_tilemap_layer = title_map_node.get_node("base_layer")
 @onready var astar_grid = root_map.astar_grid
 @onready var unit_position = first_tilemap_layer.local_to_map(global_position)
 

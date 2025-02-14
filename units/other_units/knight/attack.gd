@@ -22,7 +22,11 @@ func _process(delta: float) -> void:
 		
 		if right_target != null and in_range(weakref(right_target)):
 			var right_target_id = right_target.map_unique_id
-			attack_mele.rpc(right_target_id)
+			
+			if right_target.get("moat_depth") == null:
+				attack_mele.rpc(right_target_id)
+			else:
+				parent_n.dig_moat.rpc(right_target_id)
 
 
 func _on_timer_timeout() -> void:

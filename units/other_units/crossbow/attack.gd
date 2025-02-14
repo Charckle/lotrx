@@ -62,8 +62,10 @@ func _process(delta: float) -> void:
 				#attack_range(parent_n.get_right_target())
 				attack_range.rpc(right_target_id)
 			else:
-				#attack_mele(parent_n.get_right_target())
-				attack_mele.rpc(right_target_id)
+				if right_target.get("moat_depth") == null:
+					attack_mele.rpc(right_target_id)
+				else:
+					parent_n.dig_moat.rpc(right_target_id)
 
 
 func _on_timer_timeout() -> void:

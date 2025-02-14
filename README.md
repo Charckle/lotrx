@@ -15,12 +15,14 @@
 	- ram siege weapon DONE (bigger units?) 
 	- oil siege weapons DONE
 	- larger single door DONE
-	- drawbridge
+	- drawbridge DONE
 	- mote, that units can fill
 - siege lvl 2
 	- trebuchets
 		- only fire where you tell them, they dont attack by themselfs
 		- limited projectiles
+		- area of effect
+		- castle based too
 	- destroyable walls
 		- make the tiles have the value of the destruction, so its easier, less objects
 - siege lvl 3:
@@ -46,6 +48,7 @@
 	- thunder
 	- night/day
 - shaders shaders shaders
+- make filled moat be covered with dirt tiles, when the moat is removed
 - make trees react to the wind, make them an object and movable
 	- assign a value to the tiles, and the at the start of the game, just add tree objects
 - make dynamic water with whaders or smtg, make it look like in monkey island 3

@@ -16,6 +16,7 @@ func _ready() -> void:
 	parent_n.attack_range = 5
 	parent_n.m_speed = 40
 	parent_n.primary_mele_fighter = false
+	parent_n.can_dig = false
 	parent_n.attack_dmg_range = 0
 	parent_n.attack_dmg_mele = 5
 	var base_health = 220

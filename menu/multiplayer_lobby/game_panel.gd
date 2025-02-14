@@ -55,7 +55,7 @@ func get_all_maps():
 	
 	var castle_socerb = {
 		"name": "siege: Socerb castle",
-		"desc": "A siege of the small castle Socerb",
+		"desc": "A siege of the small castle Socerb, which withstood and repelled a venetian army inflicting them 3000 casualties.",
 		"path" : "uid://dpq75kochn3i",
 		"map_options": {
 			"ai_faction": 0,

@@ -1,46 +1,30 @@
 extends Node2D
 
-const cooldown = 2
+const cooldown = 4
 var can_attack = true
 @onready var main_r = get_tree().root.get_node("game")
 @onready var parent_n = get_parent()
-@onready var sword = load("res://weapons/mele/sword/sword.tscn")
+@onready var ram_att = load("res://weapons/mele/ram_att/ram_att.tscn")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	$Timer.wait_time = cooldown
+	pass
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	# multiplayer cut-off
 	if not multiplayer.is_server():
 		return
-		
-	if can_attack == true and parent_n.is_moving == false:
-		var right_target = gr(parent_n.get_right_target())
-		
-		if right_target != null and in_range(weakref(right_target)):
-			var right_target_id = right_target.map_unique_id
-			
-			if right_target.get("moat_depth") == null:
-				attack_mele.rpc(right_target_id)
-			else:
-				parent_n.dig_moat.rpc(right_target_id)
 
 
-
-func _on_timer_timeout() -> void:
-	can_attack = true
-
-
+	
 @rpc("authority", "call_local", "reliable")
 func attack_mele(right_target_id):
 	var att_object = weakref(main_r.all_units_w_unique_id[right_target_id])
 	
 	can_attack = false
 	$Timer.start()
-	var instance = sword.instantiate()
+	var instance = ram_att.instantiate()
 	instance.position = global_position
 	instance.target = att_object
 	instance.attack_dmg = parent_n.attack_dmg_mele
@@ -49,7 +33,7 @@ func attack_mele(right_target_id):
 	#instance.spawnRot = rotation
 	#
 	main_r.get_node("projectiles").add_child(instance)
-	
+
 func in_range(target_obj):
 	if gr(target_obj) == null:
 		return

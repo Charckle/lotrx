@@ -33,6 +33,7 @@ func get_unit_(unit_type_):
 		6: "swordsman",
 		7: "ram",
 		8: "cauldron",
+		9: "siege_tower",
 		500: "small_door",
 		501: "portcullis",
 		502: "draw_bridge"
