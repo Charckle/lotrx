@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bqooidpvpdi2b"
+path="res://.godot/imported/cymbalBird - Battle.mp3-5b004face8cca71e963d2efa41d10077.mp3str"
+
+[deps]
+
+source_file="res://audio/music/menu/cymbalBird - Battle.mp3"
+dest_files=["res://.godot/imported/cymbalBird - Battle.mp3-5b004face8cca71e963d2efa41d10077.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

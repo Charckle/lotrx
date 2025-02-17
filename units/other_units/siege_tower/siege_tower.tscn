@@ -7,15 +7,6 @@
 [ext_resource type="Script" path="res://units/other_units/siege_tower/attack.gd" id="4_kipak"]
 
 [node name="siege_tower" instance=ExtResource("1_lio3f")]
-debugging_ = false
-aggressive = true
-base_health = 120
-m_speed = 100
-faction = 1
-friendly_factions = []
-stance = 0
-agression_range_base = 5
-attack_range = 1
 
 [node name="sprite_base" parent="." index="0"]
 texture = ExtResource("2_lf7m5")

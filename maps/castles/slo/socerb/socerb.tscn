@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=4 uid="uid://dpq75kochn3i"]
+[gd_scene load_steps=21 format=4 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
 [ext_resource type="Script" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://cw62l2a8kja3j" path="res://AI/POI/pikeman_POI/ai_poi_pikeman.tscn" id="10_sg6le"]
 [ext_resource type="PackedScene" uid="uid://cl6m2xq23hmco" path="res://units/other_units/siege_tower/siege_tower.tscn" id="11_p1aew"]
 [ext_resource type="PackedScene" uid="uid://6k5bqys5j8x4" path="res://maps/othr/player_start_loc/player_start_loc.tscn" id="13_o55kd"]
+[ext_resource type="PackedScene" uid="uid://bd2oebmiliabk" path="res://units/other_units/siege_tower/siege_wall/siege_wall.tscn" id="20_vnevk"]
 
 [node name="game" instance=ExtResource("1_pay0i")]
 metadata/_edit_lock_ = true
@@ -228,7 +229,7 @@ position = Vector2(784, -304)
 faction = 2
 
 [node name="siege_tower" parent="units" index="53" instance=ExtResource("11_p1aew")]
-position = Vector2(880, -272)
+position = Vector2(144, 528)
 
 [node name="projectiles" parent="." index="7"]
 metadata/_edit_lock_ = true
@@ -296,8 +297,47 @@ position = Vector2(880, -1008)
 faction = 2
 
 [node name="PlayerStartLoc" parent="othr" index="0" instance=ExtResource("13_o55kd")]
-position = Vector2(656, 368)
+position = Vector2(528, 368)
 
 [node name="PlayerStartLoc2" parent="othr" index="1" instance=ExtResource("13_o55kd")]
 position = Vector2(688, -688)
 faction = 2
+
+[node name="SiegeWall" parent="siege_walls/available_loc" index="0" instance=ExtResource("20_vnevk")]
+position = Vector2(848, -336)
+
+[node name="SiegeWall2" parent="siege_walls/available_loc" index="1" instance=ExtResource("20_vnevk")]
+position = Vector2(848, -368)
+
+[node name="SiegeWall3" parent="siege_walls/available_loc" index="2" instance=ExtResource("20_vnevk")]
+position = Vector2(880, -368)
+
+[node name="SiegeWall4" parent="siege_walls/available_loc" index="3" instance=ExtResource("20_vnevk")]
+position = Vector2(816, -336)
+
+[node name="SiegeWall5" parent="siege_walls/available_loc" index="4" instance=ExtResource("20_vnevk")]
+position = Vector2(816, -304)
+
+[node name="SiegeWall6" parent="siege_walls/available_loc" index="5" instance=ExtResource("20_vnevk")]
+position = Vector2(592, -240)
+
+[node name="SiegeWall7" parent="siege_walls/available_loc" index="6" instance=ExtResource("20_vnevk")]
+position = Vector2(592, -208)
+
+[node name="SiegeWall8" parent="siege_walls/available_loc" index="7" instance=ExtResource("20_vnevk")]
+position = Vector2(592, -272)
+
+[node name="SiegeWall9" parent="siege_walls/available_loc" index="8" instance=ExtResource("20_vnevk")]
+position = Vector2(560, -272)
+
+[node name="SiegeWall10" parent="siege_walls/available_loc" index="9" instance=ExtResource("20_vnevk")]
+position = Vector2(560, -304)
+
+[node name="SiegeWall11" parent="siege_walls/available_loc" index="10" instance=ExtResource("20_vnevk")]
+position = Vector2(560, -336)
+
+[node name="SiegeWall12" parent="siege_walls/available_loc" index="11" instance=ExtResource("20_vnevk")]
+position = Vector2(496, -496)
+
+[node name="SiegeWall13" parent="siege_walls/available_loc" index="12" instance=ExtResource("20_vnevk")]
+position = Vector2(464, -496)

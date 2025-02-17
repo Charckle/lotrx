@@ -6,6 +6,8 @@ var can_attack = true
 @onready var parent_n = get_parent()
 @onready var ram_att = load("res://weapons/mele/ram_att/ram_att.tscn")
 
+@onready var siege_deployed = load("res://units/other_units/siege_tower/siege_deployed/siege_deployed.tscn")
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass
@@ -20,19 +22,17 @@ func _process(delta: float) -> void:
 	
 @rpc("authority", "call_local", "reliable")
 func attack_mele(right_target_id):
-	var att_object = weakref(main_r.all_units_w_unique_id[right_target_id])
+	pass
+
+@rpc("authority", "call_local", "reliable")
+func deploy_siege(tile_coord):
+	# create objects
+	var instance = siege_deployed.instantiate()
+	instance.position =  parent_n.first_tilemap_layer.map_to_local(tile_coord)
+	main_r.get_node("siege_walls").get_node("placed_loc").add_child(instance)
 	
-	can_attack = false
-	$Timer.start()
-	var instance = ram_att.instantiate()
-	instance.position = global_position
-	instance.target = att_object
-	instance.attack_dmg = parent_n.attack_dmg_mele
-	instance.a_penetration = parent_n.a_penetration
-	#instance.spawnPos = global_position
-	#instance.spawnRot = rotation
-	#
-	main_r.get_node("projectiles").add_child(instance)
+	# delet the object
+	parent_n.update_death.rpc()
 
 func in_range(target_obj):
 	if gr(target_obj) == null:

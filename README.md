@@ -10,7 +10,7 @@
 
 # To Do
 - upgrade pathfinding a second time
-
+- doubleclick on unit, to select all of them on screen
 - siege lvl 1
 	- ram siege weapon DONE (bigger units?) 
 	- oil siege weapons DONE
@@ -27,9 +27,12 @@
 		- make the tiles have the value of the destruction, so its easier, less objects
 - siege lvl 3:
 	- siege tower?
+- wooden castles
+- scenarios:
+    - short scenarios, where you control X provicnes and have limited time to battle the enemy
 - create basic maps:
-	- enclosed norman keep
-	- enclosed castle
+	- enclosed norman keep OK
+	- enclosed castle OK
 	- linked castle
 	- concentric castle
 	- poli warded castle
@@ -38,6 +41,7 @@
 	- decide what the ration of your army will be
 - ingame chat
     - also, make the chat in the lobby persistent
+- horses and sieges cannot go on the walls
 - tooltip when hovering over a unit
 - weather
 	- check if you can use multimashinstance2d for weather objects

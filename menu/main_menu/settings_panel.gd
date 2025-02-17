@@ -1,8 +1,5 @@
 extends Panel
 
-@onready var audio_player = get_parent().get_parent().get_node("AudioPlayer")
-
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
@@ -14,12 +11,14 @@ func _process(delta):
 
 
 func _on_music_enable_button_toggled(toggled_on):
+	var music_player = get_tree().root.get_node("MusicPlayer")
+	
 	if toggled_on == true:
 		GlobalSettings.global_options["audio"]["music_active"] = true
-		self.audio_player.play()
+		music_player.play()
 	else:
 		GlobalSettings.global_options["audio"]["music_active"] = false
-		self.audio_player.stop()
+		music_player.stop()
 
 
 func _on_agression_range_button_toggled(toggled_on):

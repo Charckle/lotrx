@@ -182,7 +182,7 @@ func update_target_attack(target_attack_id):
 
 @rpc("authority", "call_local", "reliable")
 func update_target_attack_passive(target_attack_passive_id):
-	if target_attack_passive_id == null:
+	if target_attack_passive_id == null or target_attack_passive_id not in root_map.all_units_w_unique_id:
 		target_attack_passive = null
 	else:
 		target_attack_passive = weakref(root_map.all_units_w_unique_id[target_attack_passive_id])
@@ -201,8 +201,12 @@ func _on_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton:
 		if event.is_pressed():
 			if event.button_index == MOUSE_BUTTON_LEFT:
-				root_map.deselect_all_units()
-				root_map.units_selected.append(self)
+				if not Input.is_action_pressed("shift_"):
+					root_map.deselect_all_units()
+				
+				if self not in root_map.units_selected:
+					root_map.units_selected.append(self)
+					
 				set_selected(true)
 
 func _on_mouse_entered() -> void:
@@ -338,11 +342,13 @@ func _physics_process(delta):
 			
 			# check if net cell is moat. if its moat, dig
 			if can_dig == true:
-				for moat_obj in root_map.get_node("moat").get_children():
+				for moat_obj in root_map.get_node("moat").get_node("moat_obj").get_children():
 					if moat_obj.unit_position == next_cell:
 						# make digging magic
 						target_attack = weakref(moat_obj)
 						current_state = State.DIGGING
+			elif unit_id == 9:
+				$attack.deploy_siege.rpc(next_cell)
 
 		else:
 			move_()

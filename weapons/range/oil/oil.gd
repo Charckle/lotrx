@@ -15,13 +15,15 @@ var already_placed_bloks = []
 
 @onready var oil_puddle = load("res://weapons/mele/oil_puddle/oil_puddle.tscn")
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
-@onready var title_map = root_map.get_node("TileMap")
+@onready var title_map_node = root_map.get_node("TileMap")
+@onready var first_tilemap_layer = title_map_node.get_node("base_layer")
+@onready var unit_position = first_tilemap_layer.local_to_map(global_position)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	target_coordinate = gr(target).global_position
 	diretion_vector = target_coordinate - position
-	oil_pos_for_calc = title_map.local_to_map(global_position)
+	oil_pos_for_calc = unit_position
 	oil_pos_for_calc_old = oil_pos_for_calc
 	var angle = global_position.angle_to_point(target_coordinate)
 	rotation = angle
@@ -30,7 +32,7 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	oil_pos_for_calc = title_map.local_to_map(global_position)
+	unit_position = first_tilemap_layer.local_to_map(global_position)
 	
 	if timer_ < 0:
 		timer_ = 10
@@ -38,9 +40,9 @@ func _process(delta: float) -> void:
 	
 	global_position = global_position + (diretion_vector * (speed * delta))
 	
-	if oil_pos_for_calc != oil_pos_for_calc_old:
+	if unit_position != oil_pos_for_calc_old:
 		ttd -= 1
-		oil_pos_for_calc_old = oil_pos_for_calc
+		oil_pos_for_calc_old = unit_position
 		
 		if ttd < ttb:
 			var adjecent_blocks = get_adjecent_blocks()
@@ -48,7 +50,7 @@ func _process(delta: float) -> void:
 			
 			for block in adjecent_blocks:
 				if block not in already_placed_bloks:
-					var pos_ition = title_map.map_to_local(block)
+					var pos_ition = first_tilemap_layer.map_to_local(block)
 					spawn_puddles(pos_ition)
 					already_placed_bloks.append(block)
 	

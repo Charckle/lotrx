@@ -58,14 +58,13 @@ func _process(delta: float) -> void:
 		if right_target != null:
 			var right_target_id = right_target.map_unique_id
 			
-			if not parent_n.is_pinned:
+			if right_target.get("moat_depth") != null:
+				parent_n.dig_moat.rpc(right_target_id)
+			elif not parent_n.is_pinned:
 				#attack_range(parent_n.get_right_target())
 				attack_range.rpc(right_target_id)
 			else:
-				if right_target.get("moat_depth") == null:
-					attack_mele.rpc(right_target_id)
-				else:
-					parent_n.dig_moat.rpc(right_target_id)
+				attack_mele.rpc(right_target_id)
 
 
 func _on_timer_timeout() -> void:

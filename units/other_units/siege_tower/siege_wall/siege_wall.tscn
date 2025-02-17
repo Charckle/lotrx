@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bd2oebmiliabk"]
+
+[ext_resource type="Texture2D" uid="uid://ch2i3255ctgf5" path="res://sprites/units/castle/siege_tower/siege_tower_wall.png" id="1_t5pft"]
+
+[node name="SiegeWall" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_t5pft")

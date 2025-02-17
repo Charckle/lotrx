@@ -1,6 +1,6 @@
 extends Node2D
 
-var moat_depth = 20
+var moat_depth = 220
 
 var tile_id
 var atlas_coords
@@ -16,6 +16,8 @@ var scheduled_to_be_deleted = false
 @onready var title_map_node = root_map.get_node("TileMap")
 @onready var first_tilemap_layer = title_map_node.get_node("base_layer")
 @onready var unit_position = first_tilemap_layer.local_to_map(global_position)
+
+@onready var dirt = load("uid://csuaofqnid26m")
 
 # you place this on the map, it generates auto tiles
 
@@ -76,7 +78,10 @@ func get_underliying_tile():
 	alternative_tile = first_tilemap_layer.get_cell_alternative_tile(unit_position)
 
 func return_to_base_tile():
-	first_tilemap_layer.set_cell(unit_position, tile_id, atlas_coords, alternative_tile)
+	#first_tilemap_layer.set_cell(unit_position, tile_id, atlas_coords, alternative_tile)
+	var dirt = dirt.instantiate()
+	dirt.global_position = self.global_position
+	root_map.get_node("moat").get_node("dirt_obj").add_child(dirt)
 	
 	scheduled_to_be_deleted = true
 	queue_free()

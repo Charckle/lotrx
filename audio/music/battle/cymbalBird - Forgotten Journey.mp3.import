@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ba4lebs6dqsrm"
+path="res://.godot/imported/cymbalBird - Forgotten Journey.mp3-7fe800faa2c6cab67623c9d66ca57f81.mp3str"
+
+[deps]
+
+source_file="res://audio/music/battle/cymbalBird - Forgotten Journey.mp3"
+dest_files=["res://.godot/imported/cymbalBird - Forgotten Journey.mp3-7fe800faa2c6cab67623c9d66ca57f81.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

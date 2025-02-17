@@ -1,9 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://ceun5xdoedpjf"]
+[gd_scene load_steps=5 format=3 uid="uid://ceun5xdoedpjf"]
 
 [ext_resource type="Script" path="res://menu/main_menu/main_menu.gd" id="1_hx8yy"]
 [ext_resource type="Script" path="res://menu/main_menu/settings_panel.gd" id="2_5gwv8"]
-[ext_resource type="AudioStream" uid="uid://3lwic37oxesx" path="res://audio/music/cymbalBird - Battle.mp3" id="2_kbc06"]
-[ext_resource type="Script" path="res://menu/main_menu/castles_maps.gd" id="2_knm2y"]
+[ext_resource type="Script" path="res://menu/main_menu/about_panel.gd" id="4_1qmbs"]
 [ext_resource type="PackedScene" uid="uid://btkp0ce6d02cv" path="res://menu/muliplayer_menu/mutiplayer_menu.tscn" id="5_dwoyk"]
 
 [node name="MainMenu" type="Node2D"]
@@ -21,15 +20,6 @@ offset_left = 32.0
 offset_top = 32.0
 offset_right = 384.0
 offset_bottom = 133.0
-
-[node name="open_maps" type="Button" parent="main_panel/upper_menu"]
-layout_mode = 2
-text = "Open Maps"
-
-[node name="castle_maps" type="Button" parent="main_panel/upper_menu"]
-layout_mode = 2
-size_flags_vertical = 8
-text = "Castle Maps"
 
 [node name="multiplayer_menu" type="Button" parent="main_panel/upper_menu"]
 layout_mode = 2
@@ -63,73 +53,6 @@ text = "Quit"
 
 [node name="other_menus" type="Node2D" parent="."]
 
-[node name="open_maps" type="Panel" parent="other_menus"]
-visible = false
-offset_left = 80.0
-offset_top = 80.0
-offset_right = 480.0
-offset_bottom = 384.0
-
-[node name="ItemList" type="VBoxContainer" parent="other_menus/open_maps"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -124.5
-offset_right = 124.5
-offset_bottom = 40.0
-grow_horizontal = 2
-
-[node name="small_test_map" type="GridContainer" parent="other_menus/open_maps/ItemList"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-columns = 3
-
-[node name="map_name" type="Label" parent="other_menus/open_maps/ItemList/small_test_map"]
-layout_mode = 2
-text = "Small Test Map"
-
-[node name="attack" type="Button" parent="other_menus/open_maps/ItemList/small_test_map"]
-layout_mode = 2
-text = "Attack"
-
-[node name="defend" type="Button" parent="other_menus/open_maps/ItemList/small_test_map"]
-layout_mode = 2
-text = "Defend
-"
-
-[node name="castles_maps" type="Panel" parent="other_menus"]
-visible = false
-offset_left = 80.0
-offset_top = 80.0
-offset_right = 464.0
-offset_bottom = 400.0
-script = ExtResource("2_knm2y")
-
-[node name="castle_list" type="VBoxContainer" parent="other_menus/castles_maps"]
-layout_mode = 0
-offset_left = 64.0
-offset_right = 299.0
-offset_bottom = 40.0
-scale = Vector2(1, 0.995853)
-
-[node name="GridContainer" type="GridContainer" parent="other_menus/castles_maps/castle_list"]
-layout_mode = 2
-columns = 3
-
-[node name="map_name" type="Label" parent="other_menus/castles_maps/castle_list/GridContainer"]
-layout_mode = 2
-text = "Castle Socerb"
-
-[node name="attack" type="Button" parent="other_menus/castles_maps/castle_list/GridContainer"]
-layout_mode = 2
-text = "Attack"
-
-[node name="defend" type="Button" parent="other_menus/castles_maps/castle_list/GridContainer"]
-layout_mode = 2
-text = "Defend"
-
 [node name="MutiplayerMenu" parent="other_menus" instance=ExtResource("5_dwoyk")]
 visible = false
 offset_left = 144.0
@@ -140,25 +63,20 @@ offset_bottom = 48.0
 [node name="about_panel" type="Panel" parent="other_menus"]
 visible = false
 offset_left = 112.0
-offset_top = 80.0
+offset_top = 48.0
 offset_right = 720.0
-offset_bottom = 464.0
+offset_bottom = 624.0
+script = ExtResource("4_1qmbs")
 
-[node name="song_credits" type="Label" parent="other_menus/about_panel"]
+[node name="ScrollContainer" type="ScrollContainer" parent="other_menus/about_panel"]
 layout_mode = 0
 offset_left = 32.0
 offset_top = 32.0
-offset_right = 129.0
-offset_bottom = 55.0
-text = "Song Credits:"
+offset_right = 576.0
+offset_bottom = 544.0
 
-[node name="Label" type="Label" parent="other_menus/about_panel/song_credits"]
-layout_mode = 0
-offset_top = 32.0
-offset_right = 771.0
-offset_bottom = 55.0
-theme_override_font_sizes/font_size = 10
-text = "- Artist: cymbalBird, Source: (Free Music Archive), License: CC BY, Songs: Battle, Joy, Forgotten Journey"
+[node name="VBoxContainer" type="VBoxContainer" parent="other_menus/about_panel/ScrollContainer"]
+layout_mode = 2
 
 [node name="settings_panel" type="Panel" parent="other_menus"]
 visible = false
@@ -253,19 +171,14 @@ text = "Weather"
 layout_mode = 2
 button_pressed = true
 
-[node name="AudioPlayer" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("2_kbc06")
-
-[connection signal="pressed" from="main_panel/upper_menu/open_maps" to="." method="_on_open_maps_pressed"]
-[connection signal="pressed" from="main_panel/upper_menu/castle_maps" to="." method="_on_castle_maps_pressed"]
+[connection signal="mouse_entered" from="main_panel/upper_menu/multiplayer_menu" to="." method="_on_multiplayer_menu_mouse_entered"]
 [connection signal="pressed" from="main_panel/upper_menu/multiplayer_menu" to="." method="_on_multiplayer_menu_pressed"]
+[connection signal="mouse_entered" from="main_panel/settings_menu/settings_menu" to="." method="_on_settings_menu_mouse_entered"]
 [connection signal="pressed" from="main_panel/settings_menu/settings_menu" to="." method="_on_settings_menu_pressed"]
+[connection signal="mouse_entered" from="main_panel/settings_menu/about_menu" to="." method="_on_about_menu_mouse_entered"]
 [connection signal="pressed" from="main_panel/settings_menu/about_menu" to="." method="_on_about_menu_pressed"]
+[connection signal="mouse_entered" from="main_panel/quit_menu/quit_button" to="." method="_on_quit_button_mouse_entered"]
 [connection signal="pressed" from="main_panel/quit_menu/quit_button" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="other_menus/open_maps/ItemList/small_test_map/attack" to="." method="_on_attack_pressed_small_test_map"]
-[connection signal="pressed" from="other_menus/open_maps/ItemList/small_test_map/defend" to="." method="_on_defend_pressed_small_test_map"]
-[connection signal="pressed" from="other_menus/castles_maps/castle_list/GridContainer/attack" to="other_menus/castles_maps" method="_on_attack_pressed_socerb"]
-[connection signal="pressed" from="other_menus/castles_maps/castle_list/GridContainer/defend" to="other_menus/castles_maps" method="_on_defend_pressed_socerb"]
 [connection signal="toggled" from="other_menus/settings_panel/GridContainer/music_enable_button" to="other_menus/settings_panel" method="_on_music_enable_button_toggled"]
 [connection signal="toggled" from="other_menus/settings_panel/GridContainer2/agression_range_button" to="other_menus/settings_panel" method="_on_agression_range_button_toggled"]
 [connection signal="toggled" from="other_menus/settings_panel/GridContainer2/attack_range_button" to="other_menus/settings_panel" method="_on_attack_range_button_toggled"]

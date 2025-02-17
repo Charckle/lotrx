@@ -7,6 +7,9 @@ const sector_size := 15.0 #how many cells in a sector. not used, since the proce
 @onready var title_map_node = $TileMap
 @onready var first_tilemap_layer = title_map_node.get_node("base_layer")
 
+@onready var music_player = get_tree().root.get_node("MusicPlayer")
+
+
 # needed for multiplayer sync, since you cannot send object references via the rpc func
 var incremental_unit_ids = 0
 var all_units_w_unique_id = {}
@@ -29,10 +32,13 @@ var all_player_commands = [] # commands send back from the server, combined from
 var commands_to_execute = [] # current player commands to execute
 # multiplayer system stop
 
+var map_display_options = {"siege_wall_points": false}
 
 var cursor_default = load("res://sprites/gui/defaut_cursor.png")
 var cursor_move = load("res://sprites/gui/move_to.png")
 var going_marker = load("uid://cqhiif4h6eys0")
+
+var music_started = false
 
 func _enter_tree():
 	GlobalSettings.game_stats = {
@@ -50,6 +56,7 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	queue_redraw()
+	play_music()
 
 # multiplayer tick system for running commands
 func _physics_process(delta):
@@ -73,6 +80,10 @@ func _physics_process(delta):
 		commands_in_last_tick = []
 		commands_from_other_players_last_tick = []
 
+func play_music():
+	if not music_started and music_player != null:
+		music_player.play_battle_music()
+		music_started = true
 
 func execute_the_commands():
 	#commands_to_execute = remove_duplicate_dicts(commands_to_execute) # I wager I save a couple of frames per seconds with this one
@@ -84,8 +95,9 @@ func execute_the_commands():
 	for command in commands_to_execute:
 		if (command["curr_tick"] + 2) <= current_tick:
 			#command["func"].callv(command["args"])  # Call the function with its arguments
-			var unit = all_units_w_unique_id[command["map_unique_id"]]
-			unit.callv(command["func"], command["args"]) 
+			if command["map_unique_id"] in all_units_w_unique_id:
+				var unit = all_units_w_unique_id[command["map_unique_id"]]
+				unit.callv(command["func"], command["args"]) 
 		else:
 			not_executed_commands.append(command)
 	commands_to_execute.clear()
@@ -134,15 +146,14 @@ func _input(event):
 			for unit in units_selected:
 				#unit.set_move()
 				unit.set_act()
-
 	
 	# Check if the right mouse button is pressed
 	
-	if Input.is_action_just_pressed("left_click"):
+	if Input.is_action_just_pressed("left_click") and not Input.is_action_pressed("shift_"):
 		# Call a function to reset variables
 		deselect_all_units()
-
 		Input.set_custom_mouse_cursor(cursor_default)
+		
 	# control groups
 	if event is InputEventKey:
 		if units_selected.size() > 0:
@@ -151,12 +162,17 @@ func _input(event):
 	
 	if event is InputEventKey and event.pressed and event.keycode == Key.KEY_D:
 		set_stance_defence_selected()
+		
+	if event is InputEventKey and event.pressed and event.keycode == Key.KEY_M:
+		display_map_poi()
 
 
 func get_assign_control_group(event):
 	if event.keycode >= KEY_0 and event.keycode <= KEY_9 and not Input.is_action_pressed("control_button"):
 		if event.pressed:
-			deselect_all_units()
+			if not Input.is_action_pressed("shift_"):
+				deselect_all_units()
+			
 			Input.set_custom_mouse_cursor(cursor_default, Input.CURSOR_ARROW)
 			var pressed_number = event.keycode - KEY_1
 			#print(control_units_selected[pressed_number].size() > 0)
@@ -164,7 +180,9 @@ func get_assign_control_group(event):
 				
 				for unit in control_units_selected[pressed_number]:
 					unit.set_selected(true)
-					units_selected.append(unit)
+					
+					if unit not in units_selected:
+						units_selected.append(unit)
 					
 					if units_selected.size() != 0:
 						Input.set_custom_mouse_cursor(cursor_move, Input.CURSOR_ARROW, Vector2(20,20))
@@ -197,7 +215,8 @@ func _on_area_selected(object):
 	var units_area = _get_units_in_area(area)
 	for unit in units_area:
 		unit.set_selected(true)
-		units_selected.append(unit)
+		if unit not in units_selected:
+			units_selected.append(unit)
 	
 	if units_selected.size() != 0:
 		Input.set_custom_mouse_cursor(cursor_move, Input.CURSOR_ARROW, Vector2(20,20))
@@ -211,6 +230,18 @@ func set_stance_defence_selected():
 	for unit in units_selected:
 		#unit.set_stance(stance) 
 		update__process_func_clients.rpc(unit.map_unique_id,stance)
+
+func display_map_poi():
+	var display_ = map_display_options["siege_wall_points"]
+	
+	for siege_wall in $siege_walls/available_loc.get_children():
+		siege_wall.visible = display_
+	
+	if display_ == true:
+		map_display_options["siege_wall_points"] = false
+	else:
+		map_display_options["siege_wall_points"] = true
+
 
 @rpc("any_peer", "call_local", "reliable")
 func update__process_func_clients(map_unique_id, stance):
@@ -378,9 +409,10 @@ func get_all_ai_markers():
 	return markers
 
 func re_create_moat(first_make=false):
+	# moat
 	var moat_tiles = []
 	
-	for moat_obj in $moat.get_children():
+	for moat_obj in $moat/moat_obj.get_children():
 		if moat_obj.scheduled_to_be_deleted == false:
 			if first_make:
 				moat_obj.make_walkable(false)
@@ -388,6 +420,18 @@ func re_create_moat(first_make=false):
 			moat_tiles.append(moat_obj.unit_position)
 	
 	first_tilemap_layer.set_cells_terrain_connect(moat_tiles, 0, 0)
+	
+	# dirt
+	var dirt_tiles = []
+	
+	for dirt_obj in $moat/dirt_obj.get_children():
+		var unit_position = first_tilemap_layer.local_to_map(dirt_obj.global_position)
+		first_tilemap_layer.erase_cell(unit_position)
+		dirt_tiles.append(unit_position)
+	
+	first_tilemap_layer.set_cells_terrain_connect(dirt_tiles, 0, 1)
+
+
 
 func remove_all_gui():
 	_remove_all_children($gui_windows)
@@ -443,4 +487,5 @@ func reset_global_game_settings():
 func exit_to_main_menu():
 	reset_global_game_settings()
 	get_tree().change_scene_to_file("uid://ceun5xdoedpjf")
+	music_player.play_menu_music()
 	self.queue_free()
