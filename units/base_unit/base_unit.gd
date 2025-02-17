@@ -74,6 +74,11 @@ var attack_dmg_range = 40
 @export var font: Font
 var control_group = null
 
+# pathinding retrying
+var times_to_retry = 4
+var retried_times = 0
+var timer_started = false
+# END pathinding retrying
 
 var timer_ = 1
 
@@ -334,8 +339,8 @@ func _physics_process(delta):
 	# check if the next step is free, otherwise, recalc the route
 	if astar_grid.is_point_solid(next_cell) and next_cell != unit_position:
 		#print(astar_grid.is_point_solid(title_map.map_to_local(current_id_path.front())))
-		# check if there is a unit there. if it is, check if it has a value "target_walk"
-
+		
+		# if the next cell is the last cell, stop
 		if next_cell == Vector2i(target_walk):
 			current_id_path = []
 			target_walk = unit_position
@@ -349,11 +354,21 @@ func _physics_process(delta):
 						current_state = State.DIGGING
 			elif unit_id == 9:
 				$attack.deploy_siege.rpc(next_cell)
+		# if the next cell is not, wait a little bit
+		elif retried_times <= times_to_retry:
+			if not timer_started:
+				$walk_timer.start()
+				timer_started = true
 
+				
+		# done waiting, find new path
 		else:
+			retried_times = 0
 			move_()
 		return
-
+	
+	# if path is free, reset retry walking timer
+	retried_times = 0
 
 	astar_grid.set_point_solid(next_cell)
 	unit_position = next_cell
@@ -526,7 +541,7 @@ func draw_control_group_id():
 func draw_debug_data():
 	if GlobalSettings.global_options["debug"]["global_debug"] == true:
 		var string_ = str(aggressive) + "\n" + str(is_moving) + "\n" +  str(current_id_path.size())
-		self.debug_label.text = string_
+		self.debug_label.text = string_ #str(retried_times)
 
 func set_act():
 	if GlobalSettings.my_faction == faction:
@@ -730,3 +745,8 @@ func gr(weak_refer):
 		return null
 	else:
 		return weak_refer.get_ref()
+
+
+func _on_walk_timer_timeout() -> void:
+	timer_started = false
+	retried_times += 1

@@ -56,6 +56,11 @@ offset_top = -16.0
 offset_right = 56.0
 offset_bottom = 7.0
 
+[node name="walk_timer" type="Timer" parent="."]
+wait_time = 0.3
+one_shot = true
+
 [connection signal="input_event" from="." to="." method="_on_input_event"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
+[connection signal="timeout" from="walk_timer" to="." method="_on_walk_timer_timeout"]
