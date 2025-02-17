@@ -32,7 +32,7 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	unit_position = first_tilemap_layer.local_to_map(global_position)
+	oil_pos_for_calc = first_tilemap_layer.local_to_map(global_position)
 	
 	if timer_ < 0:
 		timer_ = 10
@@ -40,19 +40,23 @@ func _process(delta: float) -> void:
 	
 	global_position = global_position + (diretion_vector * (speed * delta))
 	
-	if unit_position != oil_pos_for_calc_old:
+	if oil_pos_for_calc != oil_pos_for_calc_old:
+		print(unit_position)
+		print(oil_pos_for_calc_old)
 		ttd -= 1
-		oil_pos_for_calc_old = unit_position
+		oil_pos_for_calc_old = oil_pos_for_calc
 		
 		if ttd < ttb:
 			var adjecent_blocks = get_adjecent_blocks()
-			
 			
 			for block in adjecent_blocks:
 				if block not in already_placed_bloks:
 					var pos_ition = first_tilemap_layer.map_to_local(block)
 					spawn_puddles(pos_ition)
 					already_placed_bloks.append(block)
+				else:
+					print("kura")
+					print(block)
 	
 	if ttd <= 0:
 		queue_free()

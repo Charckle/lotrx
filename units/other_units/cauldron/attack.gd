@@ -40,16 +40,13 @@ func attack_range(right_target_id):
 
 func in_range(target_obj):
 	if gr(target_obj) == null:
-		return
-	var adjecent_blocks = parent_n.get_adjecent_blocks()
-	var target_pos_2 = Vector2i(gr(target_obj).unit_position.x, gr(target_obj).unit_position.y)
-	var yes_in_range = false
-	
-	
-	for block in adjecent_blocks:
-		if target_pos_2 == block:
-			yes_in_range = true
-	return yes_in_range
+		return false
+	var distance = int(global_position.distance_to(gr(target_obj).global_position))
+	var in_range = parent_n.aggression_rage_px - distance
+	if in_range <= 0:
+		return false
+	else:
+		return true
 
 func gr(weak_refer):
 	if weak_refer == null:

@@ -8,9 +8,19 @@
 - the castle map is...eeh... work in progress
 - archers have problems attacking enemies that are behind walls. Yeah, I know.
 
+# Roadmap 2025
+- better AI
+- fix pathfinding
+- implement castle destruction
+- implement better UI for map selection
+- implement scenarios
+- implement wooden castles
+
+
 # To Do
 - upgrade pathfinding a second time
 - doubleclick on unit, to select all of them on screen
+- dry moat
 - siege lvl 1
 	- ram siege weapon DONE (bigger units?) 
 	- oil siege weapons DONE
@@ -26,7 +36,7 @@
 	- destroyable walls
 		- make the tiles have the value of the destruction, so its easier, less objects
 - siege lvl 3:
-	- siege tower?
+	- siege tower OK
 - wooden castles
 - scenarios:
     - short scenarios, where you control X provicnes and have limited time to battle the enemy
@@ -58,7 +68,6 @@
 - make dynamic water with whaders or smtg, make it look like in monkey island 3
 - make an outside resource where you set data for things like unit value, strenght, etc, so its more centralized
 - waypoints
-- adding additional units to command groups
 - scroll zoom
 - AI:
 	- defending open map
@@ -79,7 +88,7 @@
 - multiple castle maps, based on real life castles
 - skirmishes, where you can choose to fight an AI in a specific scenario
 - AI tiers
-- LAN multiplayer
-	- LAM multiplayer COOP
+- LAN multiplayer OK
+	- LAM multiplayer COOP OK
 
 The main goal is basically LAN multiplayer, but since I think it will be the hardest part, the idea is to make a playable product beforehand.

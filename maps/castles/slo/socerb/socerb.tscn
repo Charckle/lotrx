@@ -62,11 +62,11 @@ position = Vector2(336, 528)
 position = Vector2(368, 528)
 
 [node name="knight2" parent="units" index="6" instance=ExtResource("3_uqr84")]
-position = Vector2(688, -976)
+position = Vector2(656, -624)
 faction = 2
 
 [node name="knight3" parent="units" index="7" instance=ExtResource("3_uqr84")]
-position = Vector2(656, -976)
+position = Vector2(624, -624)
 faction = 2
 
 [node name="pikeman" parent="units" index="8" instance=ExtResource("5_2f677")]
@@ -228,7 +228,11 @@ faction = 2
 position = Vector2(784, -304)
 faction = 2
 
-[node name="siege_tower" parent="units" index="53" instance=ExtResource("11_p1aew")]
+[node name="cauldron5" parent="units" index="53" instance=ExtResource("10_ixc38")]
+position = Vector2(752, -368)
+faction = 2
+
+[node name="siege_tower" parent="units" index="54" instance=ExtResource("11_p1aew")]
 position = Vector2(144, 528)
 
 [node name="projectiles" parent="." index="7"]
