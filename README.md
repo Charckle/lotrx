@@ -3,10 +3,10 @@
 - the basic idea is to reacapture the spirit of the game
 
 # Current status
-- one open map, one castle map.
-- the open map is playable: the AI will attack or defend. If the attacker is loosing, the AI will counterattack. If the AI is the attacker, it will retreat.
-- the castle map is...eeh... work in progress
-- archers have problems attacking enemies that are behind walls. Yeah, I know.
+- two playable maps, one castle, one open. More are almost done
+- the open map is plaaable against the AI, the castle no
+- working moats, rams, doors, siege towers, oil
+- working multiplayer
 
 # Roadmap 2025
 - better AI
@@ -98,3 +98,6 @@
 	- LAM multiplayer COOP OK
 
 The main goal is basically LAN multiplayer, but since I think it will be the hardest part, the idea is to make a playable product beforehand.
+
+
+![Castle](screenshots/lotrx_03.png)

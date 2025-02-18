@@ -58,7 +58,7 @@ func set_units_to_defense_stance():
 		for unit in my_units_on_map:
 			var unit_obj = gr(unit)
 			if unit_obj != null:
-				if unit_obj.unit_id not in [1,2]:
+				if unit_obj.unit_id not in GlobalSettings.my_faction.get_list_of_ranged():
 					unit_obj.stance = 1
 
 func print_units_groups():
@@ -311,7 +311,7 @@ func check_range_units_pinned():
 	# check all ranged unit groups for being pinned
 	# if they are pinned, check available unit goups around, if they are not already defending pinned
 	# units, and send them to defend the ranged
-	var ranged_units_ids= [1,2]
+	var ranged_units_ids= GlobalSettings.my_faction.get_list_of_ranged()
 	
 	for unit_id in ranged_units_ids:
 		if unit_id not in unit_groups:

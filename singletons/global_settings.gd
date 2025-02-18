@@ -27,7 +27,7 @@ var global_options = {
 	"debug": {
 		"show_solid_tiles": false,
 		"show_path": false,
-		"global_debug": true
+		"global_debug": false
 	}
 }
 
@@ -35,6 +35,25 @@ var multiplayer_data = {
 	"players": {},
 	"map_to_load": null
 }
+
+var units_ = {
+		0: "peasant",
+		1: "archer",
+		2: "crossbow",
+		3: "knight",
+		4: "maceman",
+		5: "pikeman",
+		6: "swordsman",
+		7: "ram",
+		8: "cauldron",
+		9: "siege_tower",
+		500: "small_door",
+		501: "portcullis",
+		502: "draw_bridge"
+	}
+
+func get_list_of_ranged():
+	return [1,2]
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

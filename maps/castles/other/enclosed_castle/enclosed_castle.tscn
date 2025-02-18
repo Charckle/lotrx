@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://cc11e7qt83lbt" path="res://units/castle_units/draw_bridge/draw_bridge_placer/draw_bridge_placer.tscn" id="4_ck34l"]
 [ext_resource type="PackedScene" uid="uid://bgwmcarn8bfpl" path="res://units/castle_units/moat/moat.tscn" id="5_m37le"]
 
-[node name="game" instance=ExtResource("1_k5ndx")]
+[node name="game2" instance=ExtResource("1_k5ndx")]
 
 [node name="map_rules" type="Node2D" parent="." index="0"]
 

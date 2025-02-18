@@ -7,7 +7,7 @@ var current_state = State.IDLE # ATM just for digging
 
 var map_unique_id
 var unit_id = 0
-var ranged_unit_ids = [1,2]
+var ranged_unit_ids = GlobalSettings.my_faction.get_list_of_ranged()
 var primary_mele_fighter = true
 var can_dig = true
 var siege_weapon = false
