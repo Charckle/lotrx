@@ -541,7 +541,7 @@ func draw_control_group_id():
 func draw_debug_data():
 	if GlobalSettings.global_options["debug"]["global_debug"] == true:
 		var string_ = str(aggressive) + "\n" + str(is_moving) + "\n" +  str(current_id_path.size())
-		self.debug_label.text = string_ #str(retried_times)
+		self.debug_label.text = str(stance) #str(retried_times)
 
 func set_act():
 	if GlobalSettings.my_faction == faction:

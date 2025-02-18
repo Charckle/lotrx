@@ -27,7 +27,7 @@ var global_options = {
 	"debug": {
 		"show_solid_tiles": false,
 		"show_path": false,
-		"global_debug": false
+		"global_debug": true
 	}
 }
 

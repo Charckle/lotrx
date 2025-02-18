@@ -18,9 +18,15 @@
 
 
 # To Do
+- caldron should not destroy its own doors
+- AI
+    - make an order of what units get comands, so that some units get a headstart to their positions?
+	- dont execute the orders immediatelly, but put them in a queue, and every X miliseconds, execute some of them
+	- make the units not try to attack the ram begind a door, making them go to the neerest available point to them, which is on the other side of the map
 - upgrade pathfinding a second time
 - doubleclick on unit, to select all of them on screen
 - dry moat
+- make the option to load maps afer the game is built, so that additional maps can be added to the game, withought needing the user to download a new version
 - siege lvl 1
 	- ram siege weapon DONE (bigger units?) 
 	- oil siege weapons DONE

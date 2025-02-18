@@ -1,5 +1,10 @@
 extends Node2D
 
+enum MapTypes { OPEN, CASTLE }
+var map_type = MapTypes.OPEN
+
+enum State { IDLE, ATTACKING, DEFENDING }
+var current_state = State.IDLE # ATM just for digging
 var state_ = 0 #  0 iddle, 1 attack, 2 defend
 @export var is_siege = false
 @export var is_siege_defending = false
@@ -7,7 +12,7 @@ var state_ = 0 #  0 iddle, 1 attack, 2 defend
 @export var faction = 99
 @export var friendly_factions = []
 
-var units_on_map
+var my_units_on_map = []
 var markers: Dictionary = {}
 var unit_groups: Dictionary = {}
 
@@ -26,8 +31,12 @@ var doors = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	self.units_on_map = root_map.get_all_units()
+	if root_map.get_node("map_rules").map_type == "castle":
+		map_type = MapTypes.CASTLE
+	
 	set_faction()
+	get_my_units()
+	set_units_to_defense_stance()
 	evaluate_threat(true)
 	initial_setup()
 
@@ -39,6 +48,18 @@ func _process(delta):
 func set_faction():
 	self.faction = root_map.get_node("map_rules").ai_faction
 
+func get_my_units():
+	for unit in root_map.get_all_units():
+		if unit.faction == self.faction:
+			my_units_on_map.append(weakref(unit))
+
+func set_units_to_defense_stance():
+	if map_type == MapTypes.CASTLE:
+		for unit in my_units_on_map:
+			var unit_obj = gr(unit)
+			if unit_obj != null:
+				if unit_obj.unit_id not in [1,2]:
+					unit_obj.stance = 1
 
 func print_units_groups():
 	for gr in unit_groups:
@@ -67,26 +88,26 @@ func set_state(my_side, their_side, first: bool):
 	if first:
 		if my_side > their_side:
 			print("Starting Attack!")
-			state_ = 1
+			current_state = State.ATTACKING
 		else:
-			state_ = 2
+			current_state = State.DEFENDING
 			print("Starting Defense!")
 	else:
-		if state_ == 1:
+		if current_state == State.ATTACKING:
 			# if their > own * 1.2 = defense
 			if their_side > my_side * 1.2:
-				state_ = 2
+				current_state = State.DEFENDING
 				print("Starting Defense!")
 			else:
-				state_ = 1
+				current_state = State.ATTACKING
 				print("Still Attacking!")
 		else:
 			# if own > their * 1.2 = attack
 			if my_side > their_side * 1.2:
 				print("Starting Attack!")
-				state_ = 1
+				current_state = State.ATTACKING
 			else:
-				state_ = 2
+				current_state = State.DEFENDING
 				print("Still Defending!")
 
 
@@ -97,10 +118,10 @@ func _on_timer_timeout():
 	if self.lost == false:
 		evaluate_threat(false)
 		
-		if self.state_ == 1:
+		if self.current_state == State.ATTACKING:
 			manage_attack()
-		if self.state_ == 2:
-			if root_map.get_node("map_rules").map_type == "castle":
+		if self.current_state == State.DEFENDING:
+			if map_type == MapTypes.CASTLE:
 				manage_defense_castle()
 			else:
 				manage_defense_markers()
@@ -108,24 +129,20 @@ func _on_timer_timeout():
 	else:
 		print("GG!")
 
-func initial_setup():
-	var units_on_map = self.units_on_map
-	
-	set_markers(units_on_map)
-	set_unit_groups(units_on_map)
+func initial_setup():	
+	set_markers()
+	set_unit_groups()
 
-func set_markers(units_on_map):
+func set_markers():
 	# check all markers on the map and adds them locall, for faster access
 
 	# check all own units
 	#var units_on_map = root_map.get_all_units()
-	for unit in units_on_map:
-		if unit.faction == self.faction:
-			var unit_id = unit.unit_id
-			if not markers.has(unit_id):
-				#var unit_wr = weakref(unit)
-				markers[unit_id] = []
-
+	for unit in root_map.get_all_units():
+		var unit_id = unit.unit_id
+		if not markers.has(unit_id):
+			#var unit_wr = weakref(unit)
+			markers[unit_id] = []
 	
 	for marker in root_map.get_all_ai_markers():
 		if marker.faction == self.faction:
@@ -134,15 +151,16 @@ func set_markers(units_on_map):
 	#print("current markers on map:")
 	#print(markers)
 
-func set_unit_groups(units_on_map):
+func set_unit_groups(units_on_map=null):
 	# create base groups for the units and add them to them
 	#var units_on_map = root_map.get_all_units()
+	if units_on_map == null:
+		units_on_map = self.my_units_on_map
 	
-	for unit in units_on_map:
-		if unit.faction == self.faction:
-			var unit_id = unit.unit_id
-			var unit_wr = weakref(unit)
-			var unit_wr_obj = unit_wr.get_ref()
+	for unit_wr in units_on_map:
+		var unit_obj = gr(unit_wr)
+		if unit_obj != null:
+			var unit_id = unit_obj.unit_id
 			
 			# create a base group array
 			if not unit_groups.has(unit_id):
@@ -385,7 +403,6 @@ func set_inner_doors(state:int):
 	
 	get_all_doors()
 	for unit_wr in doors:
-		
 		var unit = gr(unit_wr)
 		if unit == null:
 			continue
