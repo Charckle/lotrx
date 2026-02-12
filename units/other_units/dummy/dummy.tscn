@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://buab8h48a8x8c"]
 
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_sg7vx"]
-[ext_resource type="Script" path="res://units/other_units/dummy/properties.gd" id="2_rpg8g"]
-[ext_resource type="Script" path="res://units/other_units/dummy/attack.gd" id="4_e0p8s"]
+[ext_resource type="Script" uid="uid://cryuj0ib5a2y8" path="res://units/other_units/dummy/properties.gd" id="2_rpg8g"]
+[ext_resource type="Script" uid="uid://b07qgr7xbood3" path="res://units/other_units/dummy/attack.gd" id="4_e0p8s"]
 
 [node name="dummy" instance=ExtResource("1_sg7vx")]
 

@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://bk172ovhtx36a"]
 
 [ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_av8st"]
-[ext_resource type="Script" path="res://AI/POI/archer_POI/settings.gd" id="2_igvg6"]
+[ext_resource type="Script" uid="uid://ce21yw1ic4keu" path="res://AI/POI/archer_POI/settings.gd" id="2_igvg6"]
 [ext_resource type="Texture2D" uid="uid://cc4pu8web81ua" path="res://sprites/units/battle/archer_32.png" id="2_mmvvt"]
 
 [node name="AiPoiArcher" instance=ExtResource("1_av8st")]

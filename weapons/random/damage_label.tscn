@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cfao487aiwekp"]
 
-[ext_resource type="Script" path="res://weapons/random/label.gd" id="1_lbu1a"]
+[ext_resource type="Script" uid="uid://b8bdoryfoh30n" path="res://weapons/random/label.gd" id="1_lbu1a"]
 
 [node name="DamageLabel" type="Node2D"]
 

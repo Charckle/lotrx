@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=4 uid="uid://bqyl6rh2jwjw2"]
+[gd_scene load_steps=9 format=4 uid="uid://bqyl6rh2jwjw2"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_0dfb1"]
 [ext_resource type="TileSet" uid="uid://q3ygopelucdk" path="res://tiles/tilesets/castle_tiles.tres" id="2_suytx"]
@@ -7,6 +7,9 @@
 [ext_resource type="PackedScene" uid="uid://ddvimmib84knj" path="res://units/castle_units/portcullis/portcullis_big_placer/portcullis_big_placer.tscn" id="5_587sg"]
 [ext_resource type="PackedScene" uid="uid://bmc6el8pavh5" path="res://units/random_units/checkpoint_flag/checkpoint_flag.tscn" id="6_ohhbn"]
 [ext_resource type="PackedScene" uid="uid://6k5bqys5j8x4" path="res://maps/othr/player_start_loc/player_start_loc.tscn" id="7_7p5ng"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_5hhay"]
+viewport_path = NodePath("CloudShadowsViewport")
 
 [node name="game" instance=ExtResource("1_0dfb1")]
 
@@ -67,3 +70,6 @@ faction = 2
 
 [node name="PlayerStartLoc2" parent="othr" index="1" instance=ExtResource("7_7p5ng")]
 position = Vector2(592, 432)
+
+[node name="CloudShadows" parent="." index="15"]
+texture = SubResource("ViewportTexture_5hhay")

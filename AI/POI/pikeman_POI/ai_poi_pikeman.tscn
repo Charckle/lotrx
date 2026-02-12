@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_7m13i"]
 [ext_resource type="Texture2D" uid="uid://rcq6jgp0d78d" path="res://sprites/units/battle/pikeman_32.png" id="2_emqep"]
-[ext_resource type="Script" path="res://AI/POI/pikeman_POI/settings.gd" id="2_louk0"]
+[ext_resource type="Script" uid="uid://clhfq8mjeinqe" path="res://AI/POI/pikeman_POI/settings.gd" id="2_louk0"]
 
 [node name="AiPoiPikeman" instance=ExtResource("1_7m13i")]
 

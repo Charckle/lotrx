@@ -2,9 +2,9 @@
 
 [ext_resource type="PackedScene" uid="uid://cjw36056lh3pj" path="res://units/castle_units/base_castle_unit/base_castle_unit.tscn" id="1_w325e"]
 [ext_resource type="Texture2D" uid="uid://dxf6fl1l2cnhu" path="res://sprites/castle/draw_bridge/closed_02.png" id="2_taxes"]
-[ext_resource type="Script" path="res://units/castle_units/draw_bridge/actions.gd" id="3_g8kyd"]
+[ext_resource type="Script" uid="uid://d17lux1h53dn" path="res://units/castle_units/draw_bridge/actions.gd" id="3_g8kyd"]
 [ext_resource type="Texture2D" uid="uid://c4xim0vavc4ri" path="res://sprites/castle/draw_bridge/open_02.png" id="3_l75jm"]
-[ext_resource type="Script" path="res://units/castle_units/draw_bridge/area_2d.gd" id="3_pv7uf"]
+[ext_resource type="Script" uid="uid://di5san3y3hihr" path="res://units/castle_units/draw_bridge/area_2d.gd" id="3_pv7uf"]
 [ext_resource type="Texture2D" uid="uid://2qvga4xod4uv" path="res://sprites/castle/draw_bridge/open_01.png" id="4_5ml3l"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e4ajq"]

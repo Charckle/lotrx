@@ -1,12 +1,10 @@
 [gd_scene load_steps=3 format=3 uid="uid://clnwljw6l1vvo"]
 
-[ext_resource type="Script" path="res://weather/clouds_object/cloud_object.gd" id="1_85war"]
+[ext_resource type="Script" uid="uid://bv0qetr3vwp5a" path="res://weather/clouds_object/cloud_object.gd" id="1_85war"]
 [ext_resource type="Texture2D" uid="uid://km0r4x8dmaga" path="res://weather/sprites/oblak_02.png" id="2_idem6"]
 
 [node name="CloudObject" type="Node2D"]
 script = ExtResource("1_85war")
 
 [node name="cloud" type="Sprite2D" parent="."]
-modulate = Color(1, 1, 1, 0.219608)
-self_modulate = Color(1, 1, 1, 0.572549)
 texture = ExtResource("2_idem6")

@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://dvytc5sw73we2"]
 
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_vofi6"]
-[ext_resource type="Script" path="res://units/other_units/swordsman/attack.gd" id="2_baxmu"]
+[ext_resource type="Script" uid="uid://bvnogskhe81am" path="res://units/other_units/swordsman/attack.gd" id="2_baxmu"]
 [ext_resource type="Texture2D" uid="uid://dkdvdgnterjpr" path="res://sprites/units/battle/swordsman_32.png" id="2_c4qf8"]
-[ext_resource type="Script" path="res://units/other_units/swordsman/properties.gd" id="3_11fem"]
+[ext_resource type="Script" uid="uid://c6r44y76gqe7y" path="res://units/other_units/swordsman/properties.gd" id="3_11fem"]
 
 [node name="swordman" instance=ExtResource("1_vofi6")]
 

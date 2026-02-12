@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_664f5"]
 [ext_resource type="Texture2D" uid="uid://6osmhycvjaj2" path="res://sprites/units/battle/crossbow_32.png" id="2_ae28o"]
-[ext_resource type="Script" path="res://AI/POI/crossbow_POI/settings.gd" id="2_j0dh0"]
+[ext_resource type="Script" uid="uid://q3jdp8t0ckae" path="res://AI/POI/crossbow_POI/settings.gd" id="2_j0dh0"]
 
 [node name="AiPoiCrossbow" instance=ExtResource("1_664f5")]
 

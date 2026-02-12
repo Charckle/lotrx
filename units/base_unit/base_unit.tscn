@@ -1,8 +1,8 @@
 [gd_scene load_steps=9 format=3 uid="uid://barfv6cfiagfx"]
 
-[ext_resource type="Script" path="res://units/base_unit/base_unit.gd" id="1_st7m2"]
+[ext_resource type="Script" uid="uid://dl1nawnof2ndr" path="res://units/base_unit/base_unit.gd" id="1_st7m2"]
 [ext_resource type="Texture2D" uid="uid://cyuwq2cd2koyr" path="res://sprites/units/battle/base_panel.png" id="2_ieus5"]
-[ext_resource type="Script" path="res://units/base_unit/sprite_2d.gd" id="3_p4amh"]
+[ext_resource type="Script" uid="uid://bmkft7cg4qs7" path="res://units/base_unit/sprite_2d.gd" id="3_p4amh"]
 [ext_resource type="PackedScene" uid="uid://dtxwi1d7ga3kr" path="res://units/base_unit/life_bar.tscn" id="4_m5q04"]
 [ext_resource type="Texture2D" uid="uid://emnpxld1q1up" path="res://sprites/units/battle/dummy_32.png" id="4_ud7nu"]
 [ext_resource type="Texture2D" uid="uid://b0y3qjfeyt42q" path="res://sprites/units/random/stance_defence.png" id="6_f1h8q"]

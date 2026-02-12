@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://cgvtodceqeriv"]
 
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_nt24n"]
-[ext_resource type="Script" path="res://units/other_units/maceman/attack.gd" id="2_mbh0s"]
+[ext_resource type="Script" uid="uid://cxhexe8a3g3ve" path="res://units/other_units/maceman/attack.gd" id="2_mbh0s"]
 [ext_resource type="Texture2D" uid="uid://cxlxkls34cpp1" path="res://sprites/units/battle/macemen_32.png" id="2_oyfot"]
-[ext_resource type="Script" path="res://units/other_units/maceman/properties.gd" id="3_juptx"]
+[ext_resource type="Script" uid="uid://bhttcq4sq72xk" path="res://units/other_units/maceman/properties.gd" id="3_juptx"]
 
 [node name="maceman" instance=ExtResource("1_nt24n")]
 

@@ -1,9 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://daqh8gy6154tf"]
+[gd_scene load_steps=8 format=3 uid="uid://daqh8gy6154tf"]
 
-[ext_resource type="Script" path="res://maps/base_map/base_map.gd" id="1_gg3s0"]
+[ext_resource type="Script" uid="uid://bb7xfihfjw4kk" path="res://maps/base_map/base_map.gd" id="1_gg3s0"]
 [ext_resource type="PackedScene" uid="uid://crd42v5ih7yfd" path="res://weather/weather_object/weather_object.tscn" id="4_ahw8k"]
 [ext_resource type="PackedScene" uid="uid://bn7ri334xglt1" path="res://maps/base_map/base_ui/ui.tscn" id="5_1fnmb"]
-[ext_resource type="Script" path="res://maps/base_map/path.gd" id="5_c0kh2"]
+[ext_resource type="Script" uid="uid://crfhvn1uobv62" path="res://maps/base_map/path.gd" id="5_c0kh2"]
+[ext_resource type="Script" uid="uid://dgqjt1jntgq5j" path="res://weather/shaders/cloud_shadow_viewport.gd" id="6_csvp"]
+[ext_resource type="Script" uid="uid://ffxbm50itvvn" path="res://weather/shaders/cloud_shadows_display.gd" id="7_csdsp"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_cloud_shadow"]
+viewport_path = NodePath("CloudShadowsViewport")
 
 [node name="base_map" type="Node2D"]
 script = ExtResource("1_gg3s0")
@@ -37,6 +42,15 @@ metadata/_edit_lock_ = true
 [node name="othr" type="Node2D" parent="."]
 
 [node name="weather_objects" type="Node2D" parent="."]
+
+[node name="CloudShadowsViewport" type="SubViewport" parent="."]
+size = Vector2i(64, 64)
+script = ExtResource("6_csvp")
+
+[node name="CloudShadows" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.12549)
+texture = SubResource("ViewportTexture_cloud_shadow")
+script = ExtResource("7_csdsp")
 
 [node name="aoe_objects" type="Node2D" parent="."]
 

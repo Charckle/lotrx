@@ -1,9 +1,9 @@
 [gd_scene load_steps=11 format=3 uid="uid://bn7ri334xglt1"]
 
-[ext_resource type="Script" path="res://maps/base_map/base_ui/camera.gd" id="1_lp3te"]
-[ext_resource type="Script" path="res://maps/base_map/base_ui/fps_label.gd" id="2_siea2"]
-[ext_resource type="Script" path="res://maps/base_map/base_ui/cursors.gd" id="3_id33t"]
-[ext_resource type="Script" path="res://maps/base_map/base_ui/panel.gd" id="4_42d2h"]
+[ext_resource type="Script" uid="uid://bpn7lcmoldbvn" path="res://maps/base_map/base_ui/camera.gd" id="1_lp3te"]
+[ext_resource type="Script" uid="uid://dswet14n1pooj" path="res://maps/base_map/base_ui/fps_label.gd" id="2_siea2"]
+[ext_resource type="Script" uid="uid://dhlof6tye3468" path="res://maps/base_map/base_ui/cursors.gd" id="3_id33t"]
+[ext_resource type="Script" uid="uid://b4lw8fgjh67dj" path="res://maps/base_map/base_ui/panel.gd" id="4_42d2h"]
 [ext_resource type="PackedScene" uid="uid://dmdqxit4v15f5" path="res://maps/base_map/base_ui/battle_status_ui/battle_status_ui.tscn" id="5_ktqgm"]
 [ext_resource type="PackedScene" uid="uid://djdxhdrnypy0c" path="res://maps/base_map/base_ui/scoreboard_panel/scoreboard_panel.tscn" id="6_mnpmd"]
 [ext_resource type="PackedScene" uid="uid://ddfk6bpdcwqat" path="res://menu/pause_menu/pause_menu.tscn" id="7_8huk2"]

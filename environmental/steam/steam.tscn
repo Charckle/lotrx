@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dt813t06rloev"]
 
-[ext_resource type="Script" path="res://environmental/steam/steam.gd" id="1_xbcvj"]
+[ext_resource type="Script" uid="uid://24irxuu8lub0" path="res://environmental/steam/steam.gd" id="1_xbcvj"]
 [ext_resource type="Texture2D" uid="uid://43jid4fv8crn" path="res://sprites/weapons/range/oil/oil_steam.png" id="2_ohxxb"]
 
 [node name="Steam" type="Node2D"]

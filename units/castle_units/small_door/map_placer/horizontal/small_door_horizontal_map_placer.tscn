@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://iycf6hgid0wt"]
 
 [ext_resource type="Texture2D" uid="uid://ckbpg7tgea87x" path="res://sprites/units/castle/small_door/small_door_closed.png" id="1_abf5s"]
-[ext_resource type="Script" path="res://units/castle_units/small_door/map_placer/horizontal/small_door_horizontal_map_placer.gd" id="1_ufep6"]
+[ext_resource type="Script" uid="uid://kjjwfraobxp5" path="res://units/castle_units/small_door/map_placer/horizontal/small_door_horizontal_map_placer.gd" id="1_ufep6"]
 
 [node name="SmallDoorHorizontalMapPlacer" type="Node2D"]
 script = ExtResource("1_ufep6")

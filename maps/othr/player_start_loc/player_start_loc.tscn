@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://6k5bqys5j8x4"]
 
-[ext_resource type="Script" path="res://maps/othr/player_start_loc/player_start_loc.gd" id="1_mlkba"]
+[ext_resource type="Script" uid="uid://br063i6ug142x" path="res://maps/othr/player_start_loc/player_start_loc.gd" id="1_mlkba"]
 [ext_resource type="Texture2D" uid="uid://cw55jc8as711a" path="res://icon.svg" id="2_8vwie"]
 
 [node name="PlayerStartLoc" type="Node2D"]

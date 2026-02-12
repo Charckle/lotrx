@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_huoqc"]
 [ext_resource type="Texture2D" uid="uid://cpajq6gk3iy74" path="res://sprites/units/battle/peasant_32.png" id="2_hic3j"]
-[ext_resource type="Script" path="res://AI/POI/peasant_POI/settings.gd" id="2_nr1b5"]
+[ext_resource type="Script" uid="uid://bxheg4tbb0wmp" path="res://AI/POI/peasant_POI/settings.gd" id="2_nr1b5"]
 
 [node name="AiPoiPeasant" instance=ExtResource("1_huoqc")]
 

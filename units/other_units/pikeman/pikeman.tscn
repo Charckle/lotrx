@@ -2,8 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_3oq2x"]
 [ext_resource type="Texture2D" uid="uid://rcq6jgp0d78d" path="res://sprites/units/battle/pikeman_32.png" id="2_3udsh"]
-[ext_resource type="Script" path="res://units/other_units/pikeman/attack.gd" id="2_oempb"]
-[ext_resource type="Script" path="res://units/other_units/pikeman/properties.gd" id="2_yws84"]
+[ext_resource type="Script" uid="uid://burau66ctqan6" path="res://units/other_units/pikeman/attack.gd" id="2_oempb"]
+[ext_resource type="Script" uid="uid://bqfr5ytf6tojt" path="res://units/other_units/pikeman/properties.gd" id="2_yws84"]
 
 [node name="pikeman" instance=ExtResource("1_3oq2x")]
 

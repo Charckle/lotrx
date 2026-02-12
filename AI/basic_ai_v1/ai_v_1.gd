@@ -311,7 +311,7 @@ func check_range_units_pinned():
 	# check all ranged unit groups for being pinned
 	# if they are pinned, check available unit goups around, if they are not already defending pinned
 	# units, and send them to defend the ranged
-	var ranged_units_ids= GlobalSettings.my_faction.get_list_of_ranged()
+	var ranged_units_ids= GlobalSettings.get_list_of_ranged()
 	
 	for unit_id in ranged_units_ids:
 		if unit_id not in unit_groups:

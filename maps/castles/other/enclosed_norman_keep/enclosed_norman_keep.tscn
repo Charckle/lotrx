@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=4 uid="uid://b1e77yo3mcwyr"]
+[gd_scene load_steps=10 format=4 uid="uid://b1e77yo3mcwyr"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_n4u7j"]
 [ext_resource type="TileSet" uid="uid://q3ygopelucdk" path="res://tiles/tilesets/castle_tiles.tres" id="2_lu06k"]
@@ -8,6 +8,9 @@
 [ext_resource type="PackedScene" uid="uid://cgvtodceqeriv" path="res://units/other_units/maceman/maceman.tscn" id="4_quamp"]
 [ext_resource type="PackedScene" uid="uid://iycf6hgid0wt" path="res://units/castle_units/small_door/map_placer/horizontal/small_door_horizontal_map_placer.tscn" id="5_7m1t1"]
 [ext_resource type="PackedScene" uid="uid://bgwmcarn8bfpl" path="res://units/castle_units/moat/moat.tscn" id="6_bbxbg"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_bc0vn"]
+viewport_path = NodePath("CloudShadowsViewport")
 
 [node name="game" instance=ExtResource("1_n4u7j")]
 
@@ -65,6 +68,9 @@ new_siege_id = 3
 position = Vector2(432, -1392)
 faction = 2
 new_siege_id = 4
+
+[node name="CloudShadows" parent="." index="15"]
+texture = SubResource("ViewportTexture_bc0vn")
 
 [node name="Moat" parent="moat/moat_obj" index="0" instance=ExtResource("6_bbxbg")]
 position = Vector2(720, -400)

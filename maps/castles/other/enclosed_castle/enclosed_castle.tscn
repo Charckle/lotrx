@@ -1,10 +1,13 @@
-[gd_scene load_steps=6 format=4 uid="uid://cfcsmgdubo7v1"]
+[gd_scene load_steps=7 format=4 uid="uid://cfcsmgdubo7v1"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_k5ndx"]
 [ext_resource type="TileSet" uid="uid://q3ygopelucdk" path="res://tiles/tilesets/castle_tiles.tres" id="2_w8ehw"]
 [ext_resource type="PackedScene" uid="uid://ddvimmib84knj" path="res://units/castle_units/portcullis/portcullis_big_placer/portcullis_big_placer.tscn" id="3_orcpi"]
 [ext_resource type="PackedScene" uid="uid://cc11e7qt83lbt" path="res://units/castle_units/draw_bridge/draw_bridge_placer/draw_bridge_placer.tscn" id="4_ck34l"]
 [ext_resource type="PackedScene" uid="uid://bgwmcarn8bfpl" path="res://units/castle_units/moat/moat.tscn" id="5_m37le"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_75wsl"]
+viewport_path = NodePath("CloudShadowsViewport")
 
 [node name="game2" instance=ExtResource("1_k5ndx")]
 
@@ -35,6 +38,9 @@ position = Vector2(592, -1424)
 
 [node name="DrawBridgePlacer" parent="spawners" index="2" instance=ExtResource("4_ck34l")]
 position = Vector2(592, -432)
+
+[node name="CloudShadows" parent="." index="15"]
+texture = SubResource("ViewportTexture_75wsl")
 
 [node name="Moat" parent="moat/moat_obj" index="0" instance=ExtResource("5_m37le")]
 position = Vector2(592, -336)

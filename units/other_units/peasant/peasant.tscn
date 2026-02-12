@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://i73kgii02p12"]
 
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_pvcqr"]
-[ext_resource type="Script" path="res://units/other_units/peasant/properties.gd" id="2_d57en"]
-[ext_resource type="Script" path="res://units/other_units/peasant/attack.gd" id="2_e8bt7"]
+[ext_resource type="Script" uid="uid://eqnr1buu36l0" path="res://units/other_units/peasant/properties.gd" id="2_d57en"]
+[ext_resource type="Script" uid="uid://11acbpe06ino" path="res://units/other_units/peasant/attack.gd" id="2_e8bt7"]
 [ext_resource type="Texture2D" uid="uid://cpajq6gk3iy74" path="res://sprites/units/battle/peasant_32.png" id="2_nnbvs"]
 
 [node name="peasant" instance=ExtResource("1_pvcqr")]

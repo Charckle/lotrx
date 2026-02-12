@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://b5wrwpj4nswnb"]
 
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_227ty"]
-[ext_resource type="Script" path="res://units/other_units/crossbow/attack.gd" id="2_g6kkb"]
-[ext_resource type="Script" path="res://units/other_units/crossbow/settings.gd" id="2_opqt0"]
+[ext_resource type="Script" uid="uid://o41jqaik6tyx" path="res://units/other_units/crossbow/attack.gd" id="2_g6kkb"]
+[ext_resource type="Script" uid="uid://lxxp70cttfqo" path="res://units/other_units/crossbow/settings.gd" id="2_opqt0"]
 [ext_resource type="Texture2D" uid="uid://6osmhycvjaj2" path="res://sprites/units/battle/crossbow_32.png" id="2_s4kvb"]
 
 [node name="crossbow" instance=ExtResource("1_227ty")]

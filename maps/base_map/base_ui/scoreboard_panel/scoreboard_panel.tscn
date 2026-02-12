@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://djdxhdrnypy0c"]
 
-[ext_resource type="Script" path="res://maps/base_map/base_ui/scoreboard_panel/scoreboard_panel.gd" id="1_tu3fo"]
+[ext_resource type="Script" uid="uid://nacxea0fftm2" path="res://maps/base_map/base_ui/scoreboard_panel/scoreboard_panel.gd" id="1_tu3fo"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xdejk"]
 bg_color = Color(0.190762, 0.190762, 0.190762, 1)

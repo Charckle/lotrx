@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://dajt566dqfjbv"]
 
 [ext_resource type="PackedScene" uid="uid://cjw36056lh3pj" path="res://units/castle_units/base_castle_unit/base_castle_unit.tscn" id="1_t86i7"]
-[ext_resource type="Script" path="res://units/castle_units/small_door/actions.gd" id="2_v0fnc"]
-[ext_resource type="Script" path="res://units/castle_units/small_door/Area2D.gd" id="4_xoukh"]
+[ext_resource type="Script" uid="uid://cystc5a53um5x" path="res://units/castle_units/small_door/actions.gd" id="2_v0fnc"]
+[ext_resource type="Script" uid="uid://hm6eiyaul8wf" path="res://units/castle_units/small_door/Area2D.gd" id="4_xoukh"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rl7gp"]
 size = Vector2(32, 32)

@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://cc11e7qt83lbt"]
 
 [ext_resource type="Texture2D" uid="uid://d0vwx278mq8e6" path="res://sprites/castle/draw_bridge/closed_01.png" id="1_oqtvi"]
-[ext_resource type="Script" path="res://units/castle_units/draw_bridge/draw_bridge_placer/draw_bridge_placer.gd" id="1_x0pgu"]
+[ext_resource type="Script" uid="uid://ckgrr3hr6mtbh" path="res://units/castle_units/draw_bridge/draw_bridge_placer/draw_bridge_placer.gd" id="1_x0pgu"]
 [ext_resource type="Texture2D" uid="uid://dxf6fl1l2cnhu" path="res://sprites/castle/draw_bridge/closed_02.png" id="2_v30rl"]
 [ext_resource type="Texture2D" uid="uid://c4xim0vavc4ri" path="res://sprites/castle/draw_bridge/open_02.png" id="4_dw3s6"]
 [ext_resource type="Texture2D" uid="uid://2qvga4xod4uv" path="res://sprites/castle/draw_bridge/open_01.png" id="5_ndr72"]

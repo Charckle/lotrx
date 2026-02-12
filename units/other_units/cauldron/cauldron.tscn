@@ -3,8 +3,8 @@
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_1ebho"]
 [ext_resource type="Texture2D" uid="uid://fmyow57sv6jh" path="res://sprites/units/battle/base_panel_castle.png" id="2_3gr4s"]
 [ext_resource type="Texture2D" uid="uid://cpihifv2c42kt" path="res://sprites/units/castle/cauldron/cauldron.png" id="3_quhqs"]
-[ext_resource type="Script" path="res://units/other_units/cauldron/properties.gd" id="4_2i5uk"]
-[ext_resource type="Script" path="res://units/other_units/cauldron/attack.gd" id="4_2uwqg"]
+[ext_resource type="Script" uid="uid://dqida0xa65oix" path="res://units/other_units/cauldron/properties.gd" id="4_2i5uk"]
+[ext_resource type="Script" uid="uid://bxeqi3wgooo6n" path="res://units/other_units/cauldron/attack.gd" id="4_2uwqg"]
 
 [node name="cauldron" instance=ExtResource("1_1ebho")]
 

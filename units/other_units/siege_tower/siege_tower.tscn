@@ -1,10 +1,10 @@
 [gd_scene load_steps=6 format=3 uid="uid://cl6m2xq23hmco"]
 
 [ext_resource type="PackedScene" uid="uid://barfv6cfiagfx" path="res://units/base_unit/base_unit.tscn" id="1_lio3f"]
-[ext_resource type="Script" path="res://units/other_units/siege_tower/properties.gd" id="2_6ga8f"]
+[ext_resource type="Script" uid="uid://dsvrhhcqi0xyp" path="res://units/other_units/siege_tower/properties.gd" id="2_6ga8f"]
 [ext_resource type="Texture2D" uid="uid://fmyow57sv6jh" path="res://sprites/units/battle/base_panel_castle.png" id="2_lf7m5"]
 [ext_resource type="Texture2D" uid="uid://bnr8o6m2qs6nn" path="res://sprites/units/castle/siege_tower/siege_tower.png" id="3_rkyhc"]
-[ext_resource type="Script" path="res://units/other_units/siege_tower/attack.gd" id="4_kipak"]
+[ext_resource type="Script" uid="uid://daxuhcde2hyaj" path="res://units/other_units/siege_tower/attack.gd" id="4_kipak"]
 
 [node name="siege_tower" instance=ExtResource("1_lio3f")]
 

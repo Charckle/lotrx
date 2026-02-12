@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://dax6pwjksj7dh"]
 
-[ext_resource type="Script" path="res://AI/POI/base_POI/ai_POI.gd" id="1_v4jjh"]
+[ext_resource type="Script" uid="uid://d00m2xr87x3ep" path="res://AI/POI/base_POI/ai_POI.gd" id="1_v4jjh"]
 [ext_resource type="Texture2D" uid="uid://dssbmiwrmqgpt" path="res://sprites/gui/attack_target.png" id="2_pg1cj"]
 [ext_resource type="Texture2D" uid="uid://emnpxld1q1up" path="res://sprites/units/battle/dummy_32.png" id="3_e25g0"]
 

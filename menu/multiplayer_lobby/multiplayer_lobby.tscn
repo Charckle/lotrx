@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://ds28k06qeir42"]
 
-[ext_resource type="Script" path="res://menu/multiplayer_lobby/multiplayer_lobby.gd" id="1_khp07"]
-[ext_resource type="Script" path="res://menu/multiplayer_lobby/chat_panel.gd" id="2_qb0ln"]
-[ext_resource type="Script" path="res://menu/multiplayer_lobby/game_panel.gd" id="3_5lrq1"]
+[ext_resource type="Script" uid="uid://vtwydycca2m5" path="res://menu/multiplayer_lobby/multiplayer_lobby.gd" id="1_khp07"]
+[ext_resource type="Script" uid="uid://2igqepo5vjub" path="res://menu/multiplayer_lobby/chat_panel.gd" id="2_qb0ln"]
+[ext_resource type="Script" uid="uid://dwfebs54xrlu3" path="res://menu/multiplayer_lobby/game_panel.gd" id="3_5lrq1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p2ty0"]
 bg_color = Color(0.314316, 0.314316, 0.314316, 1)

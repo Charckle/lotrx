@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://crm1si5iwrem7"]
 
-[ext_resource type="Script" path="res://weapons/mele/sword/sprite_2d.gd" id="1_a8wuc"]
-[ext_resource type="Script" path="res://weapons/mele/sword/sword.gd" id="1_m1uqo"]
+[ext_resource type="Script" uid="uid://bcye8jf1oky6k" path="res://weapons/mele/sword/sprite_2d.gd" id="1_a8wuc"]
+[ext_resource type="Script" uid="uid://cuiatbks4tsrs" path="res://weapons/mele/sword/sword.gd" id="1_m1uqo"]
 [ext_resource type="Texture2D" uid="uid://dby57eqbqq4u3" path="res://sprites/weapons/mele/sword/sword.png" id="2_3071b"]
 
 [node name="Sword" type="Node2D"]

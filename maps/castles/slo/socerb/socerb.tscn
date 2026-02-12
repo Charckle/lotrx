@@ -1,7 +1,7 @@
 [gd_scene load_steps=21 format=4 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
-[ext_resource type="Script" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
+[ext_resource type="Script" uid="uid://bcwv87arec41m" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
 [ext_resource type="TileSet" uid="uid://q3ygopelucdk" path="res://tiles/tilesets/castle_tiles.tres" id="2_urvtn"]
 [ext_resource type="PackedScene" uid="uid://cx1jmyu8ch88g" path="res://units/other_units/knight/knight.tscn" id="3_uqr84"]
 [ext_resource type="PackedScene" uid="uid://c53dam5nd2klo" path="res://units/other_units/pikeman/pikeman.tscn" id="5_2f677"]

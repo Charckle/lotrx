@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://f6xvajhjotnw"]
 
-[ext_resource type="Script" path="res://weapons/mele/halebard/halebard.gd" id="1_ntnmn"]
+[ext_resource type="Script" uid="uid://yb3t4pxju4v" path="res://weapons/mele/halebard/halebard.gd" id="1_ntnmn"]
 [ext_resource type="Texture2D" uid="uid://bdxmh8hiwxt8h" path="res://sprites/weapons/mele/halebard/halebard.png" id="2_uymrh"]
 
 [node name="Halebard" type="Node2D"]

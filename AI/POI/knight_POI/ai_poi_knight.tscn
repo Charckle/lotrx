@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://dax6pwjksj7dh" path="res://AI/POI/base_POI/ai_POI.tscn" id="1_vjbvd"]
 [ext_resource type="Texture2D" uid="uid://bc63hubn21pt3" path="res://sprites/units/battle/knight_32.png" id="2_3eb7r"]
-[ext_resource type="Script" path="res://AI/POI/knight_POI/Settings.gd" id="2_emxqt"]
+[ext_resource type="Script" uid="uid://c5iyje33mfcfh" path="res://AI/POI/knight_POI/Settings.gd" id="2_emxqt"]
 
 [node name="AiPoiKnight" instance=ExtResource("1_vjbvd")]
 

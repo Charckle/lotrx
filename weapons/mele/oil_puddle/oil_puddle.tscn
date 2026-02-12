@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://ipyfqveuxx8i"]
 
-[ext_resource type="Script" path="res://weapons/mele/oil_puddle/oil_puddle.gd" id="1_3x0av"]
+[ext_resource type="Script" uid="uid://boersgv4jjhr8" path="res://weapons/mele/oil_puddle/oil_puddle.gd" id="1_3x0av"]
 [ext_resource type="Texture2D" uid="uid://nvow3h2yrb7i" path="res://sprites/weapons/range/oil/oil_puddle.png" id="2_x2wjb"]
 
 [node name="OilPuddle" type="Node2D"]

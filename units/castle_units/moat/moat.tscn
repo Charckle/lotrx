@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bgwmcarn8bfpl"]
 
 [ext_resource type="Texture2D" uid="uid://utqlxvj5bdsu" path="res://sprites/castle/moat/moat.png" id="1_m4krn"]
-[ext_resource type="Script" path="res://units/castle_units/moat/moat.gd" id="1_v7r66"]
+[ext_resource type="Script" uid="uid://cocrs268yey53" path="res://units/castle_units/moat/moat.gd" id="1_v7r66"]
 
 [node name="Moat" type="Node2D"]
 script = ExtResource("1_v7r66")

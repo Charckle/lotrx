@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://btkp0ce6d02cv"]
 
-[ext_resource type="Script" path="res://menu/muliplayer_menu/mutiplayer_menu.gd" id="1_xpwny"]
-[ext_resource type="Script" path="res://menu/muliplayer_menu/error_msg.gd" id="2_4m72o"]
+[ext_resource type="Script" uid="uid://tv321hfc3u8y" path="res://menu/muliplayer_menu/mutiplayer_menu.gd" id="1_xpwny"]
+[ext_resource type="Script" uid="uid://c0t0yap2tiowh" path="res://menu/muliplayer_menu/error_msg.gd" id="2_4m72o"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v5qo6"]
 bg_color = Color(0.176419, 0.176419, 0.176419, 1)

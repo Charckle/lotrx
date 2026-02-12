@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://ddvimmib84knj"]
 
 [ext_resource type="Texture2D" uid="uid://0fvjofih63ul" path="res://sprites/castle/portcullis/portcullis.png" id="1_d8kxw"]
-[ext_resource type="Script" path="res://units/castle_units/portcullis/portcullis_big_placer/portcullis_big_placer.gd" id="1_yvyxc"]
+[ext_resource type="Script" uid="uid://caxclc663rdws" path="res://units/castle_units/portcullis/portcullis_big_placer/portcullis_big_placer.gd" id="1_yvyxc"]
 
 [node name="PortcullisBigPlacer" type="Node2D"]
 script = ExtResource("1_yvyxc")

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bhfx5elseokmx"]
 
 [ext_resource type="Texture2D" uid="uid://k180si3b10oq" path="res://weather/sprites/rain.png" id="1_n3tnh"]
-[ext_resource type="Script" path="res://weather/rain_object/rain_object.gd" id="1_qxj2n"]
+[ext_resource type="Script" uid="uid://mwmktdqefl8a" path="res://weather/rain_object/rain_object.gd" id="1_qxj2n"]
 
 [node name="RainObject" type="Node2D"]
 script = ExtResource("1_qxj2n")

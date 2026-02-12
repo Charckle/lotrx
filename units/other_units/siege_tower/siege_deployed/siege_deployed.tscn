@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cdno7dwwsxfde"]
 
 [ext_resource type="Texture2D" uid="uid://cae3nq404eomu" path="res://sprites/units/castle/siege_tower/siege_tower_deployed.png" id="1_usfkn"]
-[ext_resource type="Script" path="res://units/other_units/siege_tower/siege_deployed/siege_deployed.gd" id="1_w7igw"]
+[ext_resource type="Script" uid="uid://f4na5f1pvv12" path="res://units/other_units/siege_tower/siege_deployed/siege_deployed.gd" id="1_w7igw"]
 
 [node name="SiegeDeployed" type="Node2D"]
 script = ExtResource("1_w7igw")

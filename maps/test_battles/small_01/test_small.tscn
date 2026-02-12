@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=4 uid="uid://f367vqq2srko"]
+[gd_scene load_steps=20 format=4 uid="uid://f367vqq2srko"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_2r6a5"]
 [ext_resource type="TileSet" uid="uid://c6tguwy6i6k8b" path="res://tiles/tilesets/nature_tiles.tres" id="2_nspir"]
@@ -17,7 +17,10 @@
 [ext_resource type="PackedScene" uid="uid://6r1fu2uw31ni" path="res://AI/POI/maceman_POI/ai_poi_maceman.tscn" id="14_ugoe0"]
 [ext_resource type="PackedScene" uid="uid://emta8vqgmvh8" path="res://AI/POI/peasant_POI/ai_poi_peasant.tscn" id="15_015vi"]
 [ext_resource type="PackedScene" uid="uid://ceq8am3wk5830" path="res://AI/POI/crossbow_POI/ai_poi_crossbow.tscn" id="16_hc4nr"]
-[ext_resource type="Script" path="res://maps/test_battles/small_01/map_rules.gd" id="18_k3dlq"]
+[ext_resource type="Script" uid="uid://cf2qluhmculgs" path="res://maps/test_battles/small_01/map_rules.gd" id="18_k3dlq"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_4jt2w"]
+viewport_path = NodePath("CloudShadowsViewport")
 
 [node name="game" instance=ExtResource("1_2r6a5")]
 
@@ -258,3 +261,6 @@ faction = 2
 position = Vector2(-112, 464)
 
 [node name="Ai_v_1" parent="ai_stuff" index="1" instance=ExtResource("10_mynax")]
+
+[node name="CloudShadows" parent="." index="15"]
+texture = SubResource("ViewportTexture_4jt2w")
