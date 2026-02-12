@@ -1,11 +1,13 @@
 extends Node2D
 
+const StuckArrowPoolScript = preload("res://weapons/range/arrow/stuck_arrow_pool.gd")
+static var _stuck_pool: MultiMeshInstance2D = null
+
 var target
 var target_coordinate
 var speed = 1200
 var speed_decrese = 25
 var min_speed = 300
-var stuck = false
 var attack_dmg
 var a_penetration
 
@@ -44,23 +46,9 @@ func _process(delta: float) -> void:
 	check_hit_wall()
 	check_hit_target()
 
-
-	if stuck == false:
-		if $Sprite2D.self_modulate.a < 1:
-			$Sprite2D.self_modulate.a += 0.1
 	if speed >= min_speed:
 		speed -= speed_decrese
 	global_position = global_position.move_toward(target_coordinate, speed * delta)
-	
-	# this part I think the shaders break. welp....
-	#if stuck == true:
-		#print($Sprite2D.self_modulate.a > 0)
-		#if $Sprite2D.self_modulate.a > 0:
-		#
-			#$Sprite2D.self_modulate.a -= 0.01
-			##print($Sprite2D.self_modulate.a)
-		#else:
-			#queue_free()
 
 
 func check_hit_wall():
@@ -111,11 +99,22 @@ func check_hit_wall():
 
 
 func check_hit_target():
-	if first_tilemap_layer.local_to_map(target_coordinate) == arrow_pos_for_calc and stuck == false:
-		stuck = true
+	if first_tilemap_layer.local_to_map(target_coordinate) == arrow_pos_for_calc:
 		if gr(target) != null and arrow_pos_for_calc == gr(target).unit_position:
-			queue_free()
 			gr(target).get_damaged(attack_dmg, a_penetration)
+			queue_free()
+		else:
+			# Arrow missed the target - add to stuck pool as a static MultiMesh instance
+			_add_to_stuck_pool()
+			queue_free()
+
+
+func _add_to_stuck_pool():
+	if _stuck_pool == null or not is_instance_valid(_stuck_pool):
+		_stuck_pool = StuckArrowPoolScript.new()
+		_stuck_pool.name = "StuckArrowPool"
+		root_map.get_node("projectiles").add_child(_stuck_pool)
+	_stuck_pool.add_arrow(global_position, rotation)
 
 
 func gr(weak_refer):

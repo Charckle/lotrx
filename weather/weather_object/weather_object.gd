@@ -1,7 +1,6 @@
 extends Node2D
 
 @onready var cloud = load("uid://clnwljw6l1vvo")
-@onready var rain = load("uid://bhfx5elseokmx")
 
 @onready var map_root = get_tree().root.get_node("game")
 @onready var title_map_node = map_root.get_node("TileMap")
@@ -21,6 +20,20 @@ var m_cell_size:int
 
 var wind_direction: int
 var wind_speed: int
+
+# --- Rain MultiMesh pool ---
+const RAIN_MAX_DROPS := 200
+var rain_positions := PackedVector2Array()
+var rain_speeds := PackedFloat32Array()
+var rain_lifetimes := PackedFloat32Array()
+var rain_active_count := 0
+var rain_direction := Vector2.ZERO
+var rain_multi_mesh_instance: MultiMeshInstance2D
+var rain_is_active := false
+# Accumulator for spawning rain in batches via _process instead of a timer
+var rain_spawn_accumulator := 0.0
+const RAIN_SPAWN_INTERVAL := 0.5
+const RAIN_DROPS_PER_BATCH := 60
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -42,18 +55,89 @@ func _ready():
 	self.wind_direction = random_sign()
 	self.wind_speed = randi() % 3
 	
+	_setup_rain_multimesh()
+	
 	if GlobalSettings.global_options["video"]["weather_show"] == true:
 		if multiplayer.is_server():
 			var weather_ = self.decide_weather()
 			var wind_direction = random_sign()
 			
 			set_weather.rpc(weather_, wind_direction)
-			
-			
+
+
+func _setup_rain_multimesh():
+	# Pre-allocate arrays for rain drop pool
+	rain_positions.resize(RAIN_MAX_DROPS)
+	rain_speeds.resize(RAIN_MAX_DROPS)
+	rain_lifetimes.resize(RAIN_MAX_DROPS)
+	
+	# Create the MultiMesh resource
+	var multi_mesh = MultiMesh.new()
+	multi_mesh.transform_format = MultiMesh.TRANSFORM_2D
+	multi_mesh.instance_count = RAIN_MAX_DROPS
+	multi_mesh.visible_instance_count = 0
+	
+	# Create a QuadMesh sized to match the rain sprite
+	var rain_texture = load("uid://k180si3b10oq") as Texture2D
+	var tex_size = rain_texture.get_size()
+	var quad = QuadMesh.new()
+	quad.size = tex_size
+	
+	multi_mesh.mesh = quad
+	
+	# Create the MultiMeshInstance2D and set the texture directly (2D rendering)
+	rain_multi_mesh_instance = MultiMeshInstance2D.new()
+	rain_multi_mesh_instance.multimesh = multi_mesh
+	rain_multi_mesh_instance.texture = rain_texture
+	rain_multi_mesh_instance.z_index = 500
+	map_root.get_node("weather_objects").add_child(rain_multi_mesh_instance)
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	pass
+	if rain_is_active:
+		_process_rain(delta)
+
+
+func _process_rain(delta):
+	var mm = rain_multi_mesh_instance.multimesh
+	
+	# Spawn new drops on interval
+	rain_spawn_accumulator += delta
+	while rain_spawn_accumulator >= RAIN_SPAWN_INTERVAL:
+		rain_spawn_accumulator -= RAIN_SPAWN_INTERVAL
+		for j in range(RAIN_DROPS_PER_BATCH):
+			_spawn_rain_drop()
+	
+	# Update active drops
+	var i := 0
+	while i < rain_active_count:
+		rain_lifetimes[i] -= delta
+		if rain_lifetimes[i] <= 0.0:
+			# Swap with last active drop and shrink pool
+			rain_active_count -= 1
+			rain_positions[i] = rain_positions[rain_active_count]
+			rain_speeds[i] = rain_speeds[rain_active_count]
+			rain_lifetimes[i] = rain_lifetimes[rain_active_count]
+			continue
+		rain_positions[i] += rain_direction * rain_speeds[i] * delta
+		mm.set_instance_transform_2d(i, Transform2D(0.0, rain_positions[i]))
+		i += 1
+	
+	mm.visible_instance_count = rain_active_count
+
+
+func _spawn_rain_drop():
+	if rain_active_count >= RAIN_MAX_DROPS:
+		return
+	var idx = rain_active_count
+	rain_positions[idx] = Vector2(
+		randf_range(cloud_create_x, cloud_destroy_x),
+		randf_range(cloud_create_y_min, cloud_create_y_max)
+	)
+	rain_speeds[idx] = 300.0 + randf_range(-30.0, 30.0)
+	rain_lifetimes[idx] = 1.5
+	rain_active_count += 1
 
 
 func create_cloud(all_map=false):
@@ -69,24 +153,10 @@ func create_cloud(all_map=false):
 	
 	map_root.get_node("weather_objects").add_child(instance)
 
-func create_rain():
-	var instance = rain.instantiate()
-	var start_x = randf_range(self.cloud_create_x, self.cloud_destroy_x)
-	var start_y = randf_range(self.cloud_create_y_min, self.cloud_create_y_max)
-	instance.position =  Vector2(start_x, start_y)
-	instance.wind_direction = self.wind_direction
-	instance.wind_speed = self.wind_speed
-	
-	map_root.get_node("weather_objects").add_child(instance)
 
 func _on_timer_timeout():
 	for x in range(1):
 		create_cloud()
-
-func _on_rain_timer_timeout():
-	for x in range(60):
-		create_rain()
-
 
 func random_sign() -> int:
 	var random_f = randf()
@@ -109,7 +179,11 @@ func set_weather(is_weather, wind_direction):
 	self.wind_direction = wind_direction
 	
 	if is_weather == "rain":
-		$rain_Timer.start()
+		# Compute the rain direction based on wind
+		var wind_speed_direction = self.wind_speed * self.wind_direction
+		rain_direction = Vector2(wind_speed_direction, 1).normalized()
+		rain_is_active = true
+		rain_spawn_accumulator = RAIN_SPAWN_INTERVAL  # Spawn first batch immediately
 	if is_weather == "clouds":
 		for x in range(15):
 			self.create_cloud(true)
