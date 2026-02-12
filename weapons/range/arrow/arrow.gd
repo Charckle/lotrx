@@ -98,15 +98,25 @@ func check_hit_wall():
 			previous_cell = arrow_pos_for_calc
 
 
+const HIT_RADIUS := 15.0
+
 func check_hit_target():
+	# Arrow reached the destination tile
 	if first_tilemap_layer.local_to_map(target_coordinate) == arrow_pos_for_calc:
-		if gr(target) != null and arrow_pos_for_calc == gr(target).unit_position:
-			gr(target).get_damaged(attack_dmg, a_penetration)
+		var target_ref = gr(target)
+		# Check if the target unit is still close enough to be hit
+		if target_ref != null and global_position.distance_to(target_ref.global_position) <= HIT_RADIUS:
+			target_ref.get_damaged(attack_dmg, a_penetration)
 			queue_free()
-		else:
-			# Arrow missed the target - add to stuck pool as a static MultiMesh instance
-			_add_to_stuck_pool()
+			return
+		# Check if the target unit is on the same tile
+		if target_ref != null and arrow_pos_for_calc == target_ref.unit_position:
+			target_ref.get_damaged(attack_dmg, a_penetration)
 			queue_free()
+			return
+		# Arrow missed - stick in the ground
+		_add_to_stuck_pool()
+		queue_free()
 
 
 func _add_to_stuck_pool():

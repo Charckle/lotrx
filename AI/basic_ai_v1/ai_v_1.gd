@@ -58,7 +58,7 @@ func set_units_to_defense_stance():
 		for unit in my_units_on_map:
 			var unit_obj = gr(unit)
 			if unit_obj != null:
-				if unit_obj.unit_id not in GlobalSettings.my_faction.get_list_of_ranged():
+				if unit_obj.unit_id not in GlobalSettings.get_list_of_ranged():
 					unit_obj.stance = 1
 
 func print_units_groups():

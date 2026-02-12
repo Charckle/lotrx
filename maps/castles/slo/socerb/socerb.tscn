@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=4 uid="uid://dpq75kochn3i"]
+[gd_scene load_steps=22 format=4 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
 [ext_resource type="Script" uid="uid://bcwv87arec41m" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
@@ -20,6 +20,9 @@
 [ext_resource type="PackedScene" uid="uid://cl6m2xq23hmco" path="res://units/other_units/siege_tower/siege_tower.tscn" id="11_p1aew"]
 [ext_resource type="PackedScene" uid="uid://6k5bqys5j8x4" path="res://maps/othr/player_start_loc/player_start_loc.tscn" id="13_o55kd"]
 [ext_resource type="PackedScene" uid="uid://bd2oebmiliabk" path="res://units/other_units/siege_tower/siege_wall/siege_wall.tscn" id="20_vnevk"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_2psup"]
+viewport_path = NodePath("CloudShadowsViewport")
 
 [node name="game" instance=ExtResource("1_pay0i")]
 metadata/_edit_lock_ = true
@@ -208,7 +211,7 @@ position = Vector2(496, 528)
 position = Vector2(496, 528)
 
 [node name="ram" parent="units" index="48" instance=ExtResource("9_54hdq")]
-position = Vector2(208, 528)
+position = Vector2(560, 144)
 debugging_ = true
 aggressive = false
 
@@ -302,6 +305,9 @@ position = Vector2(528, 368)
 [node name="PlayerStartLoc2" parent="othr" index="1" instance=ExtResource("13_o55kd")]
 position = Vector2(688, -688)
 faction = 2
+
+[node name="CloudShadows" parent="." index="15"]
+texture = SubResource("ViewportTexture_2psup")
 
 [node name="SiegeWall" parent="siege_walls/available_loc" index="0" instance=ExtResource("20_vnevk")]
 position = Vector2(848, -336)
