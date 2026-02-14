@@ -6,8 +6,12 @@ var new_red: int
 var new_green: int
 var new_blue: int
 
+@export_range(0.0, 0.3) var wave_amplitude: float = 0.15
+@export_range(0.0, 30.0) var wave_frequency: float = 5.0
+@export_range(0.0, 10.0) var wave_speed: float = 4.0
+
 var my_shader: Shader
-@onready var shaded_sprite = preload("res://shaders/color_changer/my_shader.gdshader")
+@onready var shaded_sprite = preload("res://shaders/flag_wave/flag_wave.gdshader")
 
 func _ready():
 	set_flag_color()
@@ -37,3 +41,7 @@ func set_flag_color():
 	
 	material.set_shader_parameter("replaceColor", color_from_rgb(255, 255, 0))
 	material.set_shader_parameter("withColor", color_from_rgb(new_red, new_green, new_blue))
+	
+	material.set_shader_parameter("wave_amplitude", wave_amplitude)
+	material.set_shader_parameter("wave_frequency", wave_frequency)
+	material.set_shader_parameter("wave_speed", wave_speed)

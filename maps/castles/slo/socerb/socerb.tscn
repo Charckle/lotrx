@@ -228,7 +228,7 @@ position = Vector2(720, -432)
 faction = 2
 
 [node name="siege_tower" parent="units" index="52" instance=ExtResource("11_p1aew")]
-position = Vector2(144, 528)
+position = Vector2(336, 112)
 
 [node name="projectiles" parent="." index="7"]
 metadata/_edit_lock_ = true
