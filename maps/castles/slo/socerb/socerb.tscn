@@ -131,7 +131,7 @@ position = Vector2(496, -976)
 faction = 2
 
 [node name="archer14" parent="units" index="26" instance=ExtResource("6_ikml3")]
-position = Vector2(496, -944)
+position = Vector2(272, -176)
 faction = 2
 
 [node name="archer15" parent="units" index="27" instance=ExtResource("6_ikml3")]
@@ -228,7 +228,7 @@ position = Vector2(720, -432)
 faction = 2
 
 [node name="siege_tower" parent="units" index="52" instance=ExtResource("11_p1aew")]
-position = Vector2(336, 112)
+position = Vector2(144, -176)
 
 [node name="projectiles" parent="." index="7"]
 metadata/_edit_lock_ = true
@@ -300,7 +300,7 @@ position = Vector2(880, -1008)
 faction = 2
 
 [node name="PlayerStartLoc" parent="othr" index="0" instance=ExtResource("13_o55kd")]
-position = Vector2(528, 368)
+position = Vector2(304, -112)
 
 [node name="PlayerStartLoc2" parent="othr" index="1" instance=ExtResource("13_o55kd")]
 position = Vector2(688, -688)

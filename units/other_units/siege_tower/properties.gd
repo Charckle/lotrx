@@ -13,18 +13,21 @@ func _ready() -> void:
 	#hp - (dmg - def)
 	
 	parent_n.unit_id = 9 # 9 siege_tower
-	parent_n.attack_range = 1
+	parent_n.agression_range_base = 16
+	parent_n.agression_range = 16
+	parent_n.attack_range = 16
 	parent_n.m_speed = 20
-	parent_n.primary_mele_fighter = true
+	parent_n.primary_mele_fighter = false
 	parent_n.can_dig = false
-	parent_n.attack_dmg_range = 0
+	parent_n.siege_weapon = true
+	parent_n.attack_dmg_range = 40
 	parent_n.attack_dmg_mele = 0
 	var base_health = 800
 	parent_n.base_health = base_health
 	parent_n.aggressive = false
 	
 	parent_n.a_defense = 50
-	parent_n.a_penetration = 0
+	parent_n.a_penetration = 10
 	parent_n.unit_strenght = 1 # for calculating army strenght
 	
 	var sprite2d = parent_n.get_node("sprite_base")

@@ -557,7 +557,7 @@ func set_act():
 			 "curr_tick": root_map.current_tick})
 			#set_move(mouse_pos)
 		else:
-			if gr(unit_wr).faction == GlobalSettings.my_faction:
+			if gr(unit_wr).faction == GlobalSettings.my_faction or siege_weapon:
 				root_map.commands_in_last_tick.append({"func": "set_move",
 				 "args": [mouse_pos], 
 				"map_unique_id": self.map_unique_id,

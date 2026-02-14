@@ -17,5 +17,14 @@ texture = ExtResource("3_rkyhc")
 [node name="attack" type="Node2D" parent="." index="4"]
 script = ExtResource("4_kipak")
 
+[node name="ReloadTimer" type="Timer" parent="attack" index="0"]
+one_shot = true
+
+[node name="BurstTimer" type="Timer" parent="attack" index="1"]
+one_shot = true
+
 [node name="properties" type="Node2D" parent="." index="5"]
 script = ExtResource("2_6ga8f")
+
+[connection signal="timeout" from="attack/ReloadTimer" to="attack" method="_on_reload_timer_timeout"]
+[connection signal="timeout" from="attack/BurstTimer" to="attack" method="_on_burst_timer_timeout"]
