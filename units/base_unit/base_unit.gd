@@ -80,6 +80,9 @@ var retried_times = 0
 var timer_started = false
 # END pathinding retrying
 
+# reposition for cardinal coverage after stopping
+var has_checked_reposition = false
+
 var timer_ = 1
 
 func get_right_target():
@@ -277,6 +280,7 @@ func set_attack(unit_map_unique_id: int):
 	move_()
 
 func move_(target_move_to=null):
+	has_checked_reposition = false
 	current_state = State.IDLE # used for digging ATM
 	root_map.get_solid_points()
 	
@@ -310,6 +314,66 @@ func move_(target_move_to=null):
 	
 	get_going_arraw_line()
 
+func try_reposition_for_coverage():
+	var cardinal_dirs = [Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0)]
+	
+	# Count current cardinal coverage (solid neighbors = covered sides)
+	var current_coverage = 0
+	for dir in cardinal_dirs:
+		if astar_grid.is_point_solid(unit_position + dir):
+			current_coverage += 1
+	
+	# Already have at least one covered cardinal side — no need to move
+	if current_coverage > 0:
+		return
+	
+	# No cardinal coverage — check nearby free cells for a better spot
+	var all_dirs = [
+		Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0),
+		Vector2i(-1, -1), Vector2i(-1, 1), Vector2i(1, -1), Vector2i(1, 1)
+	]
+	
+	var best_pos = unit_position
+	var best_coverage = 0
+	
+	var region = astar_grid.region
+	for dir in all_dirs:
+		var candidate = unit_position + dir
+		
+		# Bounds check
+		if candidate.x < region.position.x or candidate.x >= region.position.x + region.size.x:
+			continue
+		if candidate.y < region.position.y or candidate.y >= region.position.y + region.size.y:
+			continue
+		
+		# Skip occupied cells
+		if astar_grid.is_point_solid(candidate):
+			continue
+		
+		# Count cardinal coverage at this candidate position
+		# Exclude our current cell since we'd be vacating it
+		var coverage = 0
+		for c_dir in cardinal_dirs:
+			var adj = candidate + c_dir
+			if adj == unit_position:
+				continue  # we'd leave this cell, don't count it
+			if adj.x < region.position.x or adj.x >= region.position.x + region.size.x:
+				continue
+			if adj.y < region.position.y or adj.y >= region.position.y + region.size.y:
+				continue
+			if astar_grid.is_point_solid(adj):
+				coverage += 1
+		
+		if coverage > best_coverage:
+			best_coverage = coverage
+			best_pos = candidate
+	
+	# Only move if the new spot is strictly better
+	if best_coverage > current_coverage:
+		target_walk = best_pos
+		unit_position_iddle = Vector2i(best_pos.x, best_pos.y)
+		move_(first_tilemap_layer.map_to_local(best_pos))
+
 func set_stance(stance:int):
 	if unit_id not in ranged_unit_ids:
 		self.stance = stance
@@ -341,6 +405,10 @@ func _physics_process(delta):
 		if unit_position in root_map.cells_with_vacate_intent:
 			if root_map.cells_with_vacate_intent[unit_position] == self:
 				root_map.cells_with_vacate_intent.erase(unit_position)
+		# Try to reposition for better cardinal coverage (one-time check per stop)
+		if not has_checked_reposition:
+			has_checked_reposition = true
+			try_reposition_for_coverage()
 		return
 	
 	var next_cell = current_id_path.front()
