@@ -30,10 +30,14 @@ var rain_active_count := 0
 var rain_direction := Vector2.ZERO
 var rain_multi_mesh_instance: MultiMeshInstance2D
 var rain_is_active := false
+var rain_was_active := false  # remember rain state so we can restore it
 # Accumulator for spawning rain in batches via _process instead of a timer
 var rain_spawn_accumulator := 0.0
 const RAIN_SPAWN_INTERVAL := 0.5
 const RAIN_DROPS_PER_BATCH := 60
+
+var _weather_was_visible := true  # tracks previous frame's setting for edge detection
+var _cloud_timer_was_running := false  # remember whether clouds were spawning
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -95,6 +99,51 @@ func _setup_rain_multimesh():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	# Live-toggle weather visibility from settings.
+	var weather_visible: bool = GlobalSettings.global_options["video"]["weather_show"]
+	var weather_objects_node = map_root.get_node("weather_objects")
+
+	# ── Transition: visible → hidden  (clean up everything) ──────────
+	if not weather_visible and _weather_was_visible:
+		# Remember whether clouds/rain were active so we can restore later.
+		_cloud_timer_was_running = not $cloud_Timer.is_stopped()
+		rain_was_active = rain_is_active
+
+		# Stop spawning.
+		if _cloud_timer_was_running:
+			$cloud_Timer.stop()
+
+		# Free every existing cloud.
+		for child in weather_objects_node.get_children():
+			if child != rain_multi_mesh_instance:
+				child.queue_free()
+
+		# Clear rain pool.
+		rain_active_count = 0
+		rain_multi_mesh_instance.multimesh.visible_instance_count = 0
+
+		weather_objects_node.visible = false
+
+	# ── Transition: hidden → visible  (restore weather) ──────────────
+	if weather_visible and not _weather_was_visible:
+		weather_objects_node.visible = true
+
+		# Restart clouds if they were running before.
+		if _cloud_timer_was_running:
+			for x in range(15):
+				create_cloud(true)
+			$cloud_Timer.start()
+
+		# Restart rain if it was running before.
+		if rain_was_active:
+			rain_is_active = true
+			rain_spawn_accumulator = RAIN_SPAWN_INTERVAL
+
+	_weather_was_visible = weather_visible
+
+	if not weather_visible:
+		return
+
 	if rain_is_active:
 		_process_rain(delta)
 
