@@ -214,13 +214,29 @@ func _on_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton:
 		if event.is_pressed():
 			if event.button_index == MOUSE_BUTTON_LEFT:
-				if not Input.is_action_pressed("shift_"):
-					root_map.deselect_all_units()
-				
-				if self not in root_map.units_selected:
-					root_map.units_selected.append(self)
+				if event.double_click:
+					# Double-click: select all visible units of the same type on screen
+					if not Input.is_action_pressed("shift_"):
+						root_map.deselect_all_units()
+					var camera = get_viewport().get_camera_2d()
+					var vp_size = get_viewport_rect().size
+					var cam_pos = camera.get_screen_center_position()
+					var screen_rect = Rect2(cam_pos - vp_size / 2, vp_size)
+					for unit in root_map.get_node("units").get_children():
+						if unit.unit_id == self.unit_id and unit.faction == GlobalSettings.my_faction:
+							if screen_rect.has_point(unit.global_position):
+								if unit not in root_map.units_selected:
+									root_map.units_selected.append(unit)
+								unit.set_selected(true)
+				else:
+					# Single click
+					if not Input.is_action_pressed("shift_"):
+						root_map.deselect_all_units()
 					
-				set_selected(true)
+					if self not in root_map.units_selected:
+						root_map.units_selected.append(self)
+						
+					set_selected(true)
 
 func _on_mouse_entered() -> void:
 	if root_map.units_selected.size() > 0:
