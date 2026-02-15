@@ -14,7 +14,10 @@ var map_options = null
 
 var global_options = {
 	"audio": {
-		"music_active": true
+		"music_active": true,
+		"main_volume": 1.0,
+		"music_volume": 1.0,
+		"sfx_volume": 0.6
 	},
 	"gameplay": {
 		"attack_rage": false,
@@ -57,7 +60,34 @@ func get_list_of_ranged():
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	_apply_audio_volumes()
+
+
+func _apply_audio_volumes() -> void:
+	var audio = global_options["audio"]
+	_set_bus_volume_db("Master", audio.get("main_volume", 1.0))
+	_set_bus_volume_db("music", audio.get("music_volume", 1.0))
+	_set_bus_volume_db("sfx", audio.get("sfx_volume", 1.0))
+
+
+func _set_bus_volume_db(bus_name: String, linear: float) -> void:
+	var idx = AudioServer.get_bus_index(bus_name)
+	if idx == -1:
+		return
+	# Map 0..1 to -80..0 dB (mute at 0, full at 1)
+	var db = linear_to_db(clampf(linear, 0.0001, 1.0))
+	AudioServer.set_bus_volume_db(idx, db)
+
+
+func set_audio_bus_volume(bus_name: String, linear: float) -> void:
+	linear = clampf(linear, 0.0, 1.0)
+	if bus_name == "Master":
+		global_options["audio"]["main_volume"] = linear
+	elif bus_name == "music":
+		global_options["audio"]["music_volume"] = linear
+	elif bus_name == "sfx":
+		global_options["audio"]["sfx_volume"] = linear
+	_set_bus_volume_db(bus_name, linear)
 
 func reset_to_defaults():
 	my_faction = 1

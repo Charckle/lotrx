@@ -36,6 +36,7 @@ var current_index = 0  # Tracks which song is playing
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	bus = "music"
 	self.connect("finished", Callable(self, "_on_song_finished"))
 
 
