@@ -34,6 +34,12 @@ const ARRIVAL_THRESHOLD_CELLS := 2
 const SEGMENT_LENGTH_CELLS := 8
 const MARGIN_OUTSIDE_RANGE_CELLS := 2
 
+# Open-map dynamic defense: chokepoint / crescent formation (decide once, move there, defend)
+const DEFENSE_FLOOD_RADIUS := 10
+const DEFENSE_SEARCH_RADIUS := 4
+const DEFENSE_APPROACH_SAMPLE_HALF := 6
+var computed_defense_positions: Dictionary = {}  # unit_id -> [Vector2, ...]
+
 var lost = false
 
 var base_unit_group = {"units": [],
@@ -109,12 +115,14 @@ func set_state(my_side, their_side, first: bool):
 			open_attack_phase = OpenAttackPhase.ADVANCING
 		else:
 			current_state = State.DEFENDING
+			computed_defense_positions.clear()
 			print("Starting Defense!")
 	else:
 		if current_state == State.ATTACKING:
 			# if their > own * 1.2 = defense
 			if their_side > my_side * 1.2:
 				current_state = State.DEFENDING
+				computed_defense_positions.clear()
 				print("Starting Defense!")
 			else:
 				current_state = State.ATTACKING
@@ -338,6 +346,175 @@ func get_enemy_forces_center_and_max_range() -> Array:
 	return [center, max_range_px]
 
 
+## Flood fill from seed tile, returns {area: int, tiles: Array} with walkable tiles within max_radius.
+func _flood_fill_area(seed_tile: Vector2i, max_radius: int) -> Dictionary:
+	var astar = root_map.astar_grid
+	if not astar.is_in_boundsv(seed_tile) or astar.is_point_solid(seed_tile):
+		return {"area": 0, "tiles": []}
+	var visited := {}
+	var queue: Array[Vector2i] = [seed_tile]
+	var tiles: Array[Vector2i] = []
+	while queue.size() > 0:
+		var tile: Vector2i = queue.pop_back()
+		if visited.has(tile):
+			continue
+		if not astar.is_in_boundsv(tile):
+			continue
+		if astar.is_point_solid(tile):
+			continue
+		var dist = seed_tile.distance_to(tile)
+		if dist > max_radius:
+			continue
+		visited[tile] = true
+		tiles.append(tile)
+		for offset in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
+			queue.append(tile + offset)
+	return {"area": tiles.size(), "tiles": tiles}
+
+## Temporarily free all own unit positions from astar so we see terrain-only solids.
+## Returns list of positions freed; call _temp_restore_unit_positions with it after.
+func _temp_free_unit_positions() -> Array:
+	var astar = root_map.astar_grid
+	var freed: Array[Vector2i] = []
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u == null:
+			continue
+		var pos = u.unit_position
+		if astar.is_point_solid(pos):
+			astar.set_point_solid(pos, false)
+			freed.append(pos)
+	return freed
+
+## Restore unit positions to astar after terrain-only analysis.
+func _temp_restore_unit_positions(freed: Array) -> void:
+	var astar = root_map.astar_grid
+	for pos in freed:
+		astar.set_point_solid(pos)
+
+## Count guarded sides (terrain/map edge) with directional weighting: rear > flank > front.
+func _count_guarded_sides_weighted(center_tile: Vector2i, away_from_enemy: Vector2) -> float:
+	var astar = root_map.astar_grid
+	const CARDINALS = [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
+	var score := 0.0
+	for offset in CARDINALS:
+		var n = center_tile + offset
+		if not astar.is_in_boundsv(n) or astar.is_point_solid(n):
+			var dir = Vector2(offset.x, offset.y).normalized()
+			var dot = dir.dot(away_from_enemy)
+			if dot > 0.3:
+				score += 3.0
+			elif dot < -0.3:
+				score += 1.0
+			else:
+				score += 2.0
+	return score
+
+## Measure approach width: how many walkable tiles along a perpendicular line (from enemy side).
+## Lower = better chokepoint.
+func _measure_approach_width(center_tile: Vector2i, away_from_enemy: Vector2) -> int:
+	var astar = root_map.astar_grid
+	var perp = Vector2(-away_from_enemy.y, away_from_enemy.x)
+	var width_count := 0
+	for i in range(-DEFENSE_APPROACH_SAMPLE_HALF, DEFENSE_APPROACH_SAMPLE_HALF + 1):
+		var tile = center_tile + Vector2i(roundi(perp.x * i), roundi(perp.y * i))
+		if astar.is_in_boundsv(tile) and not astar.is_point_solid(tile):
+			width_count += 1
+	return width_count
+
+## Find best defense center near own_forces_center: fits unit_count, maximizes chokepoint score.
+## Returns {center_tile, tiles} or empty dict if none found.
+func _find_best_defense_center(own_center_world: Vector2, enemy_center_world: Vector2, unit_count: int) -> Dictionary:
+	var tilemap = root_map.first_tilemap_layer
+	var astar = root_map.astar_grid
+	var center_tile = tilemap.local_to_map(own_center_world)
+	var enemy_dir := Vector2.ZERO
+	if own_center_world.distance_to(enemy_center_world) > 1.0:
+		enemy_dir = (own_center_world - enemy_center_world).normalized()
+	else:
+		enemy_dir = Vector2(0, 1)
+	var away_from_enemy = enemy_dir
+	var best: Dictionary = {}
+	var best_score := -INF
+	for dx in range(-DEFENSE_SEARCH_RADIUS, DEFENSE_SEARCH_RADIUS + 1):
+		for dy in range(-DEFENSE_SEARCH_RADIUS, DEFENSE_SEARCH_RADIUS + 1):
+			var seed_t = center_tile + Vector2i(dx, dy)
+			if not astar.is_in_boundsv(seed_t):
+				continue
+			if astar.is_point_solid(seed_t):
+				continue
+			var result = _flood_fill_area(seed_t, DEFENSE_FLOOD_RADIUS)
+			var area = result["area"]
+			if area < unit_count:
+				continue
+			var approach_width = _measure_approach_width(seed_t, away_from_enemy)
+			var bottleneck_ratio = area / maxf(approach_width, 1)
+			var guarded_score = _count_guarded_sides_weighted(seed_t, away_from_enemy)
+			var score = -approach_width * 2.0 + bottleneck_ratio * 0.5 + guarded_score
+			if score > best_score:
+				best_score = score
+				best = {"center_tile": seed_t, "tiles": result["tiles"], "away_from_enemy": away_from_enemy}
+	if best.is_empty():
+		return {}
+	return best
+
+## Build crescent formation: ranged further from enemy, melee in arc in front.
+## Returns {unit_id: [Vector2, ...]}.
+func _build_dynamic_defense_positions() -> Dictionary:
+	set_center_ow_own_forces()
+	var enemies = all_enemy_units()
+	var own_center = own_forces_center
+	var enemy_center: Vector2 = own_center + Vector2(100, 0)
+	if not enemies.is_empty():
+		var arr = get_enemy_forces_center_and_max_range()
+		enemy_center = arr[0]
+	var unit_count = 0
+	for unit_id in unit_groups:
+		for group in unit_groups[unit_id]:
+			for unit_wr in group["units"]:
+				if gr(unit_wr) != null:
+					unit_count += 1
+	if unit_count == 0:
+		return {}
+	var freed = _temp_free_unit_positions()
+	var best = _find_best_defense_center(own_center, enemy_center, unit_count)
+	_temp_restore_unit_positions(freed)
+	var tilemap = root_map.first_tilemap_layer
+	var ranged_ids = GlobalSettings.get_list_of_ranged()
+	if ranged_ids == null:
+		ranged_ids = []
+	if best.is_empty():
+		best = {"center_tile": tilemap.local_to_map(own_center), "tiles": [tilemap.local_to_map(own_center)], "away_from_enemy": (own_center - enemy_center).normalized() if own_center.distance_to(enemy_center) > 1.0 else Vector2(0, 1)}
+	var away = best["away_from_enemy"]
+	var center_world = tilemap.map_to_local(best["center_tile"])
+	var tiles_arr: Array = best["tiles"]
+	tiles_arr.sort_custom(func(a, b): return center_world.distance_squared_to(tilemap.map_to_local(a)) < center_world.distance_squared_to(tilemap.map_to_local(b)))
+	var melee_positions: Array[Vector2] = []
+	var ranged_positions: Array[Vector2] = []
+	for i in tiles_arr.size():
+		var t: Vector2i = tiles_arr[i]
+		var w = tilemap.map_to_local(t)
+		var along = (w - center_world).dot(away)
+		if along > 0:
+			ranged_positions.append(w)
+		else:
+			melee_positions.append(w)
+	if ranged_positions.is_empty() and melee_positions.is_empty():
+		melee_positions.append(center_world)
+	if ranged_positions.is_empty():
+		ranged_positions = melee_positions.duplicate()
+	if melee_positions.is_empty():
+		melee_positions = ranged_positions.duplicate()
+	var out: Dictionary = {}
+	for unit_id in unit_groups:
+		var is_ranged = ranged_ids != null and unit_id in ranged_ids
+		var positions: Array[Vector2] = ranged_positions.duplicate() if is_ranged else melee_positions.duplicate()
+		var list: Array = []
+		for p in positions:
+			list.append(p)
+		out[unit_id] = list
+	return out
+
 func build_open_attack_waypoints(own_center: Vector2, enemy_center: Vector2, max_enemy_range_px: float) -> Array:
 	var tilemap = root_map.first_tilemap_layer
 	var cell_size = float(root_map.m_cell_size)
@@ -403,9 +580,31 @@ func all_enemy_units():
 	return all_enemy_units
 
 func send_groups_to_markers():
-	if initial_units_to_markers == false:
-		move_to_initial_markers()
-		initial_units_to_markers = true
+	if map_type == MapTypes.OPEN:
+		move_to_computed_defense_positions()
+	else:
+		if initial_units_to_markers == false:
+			move_to_initial_markers()
+			initial_units_to_markers = true
+
+func move_to_computed_defense_positions():
+	if computed_defense_positions.is_empty():
+		computed_defense_positions = _build_dynamic_defense_positions()
+		if computed_defense_positions.is_empty():
+			return
+		for unit_id in unit_groups:
+			var positions = computed_defense_positions.get(unit_id, [])
+			if positions.is_empty():
+				continue
+			var to_pos_index = 0
+			for group in unit_groups[unit_id]:
+				for unit_wr in group["units"]:
+					var u = gr(unit_wr)
+					if u == null:
+						continue
+					var pos: Vector2 = positions[to_pos_index % positions.size()]
+					u.set_move(pos)
+					to_pos_index += 1
 
 func move_to_initial_markers():
 	for unit_id in markers:

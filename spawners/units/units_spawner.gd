@@ -4,7 +4,7 @@ extends Node2D
 @export var faction = 1
 @export var unit_type = 0
 @export var unit_numbers = 1
-@onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
+@onready var root_map = get_tree().root.get_node("game")
 @onready var title_map = root_map.get_node("TileMap")
 @onready var my_position_2i = title_map.local_to_map(global_position)
 

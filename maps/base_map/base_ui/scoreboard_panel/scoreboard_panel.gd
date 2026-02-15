@@ -1,6 +1,6 @@
 extends Control
 
-@onready var root_map = get_tree().root.get_child(1) # 0 je global properties autoloader :/
+@onready var root_map = get_tree().root.get_node("game")
 
 @onready var player_1 = $Panel/GridContainer/player_1
 @onready var player_2 = $Panel/GridContainer/player_2
