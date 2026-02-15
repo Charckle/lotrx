@@ -92,11 +92,7 @@ position = Vector2(619, 243)
 scale = Vector2(0.875, 0.875)
 texture = ExtResource("5_winya")
 
-[connection signal="mouse_entered" from="main_panel/upper_menu/multiplayer_menu" to="." method="_on_multiplayer_menu_mouse_entered"]
 [connection signal="pressed" from="main_panel/upper_menu/multiplayer_menu" to="." method="_on_multiplayer_menu_pressed"]
-[connection signal="mouse_entered" from="main_panel/settings_menu/settings_menu" to="." method="_on_settings_menu_mouse_entered"]
 [connection signal="pressed" from="main_panel/settings_menu/settings_menu" to="." method="_on_settings_menu_pressed"]
-[connection signal="mouse_entered" from="main_panel/settings_menu/about_menu" to="." method="_on_about_menu_mouse_entered"]
 [connection signal="pressed" from="main_panel/settings_menu/about_menu" to="." method="_on_about_menu_pressed"]
-[connection signal="mouse_entered" from="main_panel/quit_menu/quit_button" to="." method="_on_quit_button_mouse_entered"]
 [connection signal="pressed" from="main_panel/quit_menu/quit_button" to="." method="_on_button_pressed"]

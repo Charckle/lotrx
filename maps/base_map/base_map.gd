@@ -484,6 +484,11 @@ func reset_global_game_settings():
 	GlobalSettings.reset_to_defaults()
 
 func exit_to_lobby():
+	# Switch back to menu music
+	var mp = get_tree().root.get_node_or_null("MusicPlayer")
+	if mp:
+		mp.play_menu_music()
+	
 	# Clean up game-start specific data
 	if GlobalSettings.map_options != null and GlobalSettings.map_options.has("ai_factions"):
 		GlobalSettings.map_options.erase("ai_factions")
