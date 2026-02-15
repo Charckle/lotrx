@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://bn7ri334xglt1"]
+[gd_scene load_steps=12 format=3 uid="uid://bn7ri334xglt1"]
 
 [ext_resource type="Script" uid="uid://bpn7lcmoldbvn" path="res://maps/base_map/base_ui/camera.gd" id="1_lp3te"]
 [ext_resource type="Script" uid="uid://dswet14n1pooj" path="res://maps/base_map/base_ui/fps_label.gd" id="2_siea2"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://dmdqxit4v15f5" path="res://maps/base_map/base_ui/battle_status_ui/battle_status_ui.tscn" id="5_ktqgm"]
 [ext_resource type="PackedScene" uid="uid://djdxhdrnypy0c" path="res://maps/base_map/base_ui/scoreboard_panel/scoreboard_panel.tscn" id="6_mnpmd"]
 [ext_resource type="PackedScene" uid="uid://ddfk6bpdcwqat" path="res://menu/pause_menu/pause_menu.tscn" id="7_8huk2"]
+[ext_resource type="PackedScene" uid="uid://5bbafsmtb06v" path="res://maps/base_map/base_ui/minimap.tscn" id="8_mmap1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xg1d3"]
 bg_color = Color(0.6, 0.6, 0.6, 0.317647)
@@ -104,6 +105,9 @@ anchor_right = 0.5
 anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Minimap" parent="." instance=ExtResource("8_mmap1")]
+layout_mode = 3
 
 [node name="pause_menu" parent="." instance=ExtResource("7_8huk2")]
 anchors_preset = 8
