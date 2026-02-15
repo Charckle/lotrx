@@ -159,6 +159,11 @@ func _process(delta):
 	
 	# mark change of position and free or free the spot
 	if unit_position != old_unit_position:
+		# Clear vacate intent for the old position
+		if old_unit_position in root_map.cells_with_vacate_intent:
+			if root_map.cells_with_vacate_intent[old_unit_position] == self:
+				root_map.cells_with_vacate_intent.erase(old_unit_position)
+		
 		#root_map.update_astar_grid_units()
 		astar_grid.set_point_solid(old_unit_position, false)
 		astar_grid.set_point_solid(unit_position)
@@ -299,6 +304,10 @@ func move_(target_move_to=null):
 	
 	current_id_path = new_id_path
 	
+	# Register vacate intent for cooperative pathfinding
+	if current_id_path.size() > 1:
+		root_map.cells_with_vacate_intent[unit_position] = self
+	
 	get_going_arraw_line()
 
 func set_stance(stance:int):
@@ -328,6 +337,10 @@ func _physics_process(delta):
 	
 	if current_id_path.is_empty():
 		is_moving = false
+		# Clear vacate intent — unit is idle
+		if unit_position in root_map.cells_with_vacate_intent:
+			if root_map.cells_with_vacate_intent[unit_position] == self:
+				root_map.cells_with_vacate_intent.erase(unit_position)
 		return
 	
 	var next_cell = current_id_path.front()
@@ -354,6 +367,17 @@ func _physics_process(delta):
 						current_state = State.DIGGING
 			elif unit_id == 9:
 				$attack.deploy_siege.rpc(next_cell)
+		# blocking unit intends to move away — wait briefly then repath
+		elif next_cell in root_map.cells_with_vacate_intent:
+			if retried_times <= 1:
+				if not timer_started:
+					$walk_timer.wait_time = 0.1
+					$walk_timer.start()
+					timer_started = true
+			else:
+				retried_times = 0
+				$walk_timer.wait_time = 0.3
+				move_()
 		# if the next cell is not, wait a little bit
 		elif retried_times <= times_to_retry:
 			if not timer_started:
@@ -665,6 +689,11 @@ func update_death():
 	get_died()
 
 func get_died():
+	# Clear vacate intent
+	if unit_position in root_map.cells_with_vacate_intent:
+		if root_map.cells_with_vacate_intent[unit_position] == self:
+			root_map.cells_with_vacate_intent.erase(unit_position)
+	
 	# remove from selection list
 	var units_selected = root_map.units_selected
 	for i in units_selected:

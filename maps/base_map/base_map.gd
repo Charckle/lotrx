@@ -19,6 +19,9 @@ var units_selected = []
 var control_units_selected = [[],[],[],[],[],[],[],[],[],[]]
 var global_map_sectors := [] # not in use
 
+# Cooperative pathfinding: tracks cells that units intend to vacate
+var cells_with_vacate_intent: Dictionary = {}
+
 # multiplayer tick system
 # Tick system variables
 var tick_rate = 5  # Ticks per second, every 350 miliseconds wthich is super dooper cool for multiplayer
@@ -91,17 +94,62 @@ func execute_the_commands():
 	all_player_commands = []
 	
 	var not_executed_commands = []
+	var batch_move_commands = []
 	
 	for command in commands_to_execute:
 		if (command["curr_tick"] + 2) <= current_tick:
-			#command["func"].callv(command["args"])  # Call the function with its arguments
 			if command["map_unique_id"] in all_units_w_unique_id:
-				var unit = all_units_w_unique_id[command["map_unique_id"]]
-				unit.callv(command["func"], command["args"]) 
+				# Batch set_move commands for cooperative pathfinding
+				if command["func"] == "set_move":
+					batch_move_commands.append(command)
+				else:
+					var unit = all_units_w_unique_id[command["map_unique_id"]]
+					unit.callv(command["func"], command["args"])
 		else:
 			not_executed_commands.append(command)
+	
+	# Execute batched move commands cooperatively
+	if not batch_move_commands.is_empty():
+		execute_batch_move(batch_move_commands)
+	
 	commands_to_execute.clear()
 	commands_to_execute = not_executed_commands
+
+
+# Cooperative pathfinding: sort units by distance to target (closest first),
+# then temporarily free each unit's cell after it computes its path so that
+# units behind it can path through the cell that is about to be vacated.
+func execute_batch_move(commands: Array):
+	var entries = []
+	for command in commands:
+		if command["map_unique_id"] in all_units_w_unique_id:
+			var unit = all_units_w_unique_id[command["map_unique_id"]]
+			var target_pos = command["args"][0]
+			entries.append({"unit": unit, "command": command, "target": target_pos})
+	
+	# Sort by distance to target (closest first — they compute paths first)
+	entries.sort_custom(func(a, b):
+		return a["unit"].global_position.distance_squared_to(a["target"]) < b["unit"].global_position.distance_squared_to(b["target"])
+	)
+	
+	# Execute cooperatively: after each unit computes its path, temporarily free its cell
+	# so subsequent units can path through it
+	var cells_to_restore = []
+	for entry in entries:
+		var unit = entry["unit"]
+		var command = entry["command"]
+		var old_cell = unit.unit_position
+		
+		unit.callv(command["func"], command["args"])
+		
+		# If unit got a valid path (more than just current cell), temporarily free its cell
+		if unit.current_id_path.size() > 1:
+			astar_grid.set_point_solid(old_cell, false)
+			cells_to_restore.append(old_cell)
+	
+	# Restore cells — units haven't physically moved yet
+	for cell in cells_to_restore:
+		astar_grid.set_point_solid(cell, true)
 
 
 @rpc("authority", "call_remote", "reliable")
