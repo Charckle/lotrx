@@ -25,7 +25,8 @@ var global_options = {
 		"show_ai_POI": false
 	},
 	"video": {
-		"weather_show": true
+		"weather_show": true,
+		"fullscreen": true
 	},
 	"debug": {
 		"show_solid_tiles": false,
@@ -61,6 +62,7 @@ func get_list_of_ranged():
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	_apply_audio_volumes()
+	_apply_video_settings()
 
 
 func _apply_audio_volumes() -> void:
@@ -88,6 +90,17 @@ func set_audio_bus_volume(bus_name: String, linear: float) -> void:
 	elif bus_name == "sfx":
 		global_options["audio"]["sfx_volume"] = linear
 	_set_bus_volume_db(bus_name, linear)
+
+
+func _apply_video_settings() -> void:
+	var fullscreen: bool = global_options["video"].get("fullscreen", true)
+	var win := get_tree().root
+	win.mode = Window.MODE_FULLSCREEN if fullscreen else Window.MODE_WINDOWED
+
+
+func set_fullscreen(enabled: bool) -> void:
+	global_options["video"]["fullscreen"] = enabled
+	_apply_video_settings()
 
 func reset_to_defaults():
 	my_faction = 1

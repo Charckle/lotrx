@@ -120,6 +120,14 @@ layout_mode = 2
 size_flags_vertical = 3
 columns = 2
 
+[node name="fullscreen_label" type="Label" parent="TabContainer/Video/GridContainer3"]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="fullscreen_button" type="CheckButton" parent="TabContainer/Video/GridContainer3"]
+layout_mode = 2
+button_pressed = true
+
 [node name="Label" type="Label" parent="TabContainer/Video/GridContainer3"]
 layout_mode = 2
 text = "Weather"
@@ -136,4 +144,5 @@ button_pressed = true
 [connection signal="toggled" from="TabContainer/Gameplay/GridContainer2/agression_range_button" to="." method="_on_agression_range_button_toggled"]
 [connection signal="toggled" from="TabContainer/Gameplay/GridContainer2/attack_range_button" to="." method="_on_attack_range_button_toggled"]
 [connection signal="toggled" from="TabContainer/Gameplay/GridContainer2/show_ai_poi_button" to="." method="_on_show_ai_poi_button_toggled"]
+[connection signal="toggled" from="TabContainer/Video/GridContainer3/fullscreen_button" to="." method="_on_fullscreen_toggled"]
 [connection signal="toggled" from="TabContainer/Video/GridContainer3/show_weather" to="." method="_on_show_weather_toggled"]

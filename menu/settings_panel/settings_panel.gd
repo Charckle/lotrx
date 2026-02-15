@@ -12,6 +12,7 @@ func _ready():
 	$TabContainer/Gameplay/GridContainer2/agression_range_button.set_pressed_no_signal(GlobalSettings.global_options["gameplay"]["agression_rage"])
 	$TabContainer/Gameplay/GridContainer2/attack_range_button.set_pressed_no_signal(GlobalSettings.global_options["gameplay"]["attack_rage"])
 	$TabContainer/Gameplay/GridContainer2/show_ai_poi_button.set_pressed_no_signal(GlobalSettings.global_options["gameplay"]["show_ai_POI"])
+	$TabContainer/Video/GridContainer3/fullscreen_button.set_pressed_no_signal(GlobalSettings.global_options["video"].get("fullscreen", true))
 	$TabContainer/Video/GridContainer3/show_weather.set_pressed_no_signal(GlobalSettings.global_options["video"]["weather_show"])
 
 
@@ -49,6 +50,10 @@ func _on_attack_range_button_toggled(toggled_on):
 
 func _on_show_ai_poi_button_toggled(toggled_on):
 	GlobalSettings.global_options["gameplay"]["show_ai_POI"] = toggled_on
+
+
+func _on_fullscreen_toggled(toggled_on: bool) -> void:
+	GlobalSettings.set_fullscreen(toggled_on)
 
 
 func _on_show_weather_toggled(toggled_on):

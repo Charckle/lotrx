@@ -24,6 +24,8 @@ ButtonHoverSound="*res://singletons/button_hover_sound.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=640
+window/size/mode=3
+window/stretch/mode="viewport"
 mouse_cursor/custom_image="res://sprites/gui/defaut_cursor.png"
 
 [input]

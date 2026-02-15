@@ -300,7 +300,7 @@ position = Vector2(880, -1008)
 faction = 2
 
 [node name="PlayerStartLoc" parent="othr" index="0" instance=ExtResource("13_o55kd")]
-position = Vector2(304, -112)
+position = Vector2(528, 432)
 
 [node name="PlayerStartLoc2" parent="othr" index="1" instance=ExtResource("13_o55kd")]
 position = Vector2(688, -688)
