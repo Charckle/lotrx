@@ -40,6 +40,9 @@ var multiplayer_data = {
 	"map_to_load": null
 }
 
+# Set when host disconnects; main menu shows popup and clears it
+var host_disconnected_message: String = ""
+
 var units_ = {
 		0: "peasant",
 		1: "archer",
@@ -106,6 +109,7 @@ func reset_to_defaults():
 	my_faction = 1
 	friendly_factions = []
 	game_stats = null
+	host_disconnected_message = ""
 	faction_colors = {
 		1: {"red":0, "green": 100, "blue": 255},
 		2: {"red": 255, "green": 255, "blue": 100},

@@ -51,6 +51,10 @@ func display_panel():
 	GlobalSettings.game_stats["game_unit_count_current"] = self.calc_score()
 	self.fill_panel_numbers()
 	
+	# Only show "Back to Lobby" if we're in a multiplayer game
+	var lobby = get_tree().root.get_node_or_null("MultiplayerLobby")
+	$Panel/ButtonContainer/lobby_button.visible = (lobby != null)
+	
 	self.visible = true
 
 func fill_panel_numbers():
@@ -69,6 +73,9 @@ func fill_player_table(player, current_score, start_score):
 	player.get_node("crossbowmen_label").text = str(current_score.get(2, 0)) + "/" + str(start_score.get(2, 0))
 	player.get_node("knights_label").text = str(current_score.get(3, 0)) + "/" + str(start_score.get(3, 0))
 	player.get_node("total_label").text = str(current_score["total"]) + "/" + str(start_score["total"])
+
+func _on_lobby_button_pressed():
+	root_map.exit_to_lobby()
 
 func _on_main_menu_button_pressed():
 	root_map.exit_to_main_menu()

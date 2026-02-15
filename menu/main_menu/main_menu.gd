@@ -7,7 +7,10 @@ var loaded_music_player = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass
+	if GlobalSettings.host_disconnected_message != "":
+		$host_disconnect_popup/message_label.text = GlobalSettings.host_disconnected_message
+		$host_disconnect_popup.visible = true
+		GlobalSettings.host_disconnected_message = ""
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -44,3 +47,6 @@ func _on_settings_menu_pressed():
 func _on_multiplayer_menu_pressed() -> void:
 	close_all_other_menus()
 	other_menus.get_node("MutiplayerMenu").visible = true
+
+func _on_host_disconnect_ok_pressed():
+	$host_disconnect_popup.visible = false

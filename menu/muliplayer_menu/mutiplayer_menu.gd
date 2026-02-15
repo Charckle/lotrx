@@ -41,13 +41,31 @@ func _register_player_NOT_IN_USE(new_player_info):
 
 
 func _on_player_disconnected(id):
-	var msg = GlobalSettings.multiplayer_data["players"][id]["name"] + " disconnected."
-	get_tree().root.get_node("MultiplayerLobby").send_smg(msg)
+	var player_data = GlobalSettings.multiplayer_data["players"].get(id, {})
+	var msg = player_data.get("name", "Player") + " disconnected."
+	
+	# Replace disconnected player with AI if game is running (server only)
+	if multiplayer.is_server():
+		var game = get_tree().root.get_node_or_null("game")
+		var faction = player_data.get("faction", 0)
+		if game and faction != 0:
+			_spawn_ai_for_faction(game, faction, player_data)
+			msg = player_data.get("name", "Player") + " disconnected. Replaced by AI."
+	
+	# Remove player from lobby and notify
+	var lobby = get_tree().root.get_node_or_null("MultiplayerLobby")
+	if lobby:
+		lobby.send_smg(msg)
 	GlobalSettings.multiplayer_data["players"].erase(id)
 	_update_players_data_on_clients.rpc(GlobalSettings.multiplayer_data["players"])
 	_reload_player_list_gui.rpc()
-	#player_disconnected.emit(id)
-	#print("player " + str(id) + " disconnected.")
+
+
+func _spawn_ai_for_faction(game: Node, faction: int, _player_data: Dictionary) -> void:
+	var ai_scene = load("res://AI/basic_ai_v1/ai_v_1.tscn").instantiate()
+	ai_scene.faction = faction
+	ai_scene.faction_set_externally = true
+	game.add_child(ai_scene)
 	
 
 
@@ -103,8 +121,8 @@ func _local_on_connected_fail():
 func _local_on_server_disconnected():
 	multiplayer.multiplayer_peer = null
 	GlobalSettings.multiplayer_data["players"].clear()
-	print("Disconected from server")
-	#server_disconnected.emit()
+	GlobalSettings.host_disconnected_message = "The host closed the game."
+	get_tree().change_scene_to_file("uid://ceun5xdoedpjf")
 
 func _on_host_button_down():
 	create_game()
