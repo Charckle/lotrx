@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://ceun5xdoedpjf"]
+[gd_scene load_steps=7 format=3 uid="uid://ceun5xdoedpjf"]
 
 [ext_resource type="Script" uid="uid://dbpbx6st2ownd" path="res://menu/main_menu/main_menu.gd" id="1_hx8yy"]
 [ext_resource type="PackedScene" path="res://menu/settings_panel/settings_panel.tscn" id="2_5gwv8"]
@@ -101,7 +101,6 @@ texture = ExtResource("5_winya")
 
 [node name="host_disconnect_popup" type="Panel" parent="."]
 visible = false
-layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -144,8 +143,8 @@ grow_horizontal = 2
 grow_vertical = 0
 text = "OK"
 
-[connection signal="pressed" from="host_disconnect_popup/ok_button" to="." method="_on_host_disconnect_ok_pressed"]
 [connection signal="pressed" from="main_panel/upper_menu/multiplayer_menu" to="." method="_on_multiplayer_menu_pressed"]
 [connection signal="pressed" from="main_panel/settings_menu/settings_menu" to="." method="_on_settings_menu_pressed"]
 [connection signal="pressed" from="main_panel/settings_menu/about_menu" to="." method="_on_about_menu_pressed"]
 [connection signal="pressed" from="main_panel/quit_menu/quit_button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="host_disconnect_popup/ok_button" to="." method="_on_host_disconnect_ok_pressed"]
