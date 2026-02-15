@@ -7,6 +7,7 @@
 script = ExtResource("1_vc6b6")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+visible = false
 
 [node name="vbnvbn" type="Panel" parent="CanvasLayer"]
 anchors_preset = 15

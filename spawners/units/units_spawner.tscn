@@ -1,6 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://dbtipfdsfx1em"]
+[gd_scene load_steps=3 format=3 uid="uid://dbtipfdsfx1em"]
 
 [ext_resource type="Script" uid="uid://baiwkwaecye5q" path="res://spawners/units/units_spawner.gd" id="1_uujwd"]
+[ext_resource type="Texture2D" uid="uid://ckikttv1bkwuq" path="res://sprites/gui/going_mark.png" id="2_siivh"]
 
 [node name="units_spawner" type="Node2D"]
 script = ExtResource("1_uujwd")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_siivh")

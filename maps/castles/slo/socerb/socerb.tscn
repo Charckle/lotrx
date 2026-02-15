@@ -1,16 +1,14 @@
-[gd_scene load_steps=22 format=4 uid="uid://dpq75kochn3i"]
+[gd_scene load_steps=21 format=4 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
 [ext_resource type="Script" uid="uid://bcwv87arec41m" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
 [ext_resource type="TileSet" uid="uid://q3ygopelucdk" path="res://tiles/tilesets/castle_tiles.tres" id="2_urvtn"]
-[ext_resource type="PackedScene" uid="uid://cx1jmyu8ch88g" path="res://units/other_units/knight/knight.tscn" id="3_uqr84"]
 [ext_resource type="PackedScene" uid="uid://c53dam5nd2klo" path="res://units/other_units/pikeman/pikeman.tscn" id="5_2f677"]
 [ext_resource type="PackedScene" uid="uid://iycf6hgid0wt" path="res://units/castle_units/small_door/map_placer/horizontal/small_door_horizontal_map_placer.tscn" id="6_673ex"]
 [ext_resource type="PackedScene" uid="uid://c5pey8052bhw8" path="res://units/other_units/archer/archer.tscn" id="6_ikml3"]
 [ext_resource type="PackedScene" uid="uid://d1306ntr6ywvh" path="res://units/castle_units/small_door/map_placer/vertical/small_door_vertical_map_placer.tscn" id="7_3t5sj"]
 [ext_resource type="PackedScene" uid="uid://b5wrwpj4nswnb" path="res://units/other_units/crossbow/crossbow.tscn" id="7_8yq8l"]
 [ext_resource type="PackedScene" uid="uid://bk172ovhtx36a" path="res://AI/POI/archer_POI/ai_poi_archer.tscn" id="8_hu1y8"]
-[ext_resource type="PackedScene" uid="uid://cgvtodceqeriv" path="res://units/other_units/maceman/maceman.tscn" id="8_q04mq"]
 [ext_resource type="PackedScene" uid="uid://bmc6el8pavh5" path="res://units/random_units/checkpoint_flag/checkpoint_flag.tscn" id="8_vih8o"]
 [ext_resource type="PackedScene" uid="uid://ca6v18yb265rd" path="res://units/other_units/ram/ram.tscn" id="9_54hdq"]
 [ext_resource type="PackedScene" uid="uid://ceq8am3wk5830" path="res://AI/POI/crossbow_POI/ai_poi_crossbow.tscn" id="9_l5eac"]
@@ -19,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://cw62l2a8kja3j" path="res://AI/POI/pikeman_POI/ai_poi_pikeman.tscn" id="10_sg6le"]
 [ext_resource type="PackedScene" uid="uid://cl6m2xq23hmco" path="res://units/other_units/siege_tower/siege_tower.tscn" id="11_p1aew"]
 [ext_resource type="PackedScene" uid="uid://6k5bqys5j8x4" path="res://maps/othr/player_start_loc/player_start_loc.tscn" id="13_o55kd"]
+[ext_resource type="PackedScene" uid="uid://dbtipfdsfx1em" path="res://spawners/units/units_spawner.tscn" id="18_2cmut"]
 [ext_resource type="PackedScene" uid="uid://bd2oebmiliabk" path="res://units/other_units/siege_tower/siege_wall/siege_wall.tscn" id="20_vnevk"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_2psup"]
@@ -46,188 +45,100 @@ tile_map_data = PackedByteArray("AAASAPn/AQACAAQAAAASAPr/AQAHAAQAAAASAPv/AQAHAAU
 tile_set = ExtResource("2_urvtn")
 metadata/_edit_lock_ = true
 
-[node name="knight" parent="units" index="0" instance=ExtResource("3_uqr84")]
-position = Vector2(400, 528)
-
-[node name="knight7" parent="units" index="1" instance=ExtResource("3_uqr84")]
-position = Vector2(400, 496)
-
-[node name="knight12" parent="units" index="2" instance=ExtResource("3_uqr84")]
-position = Vector2(368, 496)
-
-[node name="knight13" parent="units" index="3" instance=ExtResource("3_uqr84")]
-position = Vector2(336, 496)
-
-[node name="knight14" parent="units" index="4" instance=ExtResource("3_uqr84")]
-position = Vector2(336, 528)
-
-[node name="knight15" parent="units" index="5" instance=ExtResource("3_uqr84")]
-position = Vector2(368, 528)
-
-[node name="pikeman" parent="units" index="6" instance=ExtResource("5_2f677")]
-position = Vector2(688, 496)
-
-[node name="pikeman5" parent="units" index="7" instance=ExtResource("5_2f677")]
-position = Vector2(656, 496)
-
-[node name="pikeman6" parent="units" index="8" instance=ExtResource("5_2f677")]
-position = Vector2(624, 496)
-
-[node name="pikeman7" parent="units" index="9" instance=ExtResource("5_2f677")]
-position = Vector2(624, 528)
-
-[node name="pikeman8" parent="units" index="10" instance=ExtResource("5_2f677")]
-position = Vector2(656, 528)
-
-[node name="pikeman9" parent="units" index="11" instance=ExtResource("5_2f677")]
-position = Vector2(688, 528)
-
-[node name="pikeman2" parent="units" index="12" instance=ExtResource("5_2f677")]
+[node name="pikeman2" parent="units" index="0" instance=ExtResource("5_2f677")]
 position = Vector2(624, -560)
 faction = 2
 
-[node name="pikeman3" parent="units" index="13" instance=ExtResource("5_2f677")]
+[node name="pikeman3" parent="units" index="1" instance=ExtResource("5_2f677")]
 position = Vector2(656, -560)
 faction = 2
 
-[node name="pikeman4" parent="units" index="14" instance=ExtResource("5_2f677")]
+[node name="pikeman4" parent="units" index="2" instance=ExtResource("5_2f677")]
 position = Vector2(688, -560)
 faction = 2
 
-[node name="archer6" parent="units" index="15" instance=ExtResource("6_ikml3")]
-position = Vector2(816, 496)
-
-[node name="archer7" parent="units" index="16" instance=ExtResource("6_ikml3")]
-position = Vector2(848, 496)
-
-[node name="archer8" parent="units" index="17" instance=ExtResource("6_ikml3")]
-position = Vector2(880, 496)
-
-[node name="archer9" parent="units" index="18" instance=ExtResource("6_ikml3")]
-position = Vector2(912, 496)
-
-[node name="archer22" parent="units" index="19" instance=ExtResource("6_ikml3")]
-position = Vector2(816, 528)
-
-[node name="archer23" parent="units" index="20" instance=ExtResource("6_ikml3")]
-position = Vector2(848, 528)
-
-[node name="archer24" parent="units" index="21" instance=ExtResource("6_ikml3")]
-position = Vector2(880, 528)
-
-[node name="archer25" parent="units" index="22" instance=ExtResource("6_ikml3")]
-position = Vector2(912, 528)
-
-[node name="archer10" parent="units" index="23" instance=ExtResource("6_ikml3")]
+[node name="archer10" parent="units" index="3" instance=ExtResource("6_ikml3")]
 position = Vector2(752, -880)
 faction = 2
 
-[node name="archer11" parent="units" index="24" instance=ExtResource("6_ikml3")]
+[node name="archer11" parent="units" index="4" instance=ExtResource("6_ikml3")]
 position = Vector2(752, -944)
 faction = 2
 
-[node name="archer13" parent="units" index="25" instance=ExtResource("6_ikml3")]
+[node name="archer13" parent="units" index="5" instance=ExtResource("6_ikml3")]
 position = Vector2(496, -976)
 faction = 2
 
-[node name="archer14" parent="units" index="26" instance=ExtResource("6_ikml3")]
+[node name="archer14" parent="units" index="6" instance=ExtResource("6_ikml3")]
 position = Vector2(496, -944)
 faction = 2
 
-[node name="archer15" parent="units" index="27" instance=ExtResource("6_ikml3")]
+[node name="archer15" parent="units" index="7" instance=ExtResource("6_ikml3")]
 position = Vector2(528, -976)
 faction = 2
 
-[node name="archer12" parent="units" index="28" instance=ExtResource("6_ikml3")]
+[node name="archer12" parent="units" index="8" instance=ExtResource("6_ikml3")]
 position = Vector2(752, -912)
 faction = 2
 
-[node name="archer16" parent="units" index="29" instance=ExtResource("6_ikml3")]
+[node name="archer16" parent="units" index="9" instance=ExtResource("6_ikml3")]
 position = Vector2(720, -656)
 faction = 2
 
-[node name="archer17" parent="units" index="30" instance=ExtResource("6_ikml3")]
+[node name="archer17" parent="units" index="10" instance=ExtResource("6_ikml3")]
 position = Vector2(720, -720)
 faction = 2
 
-[node name="archer18" parent="units" index="31" instance=ExtResource("6_ikml3")]
+[node name="archer18" parent="units" index="11" instance=ExtResource("6_ikml3")]
 position = Vector2(720, -688)
 faction = 2
 
-[node name="archer19" parent="units" index="32" instance=ExtResource("6_ikml3")]
+[node name="archer19" parent="units" index="12" instance=ExtResource("6_ikml3")]
 position = Vector2(816, -624)
 faction = 2
 
-[node name="archer20" parent="units" index="33" instance=ExtResource("6_ikml3")]
+[node name="archer20" parent="units" index="13" instance=ExtResource("6_ikml3")]
 position = Vector2(816, -656)
 faction = 2
 
-[node name="archer21" parent="units" index="34" instance=ExtResource("6_ikml3")]
+[node name="archer21" parent="units" index="14" instance=ExtResource("6_ikml3")]
 position = Vector2(816, -688)
 faction = 2
 
-[node name="crossbow" parent="units" index="35" instance=ExtResource("7_8yq8l")]
+[node name="crossbow" parent="units" index="15" instance=ExtResource("7_8yq8l")]
 position = Vector2(592, -688)
 faction = 2
 
-[node name="crossbow2" parent="units" index="36" instance=ExtResource("7_8yq8l")]
+[node name="crossbow2" parent="units" index="16" instance=ExtResource("7_8yq8l")]
 position = Vector2(592, -720)
 faction = 2
 
-[node name="crossbow4" parent="units" index="37" instance=ExtResource("7_8yq8l")]
+[node name="crossbow4" parent="units" index="17" instance=ExtResource("7_8yq8l")]
 position = Vector2(624, -688)
 faction = 2
 
-[node name="crossbow3" parent="units" index="38" instance=ExtResource("7_8yq8l")]
+[node name="crossbow3" parent="units" index="18" instance=ExtResource("7_8yq8l")]
 position = Vector2(624, -720)
 faction = 2
 
-[node name="maceman" parent="units" index="39" instance=ExtResource("8_q04mq")]
-position = Vector2(528, 528)
-
-[node name="maceman2" parent="units" index="40" instance=ExtResource("8_q04mq")]
-position = Vector2(560, 528)
-
-[node name="maceman3" parent="units" index="41" instance=ExtResource("8_q04mq")]
-position = Vector2(560, 496)
-
-[node name="maceman4" parent="units" index="42" instance=ExtResource("8_q04mq")]
-position = Vector2(528, 496)
-
-[node name="maceman5" parent="units" index="43" instance=ExtResource("8_q04mq")]
-position = Vector2(496, 496)
-
-[node name="maceman6" parent="units" index="44" instance=ExtResource("8_q04mq")]
-position = Vector2(464, 496)
-debugging_ = true
-
-[node name="maceman7" parent="units" index="45" instance=ExtResource("8_q04mq")]
-position = Vector2(464, 528)
-
-[node name="maceman8" parent="units" index="46" instance=ExtResource("8_q04mq")]
-position = Vector2(496, 528)
-
-[node name="maceman9" parent="units" index="47" instance=ExtResource("8_q04mq")]
-position = Vector2(496, 528)
-
-[node name="ram" parent="units" index="48" instance=ExtResource("9_54hdq")]
+[node name="ram" parent="units" index="19" instance=ExtResource("9_54hdq")]
 position = Vector2(752, 528)
 debugging_ = true
 aggressive = false
 
-[node name="cauldron" parent="units" index="49" instance=ExtResource("10_ixc38")]
+[node name="cauldron" parent="units" index="20" instance=ExtResource("10_ixc38")]
 position = Vector2(496, -528)
 faction = 2
 
-[node name="cauldron2" parent="units" index="50" instance=ExtResource("10_ixc38")]
+[node name="cauldron2" parent="units" index="21" instance=ExtResource("10_ixc38")]
 position = Vector2(784, -304)
 faction = 2
 
-[node name="cauldron5" parent="units" index="51" instance=ExtResource("10_ixc38")]
+[node name="cauldron5" parent="units" index="22" instance=ExtResource("10_ixc38")]
 position = Vector2(720, -432)
 faction = 2
 
-[node name="siege_tower" parent="units" index="52" instance=ExtResource("11_p1aew")]
+[node name="siege_tower" parent="units" index="23" instance=ExtResource("11_p1aew")]
 position = Vector2(208, 528)
 
 [node name="projectiles" parent="." index="7"]
@@ -282,6 +193,36 @@ faction = 2
 main_door = true
 new_siege_id = 300
 door_health = 200
+
+[node name="knights_spawner" parent="spawners" index="2" instance=ExtResource("18_2cmut")]
+position = Vector2(304, 528)
+unit_type = 3
+unit_numbers = 6
+
+[node name="mace_spawners" parent="spawners" index="3" instance=ExtResource("18_2cmut")]
+position = Vector2(432, 528)
+unit_type = 4
+unit_numbers = 10
+
+[node name="pikeman_spawner" parent="spawners" index="4" instance=ExtResource("18_2cmut")]
+position = Vector2(592, 528)
+unit_type = 5
+unit_numbers = 10
+
+[node name="archers_spawner" parent="spawners" index="5" instance=ExtResource("18_2cmut")]
+position = Vector2(944, 528)
+unit_type = 1
+unit_numbers = 10
+
+[node name="archers_spawner2" parent="spawners" index="6" instance=ExtResource("18_2cmut")]
+position = Vector2(944, 592)
+unit_type = 1
+unit_numbers = 10
+
+[node name="pikeman_spawner2" parent="spawners" index="7" instance=ExtResource("18_2cmut")]
+position = Vector2(592, 592)
+unit_type = 5
+unit_numbers = 10
 
 [node name="PoiFlag" parent="checkpoints" index="0" instance=ExtResource("8_vih8o")]
 position = Vector2(688, -208)

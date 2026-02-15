@@ -1,9 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://bn7ri334xglt1"]
+[gd_scene load_steps=9 format=3 uid="uid://bn7ri334xglt1"]
 
 [ext_resource type="Script" uid="uid://bpn7lcmoldbvn" path="res://maps/base_map/base_ui/camera.gd" id="1_lp3te"]
 [ext_resource type="Script" uid="uid://dswet14n1pooj" path="res://maps/base_map/base_ui/fps_label.gd" id="2_siea2"]
 [ext_resource type="Script" uid="uid://dhlof6tye3468" path="res://maps/base_map/base_ui/cursors.gd" id="3_id33t"]
-[ext_resource type="Script" uid="uid://b4lw8fgjh67dj" path="res://maps/base_map/base_ui/panel.gd" id="4_42d2h"]
 [ext_resource type="PackedScene" uid="uid://dmdqxit4v15f5" path="res://maps/base_map/base_ui/battle_status_ui/battle_status_ui.tscn" id="5_ktqgm"]
 [ext_resource type="PackedScene" uid="uid://djdxhdrnypy0c" path="res://maps/base_map/base_ui/scoreboard_panel/scoreboard_panel.tscn" id="6_mnpmd"]
 [ext_resource type="PackedScene" uid="uid://ddfk6bpdcwqat" path="res://menu/pause_menu/pause_menu.tscn" id="7_8huk2"]
@@ -16,12 +15,6 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.97953, 0.5119, 0.350515, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_ej034"]
-font_size = 13
-
-[sub_resource type="LabelSettings" id="LabelSettings_lyo7d"]
-font_size = 13
 
 [node name="UI" type="CanvasLayer"]
 
@@ -45,48 +38,6 @@ metadata/_edit_lock_ = true
 [node name="cursors" type="Sprite2D" parent="."]
 script = ExtResource("3_id33t")
 metadata/_edit_lock_ = true
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-visible = false
-
-[node name="Panel" type="Panel" parent="CanvasLayer"]
-anchors_preset = 11
-anchor_left = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -220.0
-grow_horizontal = 0
-grow_vertical = 2
-script = ExtResource("4_42d2h")
-metadata/_edit_lock_ = true
-
-[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Panel"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -92.0
-offset_top = 40.0
-offset_right = 92.0
-offset_bottom = 208.0
-grow_horizontal = 2
-columns = 2
-
-[node name="Label" type="Label" parent="CanvasLayer/Panel/GridContainer"]
-layout_mode = 2
-text = "Outer Close/Open Gates"
-label_settings = SubResource("LabelSettings_ej034")
-
-[node name="CheckButton" type="CheckButton" parent="CanvasLayer/Panel/GridContainer"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="CanvasLayer/Panel/GridContainer"]
-layout_mode = 2
-text = "Inner Close/Open Gates"
-label_settings = SubResource("LabelSettings_lyo7d")
-
-[node name="CheckButton2" type="CheckButton" parent="CanvasLayer/Panel/GridContainer"]
-layout_mode = 2
 
 [node name="BattleStatusUi" parent="." instance=ExtResource("5_ktqgm")]
 anchors_preset = 5
@@ -117,6 +68,3 @@ anchor_right = 0.5
 anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
-
-[connection signal="toggled" from="CanvasLayer/Panel/GridContainer/CheckButton" to="CanvasLayer/Panel" method="_on_check_button_toggled"]
-[connection signal="toggled" from="CanvasLayer/Panel/GridContainer/CheckButton2" to="CanvasLayer/Panel" method="_on_check_button_toggled_2"]
