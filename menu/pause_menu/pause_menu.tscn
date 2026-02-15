@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://ddfk6bpdcwqat"]
+[gd_scene load_steps=3 format=3 uid="uid://ddfk6bpdcwqat"]
 
 [ext_resource type="Script" uid="uid://bu8cfu1l0av5l" path="res://menu/pause_menu/pause_menu.gd" id="1_vc6b6"]
+[ext_resource type="PackedScene" path="res://menu/settings_panel/settings_panel.tscn" id="2_settings"]
 
 [node name="pause_menu" type="Panel"]
 script = ExtResource("1_vc6b6")
@@ -23,9 +24,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -176.0
-offset_top = -95.0
+offset_top = -110.0
 offset_right = 176.0
-offset_bottom = 95.0
+offset_bottom = 110.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -37,9 +38,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -144.0
-offset_top = -65.0
+offset_top = -80.0
 offset_right = 144.0
-offset_bottom = 66.0
+offset_bottom = 80.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -51,6 +52,10 @@ text = "Resume Game"
 layout_mode = 2
 text = "Back to Lobby"
 
+[node name="settings_button" type="Button" parent="CanvasLayer/vbnvbn/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Settings"
+
 [node name="to_main_menu_button" type="Button" parent="CanvasLayer/vbnvbn/Panel/VBoxContainer"]
 layout_mode = 2
 text = "Quit to Main Menu"
@@ -59,7 +64,22 @@ text = "Quit to Main Menu"
 layout_mode = 2
 text = "Quit Game"
 
+[node name="settings_panel" parent="CanvasLayer/vbnvbn" instance=ExtResource("2_settings")]
+visible = false
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -256.0
+offset_top = -192.0
+offset_right = 256.0
+offset_bottom = 192.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [connection signal="pressed" from="CanvasLayer/vbnvbn/Panel/VBoxContainer/resume_button" to="." method="_on_resume_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/vbnvbn/Panel/VBoxContainer/to_lobby_button" to="." method="_on_to_lobby_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/vbnvbn/Panel/VBoxContainer/settings_button" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/vbnvbn/Panel/VBoxContainer/to_main_menu_button" to="." method="_on_to_main_menu_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/vbnvbn/Panel/VBoxContainer/quit_game_button" to="." method="_on_quit_game_button_pressed"]

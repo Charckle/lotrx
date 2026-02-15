@@ -1,0 +1,108 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://menu/settings_panel/settings_panel.gd" id="1_script"]
+
+[node name="settings_panel" type="Panel"]
+offset_right = 512.0
+offset_bottom = 384.0
+script = ExtResource("1_script")
+
+[node name="close_button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 464.0
+offset_top = 8.0
+offset_right = 504.0
+offset_bottom = 32.0
+text = "X"
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 144.0
+offset_bottom = 55.0
+text = "Audio Settings"
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 64.0
+offset_right = 416.0
+offset_bottom = 320.0
+columns = 2
+
+[node name="music_enable_label" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Music Enabled:"
+
+[node name="music_enable_button" type="CheckButton" parent="GridContainer"]
+layout_mode = 2
+button_pressed = true
+
+[node name="Label2" type="Label" parent="."]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 128.0
+offset_right = 160.0
+offset_bottom = 151.0
+text = "Gameplay Settings"
+
+[node name="GridContainer2" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 160.0
+offset_right = 416.0
+offset_bottom = 280.0
+columns = 2
+
+[node name="Label3" type="Label" parent="GridContainer2"]
+layout_mode = 2
+text = "Show aggression range"
+
+[node name="agression_range_button" type="CheckButton" parent="GridContainer2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GridContainer2"]
+layout_mode = 2
+text = "Show attack range"
+
+[node name="attack_range_button" type="CheckButton" parent="GridContainer2"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="GridContainer2"]
+layout_mode = 2
+text = "Show AI POI"
+
+[node name="show_ai_poi_button" type="CheckButton" parent="GridContainer2"]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="."]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 256.0
+offset_right = 142.0
+offset_bottom = 279.0
+text = "Video Settings"
+
+[node name="GridContainer3" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 288.0
+offset_right = 416.0
+offset_bottom = 360.0
+columns = 2
+
+[node name="Label" type="Label" parent="GridContainer3"]
+layout_mode = 2
+text = "Weather"
+
+[node name="show_weather" type="CheckButton" parent="GridContainer3"]
+layout_mode = 2
+button_pressed = true
+
+[connection signal="pressed" from="close_button" to="." method="_on_close_button_pressed"]
+[connection signal="toggled" from="GridContainer/music_enable_button" to="." method="_on_music_enable_button_toggled"]
+[connection signal="toggled" from="GridContainer2/agression_range_button" to="." method="_on_agression_range_button_toggled"]
+[connection signal="toggled" from="GridContainer2/attack_range_button" to="." method="_on_attack_range_button_toggled"]
+[connection signal="toggled" from="GridContainer2/show_ai_poi_button" to="." method="_on_show_ai_poi_button_toggled"]
+[connection signal="toggled" from="GridContainer3/show_weather" to="." method="_on_show_weather_toggled"]
