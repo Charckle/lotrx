@@ -37,6 +37,10 @@ func set_selected_map(map_name, map_resource):
 	var selected_map_name = multiplayer_lobby.selected_map_name
 	selected_map_name.text = "Selected map: " + map_name
 	GlobalSettings.multiplayer_data["map_to_load"] = map_resource
+	# Enable the start button now that a map is selected (server only)
+	var start_btn = multiplayer_lobby.get_node("CanvasLayer/main_panel/bottom_panel/start_game")
+	if multiplayer.is_server():
+		start_btn.disabled = false
 
 
 func get_all_maps():

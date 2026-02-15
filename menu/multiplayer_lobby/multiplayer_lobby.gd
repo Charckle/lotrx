@@ -17,6 +17,8 @@ var _updating_color = false
 func _ready() -> void:
 	if not multiplayer.is_server():
 		$CanvasLayer/main_panel/bottom_panel/start_game.visible = false
+	else:
+		$CanvasLayer/main_panel/bottom_panel/start_game.disabled = true
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
