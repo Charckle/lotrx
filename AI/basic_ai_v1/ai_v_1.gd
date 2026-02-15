@@ -14,10 +14,7 @@ var state_ = 0 #  0 iddle, 1 attack, 2 defend
 var faction_set_externally = false
 
 var my_units_on_map = []
-var markers: Dictionary = {}
 var unit_groups: Dictionary = {}
-
-var initial_units_to_markers = false
 
 var own_forces_center = Vector2.ZERO
 
@@ -47,6 +44,21 @@ var base_unit_group = {"units": [],
 
 var doors = []
 
+# Siege defense: regions from checkpoints, doors as boundaries, fallback on breach
+var siege_defense_built = false
+var door_id_to_tiles: Dictionary = {}  # siege_id -> Array[Vector2i]
+var all_door_tiles: Dictionary = {}   # Vector2i -> true for fast lookup
+var siege_regions: Array = []        # [{ region_id, tiles, center_world, rally, breached }]
+var region_by_tile: Dictionary = {}  # Vector2i -> region_id (int)
+var breach_fallback_region: Dictionary = {}  # region_id -> fallback_region_id
+var siege_slot_tiles: Array = []     # [Vector2i, ...] per slot index
+var door_to_regions: Dictionary = {} # siege_id -> Array[region_id]
+const SIEGE_REGION_FLOOD_MAX := 500  # max tiles per checkpoint region
+@export var debug_regions = false
+# 0 = move ranged + castle units this tick; 1 = move melee next tick (stagger)
+var siege_defense_phase = 0
+const CASTLE_WALL_UNIT_IDS := [8]  # cauldron / boiling oil; move to wall next to siege slots and outer door
+
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 
 # Called when the node enters the scene tree for the first time.
@@ -63,7 +75,20 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	pass
+	if debug_regions and map_type == MapTypes.CASTLE:
+		queue_redraw()
+
+func _draw():
+	if not debug_regions or map_type != MapTypes.CASTLE or siege_regions.is_empty():
+		return
+	var tilemap = root_map.first_tilemap_layer
+	var radius = 4.0
+	for reg in siege_regions:
+		var color = Color.RED if reg["breached"] else Color.from_hsv(fmod(reg["region_id"] * 0.13, 1.0), 0.7, 0.9)
+		for t in reg["tiles"]:
+			var world_pos = tilemap.map_to_local(t) + tilemap.global_position
+			var local_pos = to_local(world_pos)
+			draw_circle(local_pos, radius, color)
 
 func set_faction():
 	# If faction was set externally (e.g. spawned from multiplayer lobby), don't override
@@ -158,26 +183,9 @@ func _on_timer_timeout():
 		print("GG!")
 
 func initial_setup():	
-	set_markers()
 	set_unit_groups()
-
-func set_markers():
-	# check all markers on the map and adds them locall, for faster access
-
-	# check all own units
-	#var units_on_map = root_map.get_all_units()
-	for unit in root_map.get_all_units():
-		var unit_id = unit.unit_id
-		if not markers.has(unit_id):
-			#var unit_wr = weakref(unit)
-			markers[unit_id] = []
-	
-	for marker in root_map.get_all_ai_markers():
-		if marker.faction == self.faction:
-			var unit_id_ = marker.unit_type
-			markers[unit_id_].append(marker)
-	#print("current markers on map:")
-	#print(markers)
+	if map_type == MapTypes.CASTLE:
+		call_deferred("build_siege_defense_data")
 
 func set_unit_groups(units_on_map=null):
 	# create base groups for the units and add them to them
@@ -370,6 +378,226 @@ func _flood_fill_area(seed_tile: Vector2i, max_radius: int) -> Dictionary:
 		for offset in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
 			queue.append(tile + offset)
 	return {"area": tiles.size(), "tiles": tiles}
+
+## Flood fill from seed; do not step on tiles in blocked_tiles (e.g. door tiles). No radius limit by default; cap at max_tiles.
+func _flood_fill_blocked(seed_tile: Vector2i, blocked_tiles: Dictionary, max_tiles: int) -> Array[Vector2i]:
+	var astar = root_map.astar_grid
+	if not astar.is_in_boundsv(seed_tile):
+		return []
+	if blocked_tiles.has(seed_tile):
+		return []
+	var visited := {}
+	var queue: Array[Vector2i] = [seed_tile]
+	var tiles: Array[Vector2i] = []
+	while queue.size() > 0 and tiles.size() < max_tiles:
+		var tile: Vector2i = queue.pop_back()
+		if visited.has(tile):
+			continue
+		if not astar.is_in_boundsv(tile):
+			continue
+		if blocked_tiles.has(tile):
+			continue
+		# Treat solid on astar as blocked (walls, etc.) unless we're only blocking doors
+		if astar.is_point_solid(tile):
+			continue
+		visited[tile] = true
+		tiles.append(tile)
+		for offset in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
+			queue.append(tile + offset)
+	return tiles
+
+func build_siege_defense_data():
+	if siege_defense_built:
+		return
+	var tilemap = root_map.first_tilemap_layer
+	var astar = root_map.astar_grid
+	door_id_to_tiles.clear()
+	all_door_tiles.clear()
+	siege_regions.clear()
+	region_by_tile.clear()
+	breach_fallback_region.clear()
+	siege_slot_tiles.clear()
+
+	# 1) Door tiles from all door-like units (same faction + castle structures)
+	for unit in root_map.get_node("units").get_children():
+		if unit.get("siege_id") == null:
+			continue
+		var uid = unit.get("unit_id")
+		var is_door = unit.get("is_small_door") != null or (uid != null and uid in [500, 501, 502])
+		if not is_door:
+			continue
+		if unit.faction != faction:
+			continue
+		var pos = unit.get("unit_position")
+		if pos == null:
+			pos = tilemap.local_to_map(unit.global_position)
+		var sid = unit.siege_id
+		if not door_id_to_tiles.has(sid):
+			door_id_to_tiles[sid] = []
+		door_id_to_tiles[sid].append(pos)
+		all_door_tiles[pos] = true
+
+	# 2) Regions from checkpoints (flood fill, door tiles blocked; units removed so no unit holes)
+	var checkpoints_node = root_map.get_node_or_null("checkpoints")
+	if checkpoints_node == null:
+		siege_defense_built = true
+		return
+	var freed = _temp_free_unit_positions()
+	var flags = checkpoints_node.get_children()
+	for i in flags.size():
+		var flag = flags[i]
+		var seed_tile = tilemap.local_to_map(flag.global_position)
+		var tiles_arr = _flood_fill_blocked(seed_tile, all_door_tiles, SIEGE_REGION_FLOOD_MAX)
+		if tiles_arr.is_empty():
+			tiles_arr = [seed_tile]
+		var sum_v = Vector2.ZERO
+		for t in tiles_arr:
+			sum_v += tilemap.map_to_local(t)
+			region_by_tile[t] = i
+		var center_world = sum_v / tiles_arr.size()
+		siege_regions.append({
+			"region_id": i,
+			"tiles": tiles_arr,
+			"center_world": center_world,
+			"rally": center_world,
+			"flag_position": flag.global_position,
+			"breached": false
+		})
+	_temp_restore_unit_positions(freed)
+
+	# 3) Door -> which regions border this door
+	door_to_regions.clear()
+	for sid in door_id_to_tiles:
+		var reg_set = {}
+		for t in door_id_to_tiles[sid]:
+			for offset in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
+				var n = t + offset
+				if region_by_tile.has(n):
+					reg_set[region_by_tile[n]] = true
+		door_to_regions[sid] = reg_set.keys()
+
+	# 4) Fallback from door_closure: when outer door is destroyed, fallback = region containing inner door
+	var map_rules = root_map.get_node_or_null("map_rules")
+	if map_rules != null and map_rules.get("defense_script") != null and map_rules.defense_script.has("door_closure"):
+		for rule in map_rules.defense_script["door_closure"]:
+			var to_destroy = rule.get("doors_to_te_destroyed", [])
+			var to_close = rule.get("doors_tc_close", [])
+			var inner_region_id = -1
+			for door_id in to_close:
+				if not door_id_to_tiles.has(door_id):
+					continue
+				for t in door_id_to_tiles[door_id]:
+					if region_by_tile.has(t):
+						inner_region_id = region_by_tile[t]
+						break
+				if inner_region_id >= 0:
+					break
+			if inner_region_id < 0:
+				continue
+			for door_id in to_destroy:
+				if not door_to_regions.has(door_id):
+					continue
+				for rid in door_to_regions[door_id]:
+					if rid != inner_region_id:
+						breach_fallback_region[rid] = inner_region_id
+
+	# 5) Siege wall slots (available_loc)
+	var loc_node = root_map.get_node_or_null("siege_walls/available_loc")
+	if loc_node != null:
+		for child in loc_node.get_children():
+			siege_slot_tiles.append(tilemap.local_to_map(child.global_position))
+
+	siege_defense_built = true
+
+func _get_castle_wall_positions() -> Array[Vector2]:
+	var tilemap = root_map.first_tilemap_layer
+	var seen: Dictionary = {}
+	var out: Array[Vector2] = []
+	const CARDINALS := [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
+	for slot_tile in siege_slot_tiles:
+		for off in CARDINALS:
+			var n = slot_tile + off
+			if region_by_tile.has(n) and not seen.has(n):
+				seen[n] = true
+				out.append(tilemap.map_to_local(n) + tilemap.global_position)
+	var map_rules = root_map.get_node_or_null("map_rules")
+	if map_rules != null and map_rules.get("defense_script") != null and map_rules.defense_script.has("door_closure"):
+		for rule in map_rules.defense_script["door_closure"]:
+			for door_id in rule.get("doors_to_te_destroyed", []):
+				if not door_id_to_tiles.has(door_id):
+					continue
+				for t in door_id_to_tiles[door_id]:
+					for off in CARDINALS:
+						var n = t + off
+						if region_by_tile.has(n) and not seen.has(n):
+							seen[n] = true
+							out.append(tilemap.map_to_local(n) + tilemap.global_position)
+	return out
+
+func _is_siege_slot_breached(slot_tile: Vector2i) -> bool:
+	var placed = root_map.get_node_or_null("siege_walls/placed_loc")
+	if placed == null:
+		return false
+	for child in placed.get_children():
+		var t = root_map.first_tilemap_layer.local_to_map(child.global_position)
+		if t.distance_to(slot_tile) <= 1:
+			return true
+	return false
+
+func _update_siege_breached_regions():
+	if not siege_defense_built or siege_regions.is_empty():
+		return
+	var map_rules = root_map.get_node_or_null("map_rules")
+	var door_closure_rules = []
+	if map_rules != null and map_rules.get("defense_script") != null and map_rules.defense_script.has("door_closure"):
+		door_closure_rules = map_rules.defense_script["door_closure"]
+
+	# Reset breached
+	for i in siege_regions.size():
+		siege_regions[i]["breached"] = false
+
+	# Mark breached: outer door gone or linked siege slot has tower
+	for rule in door_closure_rules:
+		var to_destroy = rule.get("doors_to_te_destroyed", [])
+		var slot_indices = rule.get("siege_slots_that_breach", [])
+		if slot_indices is String and slot_indices == "all":
+			slot_indices = range(siege_slot_tiles.size()).duplicate()
+		var should_close = false
+		for door_id in to_destroy:
+			var found_alive = false
+			for door_wr in doors:
+				var d = gr(door_wr)
+				if d != null and d.siege_id == door_id:
+					found_alive = true
+					break
+			if not found_alive:
+				should_close = true
+				break
+		if not should_close and slot_indices is Array:
+			for idx in slot_indices:
+				if idx >= 0 and idx < siege_slot_tiles.size() and _is_siege_slot_breached(siege_slot_tiles[idx]):
+					should_close = true
+					break
+		if not should_close:
+			continue
+		var to_close = rule.get("doors_tc_close", [])
+		var inner_region_id = -1
+		for door_id in to_close:
+			if not door_id_to_tiles.has(door_id):
+				continue
+			for t in door_id_to_tiles[door_id]:
+				if region_by_tile.has(t):
+					inner_region_id = region_by_tile[t]
+					break
+			if inner_region_id >= 0:
+				break
+		# Mark outer region(s) that border the destroyed door as breached
+		for door_id in to_destroy:
+			if not door_to_regions.has(door_id):
+				continue
+			for rid in door_to_regions[door_id]:
+				if rid != inner_region_id and rid < siege_regions.size():
+					siege_regions[rid]["breached"] = true
 
 ## Temporarily free all own unit positions from astar so we see terrain-only solids.
 ## Returns list of positions freed; call _temp_restore_unit_positions with it after.
@@ -583,9 +811,15 @@ func send_groups_to_markers():
 	if map_type == MapTypes.OPEN:
 		move_to_computed_defense_positions()
 	else:
-		if initial_units_to_markers == false:
-			move_to_initial_markers()
-			initial_units_to_markers = true
+		if siege_defense_built and not siege_regions.is_empty():
+			_update_siege_breached_regions()
+			if siege_defense_phase == 0:
+				move_archers_to_walls_by_enemy()
+				move_castle_units_to_wall()
+				siege_defense_phase = 1
+			else:
+				move_melee_to_siege_regions()
+				siege_defense_phase = 0
 
 func move_to_computed_defense_positions():
 	if computed_defense_positions.is_empty():
@@ -606,20 +840,78 @@ func move_to_computed_defense_positions():
 					u.set_move(pos)
 					to_pos_index += 1
 
-func move_to_initial_markers():
-	for unit_id in markers:
-		var number_of_markers = markers[unit_id].size()
-		if number_of_markers > 0:
-			var to_marker_number = 0
-			for group in unit_groups[unit_id]:
-				for unit_wr in group["units"]:
-					if gr(unit_wr) == null:
-						continue
-					var market_position = markers[unit_id][to_marker_number].global_position
-					gr(unit_wr).set_move(market_position)
-				to_marker_number += 1
-				if to_marker_number >= number_of_markers:
-					to_marker_number = 0
+func move_melee_to_siege_regions():
+	var ranged_ids = GlobalSettings.get_list_of_ranged()
+	if ranged_ids == null:
+		ranged_ids = []
+	var target_flag_positions: Array[Vector2] = []
+	for rid in siege_regions.size():
+		var reg = siege_regions[rid]
+		if reg["breached"] and breach_fallback_region.has(rid):
+			var fallback_id = breach_fallback_region[rid]
+			if fallback_id < siege_regions.size():
+				target_flag_positions.append(siege_regions[fallback_id]["flag_position"])
+		elif not reg["breached"]:
+			target_flag_positions.append(reg["flag_position"])
+	if target_flag_positions.is_empty():
+		return
+	var pos_index = 0
+	for unit_id in unit_groups:
+		if unit_id in ranged_ids or unit_id in CASTLE_WALL_UNIT_IDS:
+			continue
+		for group in unit_groups[unit_id]:
+			for unit_wr in group["units"]:
+				var u = gr(unit_wr)
+				if u == null:
+					continue
+				var flag_pos = target_flag_positions[pos_index % target_flag_positions.size()]
+				u.set_move(flag_pos)
+				pos_index += 1
+
+func move_castle_units_to_wall():
+	var wall_positions = _get_castle_wall_positions()
+	if wall_positions.is_empty():
+		return
+	var pos_index = 0
+	for unit_id in CASTLE_WALL_UNIT_IDS:
+		if unit_id not in unit_groups:
+			continue
+		for group in unit_groups[unit_id]:
+			for unit_wr in group["units"]:
+				var u = gr(unit_wr)
+				if u == null:
+					continue
+				var pos = wall_positions[pos_index % wall_positions.size()]
+				u.set_move(pos)
+				pos_index += 1
+
+func move_archers_to_walls_by_enemy():
+	var ranged_ids = GlobalSettings.get_list_of_ranged()
+	if ranged_ids == null:
+		ranged_ids = []
+	if siege_regions.is_empty():
+		return
+	var enemy_center = own_forces_center + Vector2(200, 0)
+	var enemies = all_enemy_units()
+	if not enemies.is_empty():
+		var arr = get_enemy_forces_center_and_max_range()
+		enemy_center = arr[0]
+	var flag_positions: Array = []
+	for reg in siege_regions:
+		flag_positions.append(reg["flag_position"])
+	flag_positions.sort_custom(func(a, b): return enemy_center.distance_squared_to(a) < enemy_center.distance_squared_to(b))
+	var pos_index = 0
+	for unit_id in ranged_ids:
+		if unit_id not in unit_groups:
+			continue
+		for group in unit_groups[unit_id]:
+			for unit_wr in group["units"]:
+				var u = gr(unit_wr)
+				if u == null:
+					continue
+				var pos = flag_positions[pos_index % flag_positions.size()]
+				u.set_move(pos)
+				pos_index += 1
 
 func set_unit_groups_position():
 	pass
@@ -711,30 +1003,39 @@ func group_sttack_unit(group, unit_to_attack_wr):
 			unit.set_attack(unit_to_attack.map_unique_id)
 
 func manage_doors():
-	for door_rule in root_map.get_node("map_rules").defense_script["door_closure"]:	
-		for door_id in door_rule["doors_to_te_destroyed"]:
+	var map_rules = root_map.get_node("map_rules")
+	if map_rules.get("defense_script") == null or not map_rules.defense_script.has("door_closure"):
+		return
+	for door_rule in map_rules.defense_script["door_closure"]:
+		var to_destroy = door_rule.get("doors_to_te_destroyed", [])
+		var slot_indices = door_rule.get("siege_slots_that_breach", [])
+		if slot_indices is String and slot_indices == "all":
+			slot_indices = range(siege_slot_tiles.size()).duplicate()
+		var should_close = false
+		for door_id in to_destroy:
 			var is_destroyed = true
-			
 			for door_wr in doors:
 				var door = gr(door_wr)
-				
 				if door == null:
 					continue
-				elif door_id == door.siege_id:
+				if door_id == door.siege_id:
 					is_destroyed = false
-			
-			# if didnt find the door on the map
-			if is_destroyed == true:
-				for door_id_2 in door_rule["doors_tc_close"]:
-					for door_wr in doors:
-						var door = gr(door_wr)
-						if door == null:
-							continue
-						elif door_id_2 == door.siege_id:
-							set_doors(door_id_2, 0)
+					break
+			if is_destroyed:
+				should_close = true
+				break
+		if not should_close and slot_indices is Array:
+			for idx in slot_indices:
+				if idx >= 0 and idx < siege_slot_tiles.size() and _is_siege_slot_breached(siege_slot_tiles[idx]):
+					should_close = true
+					break
+		if should_close:
+			for door_id_2 in door_rule.get("doors_tc_close", []):
+				set_doors(door_id_2, 0)
 
 
 func get_all_doors():
+	doors.clear()
 	for unit in root_map.get_node("units").get_children():
 		if "is_small_door" in unit and unit.faction == faction:
 			doors.append(weakref(unit))
