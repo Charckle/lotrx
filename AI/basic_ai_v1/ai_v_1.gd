@@ -21,6 +21,19 @@ var initial_units_to_markers = false
 
 var own_forces_center = Vector2.ZERO
 
+# Open-map attack: rally then engage; recalc only every X sec or on arrival
+enum OpenAttackPhase { ADVANCING, ENGAGING }
+var open_attack_phase = OpenAttackPhase.ADVANCING
+var enemy_forces_center = Vector2.ZERO
+var last_rally_recalc_time = 0.0
+const RALLY_RECALC_INTERVAL_SEC := 4.0
+var current_target_world = Vector2.ZERO
+var open_attack_waypoints: Array = []
+var current_waypoint_index = 0
+const ARRIVAL_THRESHOLD_CELLS := 2
+const SEGMENT_LENGTH_CELLS := 8
+const MARGIN_OUTSIDE_RANGE_CELLS := 2
+
 var lost = false
 
 var base_unit_group = {"units": [],
@@ -92,6 +105,8 @@ func set_state(my_side, their_side, first: bool):
 		if my_side > their_side:
 			print("Starting Attack!")
 			current_state = State.ATTACKING
+			last_rally_recalc_time = 0.0
+			open_attack_phase = OpenAttackPhase.ADVANCING
 		else:
 			current_state = State.DEFENDING
 			print("Starting Defense!")
@@ -109,6 +124,8 @@ func set_state(my_side, their_side, first: bool):
 			if my_side > their_side * 1.2:
 				print("Starting Attack!")
 				current_state = State.ATTACKING
+				last_rally_recalc_time = 0.0
+				open_attack_phase = OpenAttackPhase.ADVANCING
 			else:
 				current_state = State.DEFENDING
 				print("Still Defending!")
@@ -199,11 +216,76 @@ func manage_defense_castle():
 	manage_doors()
 	
 func manage_attack():
+	if map_type == MapTypes.CASTLE:
+		set_center_ow_own_forces()
+		var neerest_enemy = get_neerest_enemy()
+		if neerest_enemy != null:
+			attack_unit_w_all(neerest_enemy)
+		return
+
+	# Open map: rally then engage; recalc only every RALLY_RECALC_INTERVAL_SEC (or on first run)
+	var t = Time.get_ticks_msec() / 1000.0
+	if last_rally_recalc_time > 0.0 and (t - last_rally_recalc_time) < RALLY_RECALC_INTERVAL_SEC:
+		return  # no recalc this tick; do nothing
+
 	set_center_ow_own_forces()
-	var neerest_enemy = get_neerest_enemy()
-	
-	if neerest_enemy != null:
-		attack_unit_w_all(neerest_enemy)
+	var enemies = all_enemy_units()
+	if enemies.is_empty():
+		return
+
+	if open_attack_phase == OpenAttackPhase.ENGAGING:
+		var nearest = get_neerest_enemy()
+		if nearest != null:
+			attack_unit_w_all(nearest)
+		last_rally_recalc_time = t
+		return
+
+	var arr = get_enemy_forces_center_and_max_range()
+	enemy_forces_center = arr[0]
+	var max_enemy_range_px: float = arr[1]
+	var dir = (enemy_forces_center - own_forces_center)
+	var dist = dir.length()
+	var cell_size = float(root_map.m_cell_size)
+	var arrival_px = ARRIVAL_THRESHOLD_CELLS * cell_size
+	var dist_small_threshold = (SEGMENT_LENGTH_CELLS * 2) * cell_size
+
+	if dist < dist_small_threshold:
+		open_attack_phase = OpenAttackPhase.ENGAGING
+		var nearest = get_neerest_enemy()
+		if nearest != null:
+			attack_unit_w_all(nearest)
+		last_rally_recalc_time = t
+		return
+
+	open_attack_waypoints = build_open_attack_waypoints(own_forces_center, enemy_forces_center, max_enemy_range_px)
+	if open_attack_waypoints.is_empty():
+		open_attack_phase = OpenAttackPhase.ENGAGING
+		var nearest = get_neerest_enemy()
+		if nearest != null:
+			attack_unit_w_all(nearest)
+		last_rally_recalc_time = t
+		return
+
+	# Find first waypoint we haven't arrived at (waypoints are fresh each recalc)
+	current_waypoint_index = 0
+	while current_waypoint_index < open_attack_waypoints.size():
+		current_target_world = open_attack_waypoints[current_waypoint_index]
+		if own_forces_center.distance_to(current_target_world) > arrival_px:
+			break
+		current_waypoint_index += 1
+
+	if current_waypoint_index >= open_attack_waypoints.size():
+		open_attack_phase = OpenAttackPhase.ENGAGING
+		var nearest = get_neerest_enemy()
+		if nearest != null:
+			attack_unit_w_all(nearest)
+		current_waypoint_index = 0
+		last_rally_recalc_time = t
+		return
+
+	current_target_world = open_attack_waypoints[current_waypoint_index]
+	move_all_to_position(current_target_world)
+	last_rally_recalc_time = t
 
 func set_center_ow_own_forces():
 	var total_position = Vector2.ZERO
@@ -232,6 +314,63 @@ func get_neerest_enemy():
 			nearest_node = unit
 	
 	return nearest_node
+
+
+func get_enemy_forces_center_and_max_range() -> Array:
+	var enemies = all_enemy_units()
+	if enemies.is_empty():
+		return [Vector2.ZERO, 0.0]
+	var sum_pos = Vector2.ZERO
+	var max_range_cells: float = 0.0
+	for unit in enemies:
+		sum_pos += unit.global_position
+		var attack_r = unit.get("attack_range")
+		var aggro_r = unit.get("agression_range")
+		var r = 1.0
+		if attack_r != null:
+			r = maxf(r, float(attack_r))
+		if aggro_r != null:
+			r = maxf(r, float(aggro_r))
+		if r > max_range_cells:
+			max_range_cells = r
+	var center = sum_pos / enemies.size()
+	var max_range_px = max_range_cells * root_map.m_cell_size
+	return [center, max_range_px]
+
+
+func build_open_attack_waypoints(own_center: Vector2, enemy_center: Vector2, max_enemy_range_px: float) -> Array:
+	var tilemap = root_map.first_tilemap_layer
+	var cell_size = float(root_map.m_cell_size)
+	var dir = (enemy_center - own_center)
+	var dist = dir.length()
+	if dist < 1.0:
+		return []
+	dir = dir.normalized()
+	var segment_px = SEGMENT_LENGTH_CELLS * cell_size
+	var margin_px = MARGIN_OUTSIDE_RANGE_CELLS * cell_size
+	var last_hop_dist = dist - max_enemy_range_px - margin_px
+	if last_hop_dist <= 0.0:
+		return []
+	var waypoints: Array = []
+	var traveled = 0.0
+	while traveled < last_hop_dist:
+		traveled += segment_px
+		if traveled > last_hop_dist:
+			traveled = last_hop_dist
+		var wp_world = own_center + dir * traveled
+		var wp_tile = tilemap.local_to_map(wp_world)
+		wp_world = tilemap.map_to_local(wp_tile)
+		waypoints.append(wp_world)
+		if traveled >= last_hop_dist:
+			break
+	return waypoints
+
+
+func move_all_to_position(world_pos: Vector2):
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u != null:
+			u.set_move(world_pos)
 
 
 func attack_unit_w_all(enemy: Node2D):
