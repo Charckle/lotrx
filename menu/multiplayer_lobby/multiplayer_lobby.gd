@@ -36,18 +36,35 @@ func _on_start_game_pressed() -> void:
 func start_game():
 	# Register all player colors and build ai_factions list
 	var ai_factions = []
+	var taken_factions = []
 	for player_id in GlobalSettings.multiplayer_data["players"]:
 		var player = GlobalSettings.multiplayer_data["players"][player_id]
 		var fac = player.get("faction", 0)
 		# Register color for every player (human and AI)
 		if player.has("color") and fac != 0:
 			GlobalSettings.faction_colors[fac] = player["color"]
+		if fac != 0:
+			taken_factions.append(fac)
 		if player.get("is_ai", false):
 			if fac != 0:
 				ai_factions.append(fac)
 
+	# Auto-assign AI to any playable factions that have no player (human or AI)
 	if GlobalSettings.map_options != null:
-		GlobalSettings.map_options["ai_factions"] = ai_factions
+		var playable = GlobalSettings.map_options.get("playabe_factions", [])
+		for fac_id in playable:
+			if fac_id not in taken_factions:
+				ai_factions.append(fac_id)
+
+	# The first AI faction goes to map_rules.ai_faction (for the embedded AI node),
+	# the rest go to ai_factions (spawned dynamically)
+	if GlobalSettings.map_options != null:
+		if ai_factions.size() > 0:
+			GlobalSettings.map_options["ai_faction"] = ai_factions[0]
+			GlobalSettings.map_options["ai_factions"] = ai_factions.slice(1)
+		else:
+			GlobalSettings.map_options["ai_faction"] = 0
+			GlobalSettings.map_options["ai_factions"] = []
 
 	var scene = load(GlobalSettings.multiplayer_data["map_to_load"]).instantiate()
 	get_tree().root.add_child(scene)
