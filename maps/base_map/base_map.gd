@@ -480,12 +480,38 @@ func _remove_all_children(node_to_delete_children_of):
 		child.queue_free()
 
 func reset_global_game_settings():
-	GlobalSettings.map_options = null
 	multiplayer.multiplayer_peer = null
-	GlobalSettings.multiplayer_data["players"].clear()
+	GlobalSettings.reset_to_defaults()
+
+func exit_to_lobby():
+	# Clean up game-start specific data
+	if GlobalSettings.map_options != null and GlobalSettings.map_options.has("ai_factions"):
+		GlobalSettings.map_options.erase("ai_factions")
+	
+	# Restore default faction colors (lobby colors will be re-applied on next game start)
+	GlobalSettings.faction_colors = {
+		1: {"red":0, "green": 100, "blue": 255},
+		2: {"red": 255, "green": 255, "blue": 100},
+		99: {"red":255, "green": 255, "blue": 255},
+	}
+	
+	# Show the lobby again
+	var lobby = get_tree().root.get_node_or_null("MultiplayerLobby")
+	if lobby:
+		lobby.get_node("CanvasLayer").show()
+	
+	# Free the map
+	self.queue_free()
+
 
 func exit_to_main_menu():
 	reset_global_game_settings()
+	
+	# Free the orphaned multiplayer lobby node if it exists
+	var lobby = get_tree().root.get_node_or_null("MultiplayerLobby")
+	if lobby:
+		lobby.queue_free()
+	
 	get_tree().change_scene_to_file("uid://ceun5xdoedpjf")
 	music_player.play_menu_music()
 	self.queue_free()

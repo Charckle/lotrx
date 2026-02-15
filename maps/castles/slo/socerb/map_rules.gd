@@ -1,6 +1,7 @@
 extends Node2D
 
 var ai_faction = 2
+var ai_factions = []
 var map_type = "castle"
 
 var defense_script = {}
@@ -20,9 +21,22 @@ func initialize_map():
 	if GlobalSettings.map_options != null:
 		map_options = GlobalSettings.map_options
 	
-	self.ai_faction = map_options["ai_faction"]
+	self.ai_faction = map_options.get("ai_faction", 0)
+	
+	# Multiplayer AI: spawn controllers for each AI faction from the lobby
+	# Use call_deferred so the full scene (including units) is loaded before AI runs
+	if map_options.has("ai_factions"):
+		self.ai_factions = map_options["ai_factions"]
+		call_deferred("spawn_ai_controllers")
 	
 	initialize_ai_defense_script()
+
+func spawn_ai_controllers():
+	for ai_fac in self.ai_factions:
+		var ai_scene = load("res://AI/basic_ai_v1/ai_v_1.tscn").instantiate()
+		ai_scene.faction = ai_fac
+		ai_scene.faction_set_externally = true
+		get_parent().add_child(ai_scene)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

@@ -7,6 +7,10 @@ extends Panel
 func _ready():
 	$CanvasLayer.visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	# Only show "Back to Lobby" if we're in a multiplayer game
+	var lobby = get_tree().root.get_node_or_null("MultiplayerLobby")
+	$CanvasLayer/vbnvbn/Panel/VBoxContainer/to_lobby_button.visible = (lobby != null)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -34,6 +38,11 @@ func _on_resume_button_pressed():
 
 func _on_quit_game_button_pressed():
 	get_tree().quit()
+
+
+func _on_to_lobby_button_pressed():
+	get_tree().paused = false
+	root_map.exit_to_lobby()
 
 
 func _on_to_main_menu_button_pressed():

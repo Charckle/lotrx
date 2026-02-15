@@ -68,6 +68,7 @@ func _register_player_on_server(new_player_info):
 	var new_player_id = multiplayer.get_remote_sender_id()
 	
 	new_player_info["name"] = return_valid_player_name(new_player_info["name"])
+	new_player_info["color"] = GlobalSettings.generate_random_color()
 	
 	GlobalSettings.multiplayer_data["players"][new_player_id] = new_player_info
 	#print(new_player_info)
@@ -120,6 +121,7 @@ func create_game():
 	player_name = return_valid_player_name(player_name)
 	
 	player_info["name"] = player_name
+	player_info["color"] = GlobalSettings.generate_random_color()
 	GlobalSettings.multiplayer_data["players"][1] = player_info
 	
 	var scene = multiplayer_lobby.instantiate()

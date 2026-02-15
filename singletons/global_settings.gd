@@ -58,3 +58,22 @@ func get_list_of_ranged():
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
+
+func reset_to_defaults():
+	my_faction = 1
+	friendly_factions = []
+	game_stats = null
+	faction_colors = {
+		1: {"red":0, "green": 100, "blue": 255},
+		2: {"red": 255, "green": 255, "blue": 100},
+		99: {"red":255, "green": 255, "blue": 255},
+	}
+	map_options = null
+	multiplayer_data = {
+		"players": {},
+		"map_to_load": null
+	}
+
+func generate_random_color() -> Dictionary:
+	var color = Color.from_hsv(randf(), randf_range(0.5, 1.0), randf_range(0.7, 1.0))
+	return {"red": int(color.r * 255), "green": int(color.g * 255), "blue": int(color.b * 255)}

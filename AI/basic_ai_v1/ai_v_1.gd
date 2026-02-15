@@ -11,6 +11,7 @@ var state_ = 0 #  0 iddle, 1 attack, 2 defend
 
 @export var faction = 99
 @export var friendly_factions = []
+var faction_set_externally = false
 
 var my_units_on_map = []
 var markers: Dictionary = {}
@@ -46,7 +47,9 @@ func _process(delta):
 	pass
 
 func set_faction():
-	self.faction = root_map.get_node("map_rules").ai_faction
+	# If faction was set externally (e.g. spawned from multiplayer lobby), don't override
+	if not faction_set_externally:
+		self.faction = root_map.get_node("map_rules").ai_faction
 
 func get_my_units():
 	for unit in root_map.get_all_units():
@@ -58,7 +61,7 @@ func set_units_to_defense_stance():
 		for unit in my_units_on_map:
 			var unit_obj = gr(unit)
 			if unit_obj != null:
-				if unit_obj.unit_id not in GlobalSettings.get_list_of_ranged():
+				if "stance" in unit_obj and unit_obj.unit_id not in GlobalSettings.get_list_of_ranged():
 					unit_obj.stance = 1
 
 func print_units_groups():
