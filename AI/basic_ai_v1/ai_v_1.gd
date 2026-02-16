@@ -58,6 +58,8 @@ const SIEGE_REGION_FLOOD_MAX := 500  # max tiles per checkpoint region
 # 0 = move ranged + castle units this tick; 1 = move melee next tick (stagger)
 var siege_defense_phase = 0
 const CASTLE_WALL_UNIT_IDS := [8]  # cauldron / boiling oil; move to wall next to siege slots and outer door
+const ENEMY_RAM_UNIT_ID := 7
+const ENEMY_SIEGE_TOWER_UNIT_ID := 9
 
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 
@@ -534,6 +536,101 @@ func _get_castle_wall_positions() -> Array[Vector2]:
 							out.append(tilemap.map_to_local(n) + tilemap.global_position)
 	return out
 
+## Enemy siege weapon positions for cauldron threat sorting
+func _get_enemy_ram_positions() -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	for unit in all_enemy_units():
+		if unit.get("unit_id") == ENEMY_RAM_UNIT_ID:
+			out.append(unit.global_position)
+	return out
+
+func _get_enemy_siege_tower_positions() -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	for unit in all_enemy_units():
+		if unit.get("unit_id") == ENEMY_SIEGE_TOWER_UNIT_ID:
+			out.append(unit.global_position)
+	var placed_node = root_map.get_node_or_null("siege_walls/placed_loc")
+	if placed_node != null:
+		for child in placed_node.get_children():
+			if child is Node2D:
+				out.append(child.global_position)
+	return out
+
+## One position per siege wall slot, sorted by distance to nearest siege tower (closest threat first).
+func _get_castle_wall_slots_sorted_by_tower_threat() -> Array[Vector2]:
+	var tilemap = root_map.first_tilemap_layer
+	const CARDINALS := [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
+	var tower_positions = _get_enemy_siege_tower_positions()
+	var slots_with_dist: Array = []  # { position, distance }
+	for slot_tile in siege_slot_tiles:
+		var best_pos: Vector2 = tilemap.map_to_local(slot_tile) + tilemap.global_position
+		var found = false
+		for off in CARDINALS:
+			var n = slot_tile + off
+			if region_by_tile.has(n):
+				found = true
+				best_pos = tilemap.map_to_local(n) + tilemap.global_position
+				break
+		if not found:
+			continue
+		var dist := INF
+		if tower_positions.is_empty():
+			dist = 0.0
+		else:
+			for tp in tower_positions:
+				var d = best_pos.distance_to(tp)
+				if d < dist:
+					dist = d
+		slots_with_dist.append({"position": best_pos, "distance": dist})
+	slots_with_dist.sort_custom(func(a, b): return a["distance"] < b["distance"])
+	var out: Array[Vector2] = []
+	for entry in slots_with_dist:
+		out.append(entry["position"])
+	return out
+
+## One position per outer door (doors_to_te_destroyed), sorted by distance to nearest ram (closest threat first).
+func _get_castle_door_positions_sorted_by_ram_threat() -> Array[Vector2]:
+	var tilemap = root_map.first_tilemap_layer
+	const CARDINALS := [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
+	var ram_positions = _get_enemy_ram_positions()
+	var map_rules = root_map.get_node_or_null("map_rules")
+	if map_rules == null or map_rules.get("defense_script") == null or not map_rules.defense_script.has("door_closure"):
+		return []
+	var seen_door_ids: Dictionary = {}
+	var doors_with_dist: Array = []
+	for rule in map_rules.defense_script["door_closure"]:
+		for door_id in rule.get("doors_to_te_destroyed", []):
+			if not door_id_to_tiles.has(door_id) or seen_door_ids.has(door_id):
+				continue
+			seen_door_ids[door_id] = true
+			var best_pos: Vector2 = Vector2.ZERO
+			var found = false
+			for t in door_id_to_tiles[door_id]:
+				for off in CARDINALS:
+					var n = t + off
+					if region_by_tile.has(n):
+						found = true
+						best_pos = tilemap.map_to_local(n) + tilemap.global_position
+						break
+				if found:
+					break
+			if not found:
+				continue
+			var dist := INF
+			if ram_positions.is_empty():
+				dist = 0.0
+			else:
+				for rp in ram_positions:
+					var d = best_pos.distance_to(rp)
+					if d < dist:
+						dist = d
+			doors_with_dist.append({"position": best_pos, "distance": dist})
+	doors_with_dist.sort_custom(func(a, b): return a["distance"] < b["distance"])
+	var out: Array[Vector2] = []
+	for entry in doors_with_dist:
+		out.append(entry["position"])
+	return out
+
 func _is_siege_slot_breached(slot_tile: Vector2i) -> bool:
 	var placed = root_map.get_node_or_null("siege_walls/placed_loc")
 	if placed == null:
@@ -869,8 +966,23 @@ func move_melee_to_siege_regions():
 				pos_index += 1
 
 func move_castle_units_to_wall():
-	var wall_positions = _get_castle_wall_positions()
-	if wall_positions.is_empty():
+	var wall_slots := _get_castle_wall_slots_sorted_by_tower_threat()
+	var door_positions := _get_castle_door_positions_sorted_by_ram_threat()
+	# Alternate between the two lists; if one runs out, keep taking from the other
+	var positions: Array[Vector2] = []
+	var n_wall = wall_slots.size()
+	var n_door = door_positions.size()
+	var i = 0
+	while i < n_wall or i < n_door:
+		if i < n_wall:
+			positions.append(wall_slots[i])
+		if i < n_door:
+			positions.append(door_positions[i])
+		i += 1
+	if positions.is_empty():
+		# Fallback: no slots/doors or no threat data
+		positions = _get_castle_wall_positions()
+	if positions.is_empty():
 		return
 	var pos_index = 0
 	for unit_id in CASTLE_WALL_UNIT_IDS:
@@ -881,7 +993,7 @@ func move_castle_units_to_wall():
 				var u = gr(unit_wr)
 				if u == null:
 					continue
-				var pos = wall_positions[pos_index % wall_positions.size()]
+				var pos = positions[pos_index % positions.size()]
 				u.set_move(pos)
 				pos_index += 1
 
