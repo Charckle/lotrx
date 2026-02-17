@@ -182,20 +182,28 @@ func _on_timer_timeout():
 		return
 	empty_dead_units()
 	set_inner_doors(1)
-	
-	if self.lost == false:
-		evaluate_threat(false)
-		
-		if self.current_state == State.ATTACKING:
-			manage_attack()
-		if self.current_state == State.DEFENDING:
-			if map_type == MapTypes.CASTLE:
-				manage_defense_castle()
-			else:
-				manage_defense_markers()
-
-	else:
+	if self.lost:
 		print("GG!")
+		return
+	evaluate_threat(false)
+	# Branch by map type first, then state; on castle also by is_siege_defending
+	if map_type == MapTypes.OPEN:
+		if self.current_state == State.ATTACKING:
+			open_map_attack()
+		else:
+			open_map_defend()
+	else:
+		# CASTLE
+		if is_siege_defending:
+			if self.current_state == State.ATTACKING:
+				castle_defender_attack()
+			else:
+				castle_defender_defend()
+		else:
+			if self.current_state == State.ATTACKING:
+				castle_besieger_attack()
+			else:
+				castle_besieger_defend()
 
 func _on_cauldrin_timer_timeout():
 	if ai_paused:
@@ -243,44 +251,21 @@ func add_unit_to_group(unit_wr):
 		unit_groups[unit_id].append(new_group)
 
 
-func manage_defense_markers():
-	send_groups_to_markers()
-	
-	check_range_units_pinned()
-	
-func manage_defense_castle():
-	
-	send_groups_to_markers()
-	
-	check_range_units_pinned()
-	
-	manage_doors()
-	
-func manage_attack():
-	if map_type == MapTypes.CASTLE:
-		set_center_ow_own_forces()
-		var neerest_enemy = get_neerest_enemy()
-		if neerest_enemy != null:
-			attack_unit_w_all(neerest_enemy)
-		return
-
-	# Open map: rally then engage; recalc only every RALLY_RECALC_INTERVAL_SEC (or on first run)
+# --- Open map: attack / defend ---
+func open_map_attack():
 	var t = Time.get_ticks_msec() / 1000.0
 	if last_rally_recalc_time > 0.0 and (t - last_rally_recalc_time) < RALLY_RECALC_INTERVAL_SEC:
-		return  # no recalc this tick; do nothing
-
+		return
 	set_center_ow_own_forces()
 	var enemies = all_enemy_units()
 	if enemies.is_empty():
 		return
-
 	if open_attack_phase == OpenAttackPhase.ENGAGING:
 		var nearest = get_neerest_enemy()
 		if nearest != null:
 			attack_unit_w_all(nearest)
 		last_rally_recalc_time = t
 		return
-
 	var arr = get_enemy_forces_center_and_max_range()
 	enemy_forces_center = arr[0]
 	var max_enemy_range_px: float = arr[1]
@@ -289,7 +274,6 @@ func manage_attack():
 	var cell_size = float(root_map.m_cell_size)
 	var arrival_px = ARRIVAL_THRESHOLD_CELLS * cell_size
 	var dist_small_threshold = (SEGMENT_LENGTH_CELLS * 2) * cell_size
-
 	if dist < dist_small_threshold:
 		open_attack_phase = OpenAttackPhase.ENGAGING
 		var nearest = get_neerest_enemy()
@@ -297,7 +281,6 @@ func manage_attack():
 			attack_unit_w_all(nearest)
 		last_rally_recalc_time = t
 		return
-
 	open_attack_waypoints = build_open_attack_waypoints(own_forces_center, enemy_forces_center, max_enemy_range_px)
 	if open_attack_waypoints.is_empty():
 		open_attack_phase = OpenAttackPhase.ENGAGING
@@ -306,15 +289,12 @@ func manage_attack():
 			attack_unit_w_all(nearest)
 		last_rally_recalc_time = t
 		return
-
-	# Find first waypoint we haven't arrived at (waypoints are fresh each recalc)
 	current_waypoint_index = 0
 	while current_waypoint_index < open_attack_waypoints.size():
 		current_target_world = open_attack_waypoints[current_waypoint_index]
 		if own_forces_center.distance_to(current_target_world) > arrival_px:
 			break
 		current_waypoint_index += 1
-
 	if current_waypoint_index >= open_attack_waypoints.size():
 		open_attack_phase = OpenAttackPhase.ENGAGING
 		var nearest = get_neerest_enemy()
@@ -323,10 +303,40 @@ func manage_attack():
 		current_waypoint_index = 0
 		last_rally_recalc_time = t
 		return
-
 	current_target_world = open_attack_waypoints[current_waypoint_index]
 	move_all_to_position(current_target_world)
 	last_rally_recalc_time = t
+
+func open_map_defend():
+	send_groups_to_markers()
+	check_range_units_pinned()
+
+# --- Castle: defender (holds the castle) ---
+func castle_defender_attack():
+	set_center_ow_own_forces()
+	var neerest_enemy = get_neerest_enemy()
+	if neerest_enemy != null:
+		attack_unit_w_all(neerest_enemy)
+
+func castle_defender_defend():
+	send_groups_to_markers()
+	check_range_units_pinned()
+	manage_doors()
+
+# --- Castle: besieger (attacking the castle) ---
+func castle_besieger_attack():
+	set_center_ow_own_forces()
+	var neerest_enemy = get_neerest_enemy()
+	if neerest_enemy != null:
+		attack_unit_w_all(neerest_enemy)
+
+func castle_besieger_defend():
+	# Retreat to own PlayerStartLoc and defend there (open-map style formation).
+	var rally = get_own_player_start_loc_position()
+	if rally != null:
+		computed_defense_positions = _build_defense_positions_around_center(rally)
+	move_to_computed_defense_positions()
+	check_range_units_pinned()
 
 func set_center_ow_own_forces():
 	var total_position = Vector2.ZERO
@@ -341,6 +351,15 @@ func set_center_ow_own_forces():
 
 	self.own_forces_center = total_position / all_units
 
+## Returns global position of the PlayerStartLoc for this AI's faction, or null if none.
+func get_own_player_start_loc_position() -> Variant:
+	var othr = root_map.get_node_or_null("othr")
+	if othr == null:
+		return null
+	for child in othr.get_children():
+		if child.get("faction") == self.faction:
+			return child.global_position
+	return null
 
 func get_neerest_enemy():
 	var all_enemy_units = all_enemy_units()
@@ -866,6 +885,60 @@ func _build_dynamic_defense_positions() -> Dictionary:
 			melee_positions.append(w)
 	if ranged_positions.is_empty() and melee_positions.is_empty():
 		melee_positions.append(center_world)
+	if ranged_positions.is_empty():
+		ranged_positions = melee_positions.duplicate()
+	if melee_positions.is_empty():
+		melee_positions = ranged_positions.duplicate()
+	var out: Dictionary = {}
+	for unit_id in unit_groups:
+		var is_ranged = ranged_ids != null and unit_id in ranged_ids
+		var positions: Array[Vector2] = ranged_positions.duplicate() if is_ranged else melee_positions.duplicate()
+		var list: Array = []
+		for p in positions:
+			list.append(p)
+		out[unit_id] = list
+	return out
+
+## Same formation as _build_dynamic_defense_positions but centered on a fixed world position (e.g. PlayerStartLoc).
+func _build_defense_positions_around_center(center_world: Vector2) -> Dictionary:
+	var enemies = all_enemy_units()
+	var enemy_center: Vector2 = center_world + Vector2(100, 0)
+	if not enemies.is_empty():
+		var arr = get_enemy_forces_center_and_max_range()
+		enemy_center = arr[0]
+	var unit_count = 0
+	for unit_id in unit_groups:
+		for group in unit_groups[unit_id]:
+			for unit_wr in group["units"]:
+				if gr(unit_wr) != null:
+					unit_count += 1
+	if unit_count == 0:
+		return {}
+	var freed = _temp_free_unit_positions()
+	var best = _find_best_defense_center(center_world, enemy_center, unit_count)
+	_temp_restore_unit_positions(freed)
+	var tilemap = root_map.first_tilemap_layer
+	var ranged_ids = GlobalSettings.get_list_of_ranged()
+	if ranged_ids == null:
+		ranged_ids = []
+	if best.is_empty():
+		best = {"center_tile": tilemap.local_to_map(center_world), "tiles": [tilemap.local_to_map(center_world)], "away_from_enemy": (center_world - enemy_center).normalized() if center_world.distance_to(enemy_center) > 1.0 else Vector2(0, 1)}
+	var away = best["away_from_enemy"]
+	var center_world_from_best = tilemap.map_to_local(best["center_tile"])
+	var tiles_arr: Array = best["tiles"]
+	tiles_arr.sort_custom(func(a, b): return center_world_from_best.distance_squared_to(tilemap.map_to_local(a)) < center_world_from_best.distance_squared_to(tilemap.map_to_local(b)))
+	var melee_positions: Array[Vector2] = []
+	var ranged_positions: Array[Vector2] = []
+	for i in tiles_arr.size():
+		var t: Vector2i = tiles_arr[i]
+		var w = tilemap.map_to_local(t)
+		var along = (w - center_world_from_best).dot(away)
+		if along > 0:
+			ranged_positions.append(w)
+		else:
+			melee_positions.append(w)
+	if ranged_positions.is_empty() and melee_positions.is_empty():
+		melee_positions.append(center_world_from_best)
 	if ranged_positions.is_empty():
 		ranged_positions = melee_positions.duplicate()
 	if melee_positions.is_empty():
