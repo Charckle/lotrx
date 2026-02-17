@@ -87,6 +87,8 @@ var besieger_outer_region_ids: Array = []  # region ids that border doors we're 
 var besieger_door_id_to_region_ids: Dictionary = {}  # door siege_id -> Array[region_id]; used to know which regions are accessible after a door is destroyed
 var besieger_breach_slot_indices: Array = []  # slot indices that count as breach (from defense_script siege_slots_that_breach)
 var besieger_accessible_region_ids: Array = []  # runtime: region ids we can enter this tick (door-breached or tower breach)
+var besieger_outer_door_ids: Array = []   # siege_ids of outer doors (doors_to_te_destroyed) - rams only target these
+var besieger_inner_door_ids: Array = []   # siege_ids of inner doors (doors_tc_close) - units destroy these after outer is breached
 
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 
@@ -395,8 +397,9 @@ func castle_besieger_attack():
 		else:
 			besieger_phase = BesiegerPhase.APPROACHING
 
-	# 1) Rams: send to doors (skip if no doors)
-	if not alive_doors.is_empty():
+	# 1) Rams: send to outer doors only (skip if no outer doors - ram's job done)
+	var alive_outer_doors = _get_alive_outer_doors()
+	if not alive_outer_doors.is_empty():
 		var rams: Array = []
 		for unit_wr in all_own_units():
 			var u = gr(unit_wr)
@@ -407,10 +410,11 @@ func castle_besieger_attack():
 			if ram == null:
 				continue
 			var current_target = ram.get_right_target()
+			var actual_target = gr(current_target) if current_target != null else null
 			var valid_door_target = false
-			if current_target != null:
-				for d in alive_doors:
-					if d == current_target:
+			if actual_target != null:
+				for d in alive_outer_doors:
+					if d == actual_target:
 						valid_door_target = true
 						break
 			if valid_door_target:
@@ -418,7 +422,7 @@ func castle_besieger_attack():
 			var ram_tile = ram.unit_position
 			var best_door = null
 			var best_path_len = INF
-			for door in alive_doors:
+			for door in alive_outer_doors:
 				var door_tile = door.get("unit_position")
 				if door_tile == null:
 					door_tile = tilemap.local_to_map(door.global_position)
@@ -430,11 +434,12 @@ func castle_besieger_attack():
 					best_path_len = path_len
 					best_door = door
 			if best_door != null:
-				ram.set_attack(best_door.map_unique_id)
 				var door_tile = best_door.get("unit_position")
 				if door_tile == null:
 					door_tile = tilemap.local_to_map(best_door.global_position)
+				# set_move first (clears target), then set_attack (so ram keeps target to attack when in range)
 				ram.set_move(_get_adjacent_walkable_to_door(door_tile))
+				ram.set_attack(best_door.map_unique_id)
 
 	# 2) Siege towers: move to wall slots
 	var placed_node = root_map.get_node_or_null("siege_walls/placed_loc")
@@ -480,27 +485,44 @@ func castle_besieger_attack():
 			used_slot_indices[best_slot] = true
 			u.set_move(besieger_slot_world_positions[best_slot])
 
-	# 3) Non-siege: siege weapons do their part; if region breached, clear it (target only enemies in accessible region); if no rams, infantry attack door then ranged
+	# 3) Non-siege: siege weapons do their part; if region breached, clear it; if no rams, units attack outer doors
 	if besieger_phase == BesiegerPhase.APPROACHING or besieger_phase == BesiegerPhase.HOLDING_AT_GATE:
-		if not alive_doors.is_empty() and not _has_any_rams():
+		if not alive_outer_doors.is_empty() and not _has_any_rams():
 			var nearest_door: Node2D = null
 			var best_d = INF
-			for d in alive_doors:
+			for d in alive_outer_doors:
 				var dist = own_forces_center.distance_to(d.global_position)
 				if dist < best_d:
 					best_d = dist
 					nearest_door = d
 			if nearest_door != null:
-				if _has_any_melee():
-					_attack_door_with_melee_only(nearest_door)
-				else:
-					_attack_door_with_ranged_only(nearest_door)
+				# All non-siege units attack the door (melee and ranged both)
+				_attack_door_with_melee_only(nearest_door)
+				_attack_door_with_ranged_only(nearest_door)
 		else:
 			move_non_siege_to_position(wait_position)
 	elif besieger_phase == BesiegerPhase.ASSAULT_BREACHED_REGIONS or besieger_phase == BesiegerPhase.BREACHED:
-		# Only target enemies currently in the region we have access to (recomputed each tick — if unit moved and door closed behind them, they won't be in list)
+		# Rally positions = regions we have access to (from door breach or tower breach)
+		var rally_positions: Array = _get_besieger_breached_region_rally_positions().duplicate()
+		for rid in besieger_accessible_region_ids:
+			if rid >= 0 and rid < besieger_region_rally.size():
+				var rp = besieger_region_rally[rid]
+				if rp not in rally_positions:
+					rally_positions.append(rp)
+		if rally_positions.is_empty() and not besieger_outer_region_ids.is_empty():
+			for rid in besieger_outer_region_ids:
+				if rid >= 0 and rid < besieger_region_rally.size():
+					rally_positions.append(besieger_region_rally[rid])
+
+		var has_access_to_regions = not rally_positions.is_empty()
 		var enemies_in_accessible = _get_enemies_in_besieger_accessible_regions()
-		if not enemies_in_accessible.is_empty():
+		var inner_doors = _get_alive_inner_doors()
+
+		if not has_access_to_regions:
+			# No access to any region - stay in front of gate
+			move_non_siege_to_position(besieger_gate_position)
+		elif not enemies_in_accessible.is_empty():
+			# Access to region(s): go there and clear enemy units
 			var nearest_in_region: Node2D = null
 			var best_dist = INF
 			for en in enemies_in_accessible:
@@ -510,29 +532,28 @@ func castle_besieger_attack():
 					nearest_in_region = en
 			if nearest_in_region != null:
 				attack_non_siege_only(nearest_in_region)
+		elif not inner_doors.is_empty():
+			# No units in regions we can access; we have doors - attack them to proceed to next region
+			var nearest_door: Node2D = null
+			var best_d = INF
+			for d in inner_doors:
+				var dist = own_forces_center.distance_to(d.global_position)
+				if dist < best_d:
+					best_d = dist
+					nearest_door = d
+			if nearest_door != null:
+				_attack_door_with_melee_only(nearest_door)
+				_attack_door_with_ranged_only(nearest_door)
 		else:
-			# Move into breached region(s): tower breach rally and/or door-breached rally (so units clear region while ram goes to next door)
-			var rally_positions: Array = _get_besieger_breached_region_rally_positions().duplicate()
-			for rid in besieger_accessible_region_ids:
-				if rid >= 0 and rid < besieger_region_rally.size():
-					var rp = besieger_region_rally[rid]
-					if rp not in rally_positions:
-						rally_positions.append(rp)
-			if rally_positions.is_empty() and not besieger_outer_region_ids.is_empty():
-				for rid in besieger_outer_region_ids:
-					if rid >= 0 and rid < besieger_region_rally.size():
-						rally_positions.append(besieger_region_rally[rid])
-			if not rally_positions.is_empty():
-				var nearest_rally = rally_positions[0]
-				var d_min = own_forces_center.distance_to(nearest_rally)
-				for rp in rally_positions:
-					var d = own_forces_center.distance_to(rp)
-					if d < d_min:
-						d_min = d
-						nearest_rally = rp
-				move_non_siege_to_position(nearest_rally)
-			else:
-				move_non_siege_to_position(besieger_gate_position)
+			# No enemies, no doors - move to region rally to sweep / position
+			var nearest_rally = rally_positions[0]
+			var d_min = own_forces_center.distance_to(nearest_rally)
+			for rp in rally_positions:
+				var d = own_forces_center.distance_to(rp)
+				if d < d_min:
+					d_min = d
+					nearest_rally = rp
+			move_non_siege_to_position(nearest_rally)
 
 func castle_besieger_defend():
 	# Retreat to own PlayerStartLoc and defend there (open-map style formation).
@@ -768,16 +789,23 @@ func build_siege_attack_data():
 		build_siege_defense_data()
 	var tilemap = root_map.first_tilemap_layer
 	var map_rules = root_map.get_node_or_null("map_rules")
-	# Order: outer doors (to_te_destroyed) first, then inner doors (tc_close) so rams proceed to next door after breaching
+	# Order: outer doors (to_te_destroyed) first, then inner doors (tc_close)
+	# Rams only target outer doors; units destroy inner doors after outer is breached
 	var doors_to_destroy: Array = []
+	besieger_outer_door_ids.clear()
+	besieger_inner_door_ids.clear()
 	if map_rules != null and map_rules.get("defense_script") != null and map_rules.defense_script.has("door_closure"):
 		for rule in map_rules.defense_script["door_closure"]:
 			for door_id in rule.get("doors_to_te_destroyed", []):
 				if door_id not in doors_to_destroy:
 					doors_to_destroy.append(door_id)
+				if door_id not in besieger_outer_door_ids:
+					besieger_outer_door_ids.append(door_id)
 			for door_id in rule.get("doors_tc_close", []):
 				if door_id not in doors_to_destroy:
 					doors_to_destroy.append(door_id)
+				if door_id not in besieger_inner_door_ids:
+					besieger_inner_door_ids.append(door_id)
 	enemy_door_units.clear()
 	var gate_sum = Vector2.ZERO
 	var gate_count = 0
@@ -866,13 +894,34 @@ func build_siege_attack_data():
 
 	besieger_attack_data_built = true
 
-## Returns list of door nodes (alive) that are "to be destroyed". Caller can use for rams / breach check.
+## Returns list of door nodes (alive, health > 0) that are "to be destroyed". Caller can use for rams / breach check.
 func _get_alive_enemy_doors() -> Array:
 	var out: Array = []
 	for door_wr in enemy_door_units:
 		var door = gr(door_wr)
 		if door != null:
+			var h = door.get("health")
+			if h != null and h <= 0:
+				continue  # dead but not yet freed
 			out.append(door)
+	return out
+
+## Returns alive outer doors only (doors_to_te_destroyed). Rams target these.
+func _get_alive_outer_doors() -> Array:
+	var all_alive = _get_alive_enemy_doors()
+	var out: Array = []
+	for d in all_alive:
+		if d.siege_id in besieger_outer_door_ids:
+			out.append(d)
+	return out
+
+## Returns alive inner doors only (doors_tc_close). Units destroy these after outer door is breached.
+func _get_alive_inner_doors() -> Array:
+	var all_alive = _get_alive_enemy_doors()
+	var out: Array = []
+	for d in all_alive:
+		if d.siege_id in besieger_inner_door_ids:
+			out.append(d)
 	return out
 
 ## World position where non-siege units wait (further back from the gate so they don't cluster at the wall).
