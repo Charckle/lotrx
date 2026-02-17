@@ -69,15 +69,24 @@ const ENEMY_SIEGE_TOWER_UNIT_ID := 9
 const OWN_RAM_UNIT_ID := 7
 const OWN_SIEGE_TOWER_UNIT_ID := 9
 
-# Besieger (attacker) state: phased advance toward gate, hold while siege engines work, then attack on breach
-enum BesiegerPhase { APPROACHING, HOLDING_AT_GATE, BREACHED }
+# Besieger (attacker) state: phased advance toward gate, hold while siege engines work, assault breached regions, or full breach
+enum BesiegerPhase { APPROACHING, HOLDING_AT_GATE, ASSAULT_BREACHED_REGIONS, BREACHED }
 var besieger_phase = BesiegerPhase.APPROACHING
 var besieger_attack_data_built = false
 var enemy_door_units: Array = []   # [weakref(door), ...] doors to destroy (from defense_script doors_to_te_destroyed)
 var besieger_gate_position = Vector2.ZERO  # rally point for non-siege blob
 var besieger_slot_world_positions: Array = []  # [Vector2, ...] for siege towers
-const BESIEGER_HOLD_THRESHOLD_CELLS := 5.0  # close enough to gate = holding
+const BESIEGER_HOLD_THRESHOLD_CELLS := 5.0  # close enough to wait position = holding
+const BESIEGER_WAIT_OFFSET_CELLS := 23.0  # non-siege wait this many cells back from the gate so they don't cluster at the wall
 var besieger_tower_slot_assigned: Dictionary = {}  # unit map_unique_id -> slot index (so we don't reassign every tick)
+# Besieger region data: when we have a tower at a breach slot, we have access to these regions (inside the wall)
+var besieger_region_by_tile: Dictionary = {}  # Vector2i -> region_id
+var besieger_region_rally: Array = []  # [Vector2] index = region_id, world rally position
+var besieger_region_tiles: Dictionary = {}  # region_id -> Array[Vector2i] for "enemy in region" check
+var besieger_outer_region_ids: Array = []  # region ids that border doors we're destroying (we can enter when wall breached)
+var besieger_door_id_to_region_ids: Dictionary = {}  # door siege_id -> Array[region_id]; used to know which regions are accessible after a door is destroyed
+var besieger_breach_slot_indices: Array = []  # slot indices that count as breach (from defense_script siege_slots_that_breach)
+var besieger_accessible_region_ids: Array = []  # runtime: region ids we can enter this tick (door-breached or tower breach)
 
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 
@@ -346,14 +355,42 @@ func castle_besieger_attack():
 	var tilemap = root_map.first_tilemap_layer
 	var alive_doors = _get_alive_enemy_doors()
 	var cell_size = float(root_map.m_cell_size)
-	var dist_to_gate = own_forces_center.distance_to(besieger_gate_position)
+	var wait_position = _get_besieger_wait_position(cell_size)
+	var dist_to_wait = own_forces_center.distance_to(wait_position) if (own_forces_center != Vector2.ZERO) else INF
 	var hold_threshold_px = BESIEGER_HOLD_THRESHOLD_CELLS * cell_size
 
-	# Phase: breach = no doors left; else holding if close to gate, else approaching
+	# Regions we can enter because their door was destroyed (ram breached it)
+	var alive_door_siege_ids: Dictionary = {}
+	for d in alive_doors:
+		alive_door_siege_ids[d.siege_id] = true
+	var door_breached_region_ids: Array = []
+	for door_id in besieger_door_id_to_region_ids:
+		if door_id in alive_door_siege_ids:
+			continue
+		for rid in besieger_door_id_to_region_ids[door_id]:
+			if rid not in door_breached_region_ids:
+				door_breached_region_ids.append(rid)
+	var door_breached_rally_positions: Array = []
+	for rid in door_breached_region_ids:
+		if rid >= 0 and rid < besieger_region_rally.size():
+			door_breached_rally_positions.append(besieger_region_rally[rid])
+	# Accessible = door-breached regions; if we also have tower breach, we can target all outer regions
+	var tower_breach_rally = _get_besieger_breached_region_rally_positions()
+	if not tower_breach_rally.is_empty():
+		besieger_accessible_region_ids = besieger_outer_region_ids.duplicate()
+	else:
+		besieger_accessible_region_ids = door_breached_region_ids.duplicate()
+
+	# Phase: full breach (no doors) -> attack; wall breach or door breached -> assault regions (units clear region, ram goes to next door); else hold or approach
+	var breached_rally_positions: Array = tower_breach_rally.duplicate()
+	for rp in door_breached_rally_positions:
+		breached_rally_positions.append(rp)
 	if alive_doors.is_empty():
 		besieger_phase = BesiegerPhase.BREACHED
+	elif not breached_rally_positions.is_empty():
+		besieger_phase = BesiegerPhase.ASSAULT_BREACHED_REGIONS
 	else:
-		if dist_to_gate <= hold_threshold_px:
+		if dist_to_wait <= hold_threshold_px:
 			besieger_phase = BesiegerPhase.HOLDING_AT_GATE
 		else:
 			besieger_phase = BesiegerPhase.APPROACHING
@@ -378,16 +415,19 @@ func castle_besieger_attack():
 						break
 			if valid_door_target:
 				continue
+			var ram_tile = ram.unit_position
 			var best_door = null
-			var best_dist = INF
+			var best_path_len = INF
 			for door in alive_doors:
 				var door_tile = door.get("unit_position")
 				if door_tile == null:
 					door_tile = tilemap.local_to_map(door.global_position)
-				var adj_world = _get_adjacent_walkable_to_door(door_tile)
-				var d = ram.global_position.distance_to(adj_world)
-				if d < best_dist:
-					best_dist = d
+				var adj_tile = _get_adjacent_walkable_tile_to_door(door_tile)
+				var path_len = _get_path_length_cells(ram_tile, adj_tile)
+				if path_len >= INF:
+					continue
+				if path_len < best_path_len:
+					best_path_len = path_len
 					best_door = door
 			if best_door != null:
 				ram.set_attack(best_door.map_unique_id)
@@ -440,13 +480,59 @@ func castle_besieger_attack():
 			used_slot_indices[best_slot] = true
 			u.set_move(besieger_slot_world_positions[best_slot])
 
-	# 3) Non-siege: phased advance — move to gate blob, then hold; on breach attack normally
+	# 3) Non-siege: siege weapons do their part; if region breached, clear it (target only enemies in accessible region); if no rams, infantry attack door then ranged
 	if besieger_phase == BesiegerPhase.APPROACHING or besieger_phase == BesiegerPhase.HOLDING_AT_GATE:
-		move_non_siege_to_position(besieger_gate_position)
-	else:
-		var neerest_enemy = get_neerest_enemy()
-		if neerest_enemy != null:
-			attack_non_siege_only(neerest_enemy)
+		if not alive_doors.is_empty() and not _has_any_rams():
+			var nearest_door: Node2D = null
+			var best_d = INF
+			for d in alive_doors:
+				var dist = own_forces_center.distance_to(d.global_position)
+				if dist < best_d:
+					best_d = dist
+					nearest_door = d
+			if nearest_door != null:
+				if _has_any_melee():
+					_attack_door_with_melee_only(nearest_door)
+				else:
+					_attack_door_with_ranged_only(nearest_door)
+		else:
+			move_non_siege_to_position(wait_position)
+	elif besieger_phase == BesiegerPhase.ASSAULT_BREACHED_REGIONS or besieger_phase == BesiegerPhase.BREACHED:
+		# Only target enemies currently in the region we have access to (recomputed each tick — if unit moved and door closed behind them, they won't be in list)
+		var enemies_in_accessible = _get_enemies_in_besieger_accessible_regions()
+		if not enemies_in_accessible.is_empty():
+			var nearest_in_region: Node2D = null
+			var best_dist = INF
+			for en in enemies_in_accessible:
+				var d = own_forces_center.distance_to(en.global_position)
+				if d < best_dist:
+					best_dist = d
+					nearest_in_region = en
+			if nearest_in_region != null:
+				attack_non_siege_only(nearest_in_region)
+		else:
+			# Move into breached region(s): tower breach rally and/or door-breached rally (so units clear region while ram goes to next door)
+			var rally_positions: Array = _get_besieger_breached_region_rally_positions().duplicate()
+			for rid in besieger_accessible_region_ids:
+				if rid >= 0 and rid < besieger_region_rally.size():
+					var rp = besieger_region_rally[rid]
+					if rp not in rally_positions:
+						rally_positions.append(rp)
+			if rally_positions.is_empty() and not besieger_outer_region_ids.is_empty():
+				for rid in besieger_outer_region_ids:
+					if rid >= 0 and rid < besieger_region_rally.size():
+						rally_positions.append(besieger_region_rally[rid])
+			if not rally_positions.is_empty():
+				var nearest_rally = rally_positions[0]
+				var d_min = own_forces_center.distance_to(nearest_rally)
+				for rp in rally_positions:
+					var d = own_forces_center.distance_to(rp)
+					if d < d_min:
+						d_min = d
+						nearest_rally = rp
+				move_non_siege_to_position(nearest_rally)
+			else:
+				move_non_siege_to_position(besieger_gate_position)
 
 func castle_besieger_defend():
 	# Retreat to own PlayerStartLoc and defend there (open-map style formation).
@@ -467,7 +553,9 @@ func set_center_ow_own_forces():
 		total_position += unit.global_position  # Sum up global positions
 		all_units += 1
 
-	self.own_forces_center = total_position / all_units
+	if all_units > 0:
+		self.own_forces_center = total_position / all_units
+	# else leave own_forces_center unchanged to avoid division by zero
 
 ## Returns global position of the PlayerStartLoc for this AI's faction, or null if none.
 func get_own_player_start_loc_position() -> Variant:
@@ -680,14 +768,21 @@ func build_siege_attack_data():
 		build_siege_defense_data()
 	var tilemap = root_map.first_tilemap_layer
 	var map_rules = root_map.get_node_or_null("map_rules")
+	# Order: outer doors (to_te_destroyed) first, then inner doors (tc_close) so rams proceed to next door after breaching
 	var doors_to_destroy: Array = []
 	if map_rules != null and map_rules.get("defense_script") != null and map_rules.defense_script.has("door_closure"):
 		for rule in map_rules.defense_script["door_closure"]:
 			for door_id in rule.get("doors_to_te_destroyed", []):
-				doors_to_destroy.append(door_id)
+				if door_id not in doors_to_destroy:
+					doors_to_destroy.append(door_id)
+			for door_id in rule.get("doors_tc_close", []):
+				if door_id not in doors_to_destroy:
+					doors_to_destroy.append(door_id)
 	enemy_door_units.clear()
 	var gate_sum = Vector2.ZERO
 	var gate_count = 0
+	var all_enemy_door_tiles: Dictionary = {}
+	var enemy_door_id_to_tiles: Dictionary = {}
 	for unit in root_map.get_node("units").get_children():
 		if unit.get("siege_id") == null:
 			continue
@@ -702,6 +797,13 @@ func build_siege_attack_data():
 		enemy_door_units.append(weakref(unit))
 		gate_sum += unit.global_position
 		gate_count += 1
+		var pos = unit.get("unit_position")
+		if pos == null:
+			pos = tilemap.local_to_map(unit.global_position)
+		all_enemy_door_tiles[pos] = true
+		if not enemy_door_id_to_tiles.has(unit.siege_id):
+			enemy_door_id_to_tiles[unit.siege_id] = []
+		enemy_door_id_to_tiles[unit.siege_id].append(pos)
 	if gate_count > 0:
 		besieger_gate_position = gate_sum / gate_count
 	else:
@@ -709,6 +811,59 @@ func build_siege_attack_data():
 	besieger_slot_world_positions.clear()
 	for t in siege_slot_tiles:
 		besieger_slot_world_positions.append(tilemap.map_to_local(t) + tilemap.global_position)
+
+	# Besieger region data: same checkpoint flood fill but with enemy doors as blocked (so we know "inside" regions)
+	besieger_region_by_tile.clear()
+	besieger_region_rally.clear()
+	besieger_region_tiles.clear()
+	besieger_outer_region_ids.clear()
+	besieger_breach_slot_indices.clear()
+	var checkpoints_node = root_map.get_node_or_null("checkpoints")
+	if checkpoints_node != null:
+		var freed = _temp_free_unit_positions()
+		var flags = checkpoints_node.get_children()
+		for i in flags.size():
+			var flag = flags[i]
+			var seed_tile = tilemap.local_to_map(flag.global_position)
+			var tiles_arr = _flood_fill_blocked(seed_tile, all_enemy_door_tiles, SIEGE_REGION_FLOOD_MAX)
+			if tiles_arr.is_empty():
+				tiles_arr = [seed_tile]
+			var sum_v = Vector2.ZERO
+			for t in tiles_arr:
+				sum_v += tilemap.map_to_local(t)
+				besieger_region_by_tile[t] = i
+			var center_world = (sum_v / tiles_arr.size()) + tilemap.global_position
+			besieger_region_rally.append(center_world)
+			besieger_region_tiles[i] = tiles_arr
+		_temp_restore_unit_positions(freed)
+		# Which regions border the doors we're destroying?
+		var besieger_door_to_regions: Dictionary = {}
+		for sid in enemy_door_id_to_tiles:
+			var reg_set = {}
+			for t in enemy_door_id_to_tiles[sid]:
+				for offset in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
+					var n = t + offset
+					if besieger_region_by_tile.has(n):
+						reg_set[besieger_region_by_tile[n]] = true
+			besieger_door_to_regions[sid] = reg_set.keys()
+		besieger_door_id_to_region_ids = besieger_door_to_regions.duplicate(true)
+		for door_id in doors_to_destroy:
+			if besieger_door_to_regions.has(door_id):
+				for rid in besieger_door_to_regions[door_id]:
+					if rid not in besieger_outer_region_ids:
+						besieger_outer_region_ids.append(rid)
+		# Breach slot indices from defense_script
+		if map_rules != null and map_rules.get("defense_script") != null and map_rules.defense_script.has("door_closure"):
+			for rule in map_rules.defense_script["door_closure"]:
+				var slot_indices = rule.get("siege_slots_that_breach", [])
+				if slot_indices is String and slot_indices == "all":
+					besieger_breach_slot_indices = range(siege_slot_tiles.size()).duplicate()
+					break
+				elif slot_indices is Array:
+					for idx in slot_indices:
+						if idx not in besieger_breach_slot_indices:
+							besieger_breach_slot_indices.append(idx)
+
 	besieger_attack_data_built = true
 
 ## Returns list of door nodes (alive) that are "to be destroyed". Caller can use for rams / breach check.
@@ -720,16 +875,86 @@ func _get_alive_enemy_doors() -> Array:
 			out.append(door)
 	return out
 
+## World position where non-siege units wait (further back from the gate so they don't cluster at the wall).
+func _get_besieger_wait_position(cell_size: float) -> Vector2:
+	var start_pos = get_own_player_start_loc_position()
+	if start_pos == null:
+		start_pos = own_forces_center
+	var dir_to_gate = (besieger_gate_position - start_pos)
+	var len = dir_to_gate.length()
+	if len < 1.0:
+		return besieger_gate_position
+	dir_to_gate = dir_to_gate / len
+	var offset_px = BESIEGER_WAIT_OFFSET_CELLS * cell_size
+	return besieger_gate_position - dir_to_gate * offset_px
+
 ## One walkable tile adjacent to door_tile for ram to stand. Returns world position.
 func _get_adjacent_walkable_to_door(door_tile: Vector2i) -> Vector2:
-	var astar = root_map.astar_grid
 	var tilemap = root_map.first_tilemap_layer
+	var adj = _get_adjacent_walkable_tile_to_door(door_tile)
+	return tilemap.map_to_local(adj) + tilemap.global_position
+
+## One walkable tile adjacent to door_tile (for pathfinding). Returns tile coords.
+func _get_adjacent_walkable_tile_to_door(door_tile: Vector2i) -> Vector2i:
+	var astar = root_map.astar_grid
 	const CARDINALS := [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
 	for off in CARDINALS:
 		var n = door_tile + off
 		if astar.is_in_boundsv(n) and not astar.is_point_solid(n):
-			return tilemap.map_to_local(n) + tilemap.global_position
-	return tilemap.map_to_local(door_tile) + tilemap.global_position
+			return n
+	return door_tile
+
+## True if we have a siege tower deployed at the given slot index (wall breach from our side).
+func _is_besieger_slot_breached(slot_idx: int) -> bool:
+	if slot_idx < 0 or slot_idx >= siege_slot_tiles.size():
+		return false
+	var placed = root_map.get_node_or_null("siege_walls/placed_loc")
+	if placed == null:
+		return false
+	var slot_tile = siege_slot_tiles[slot_idx]
+	var tilemap = root_map.first_tilemap_layer
+	for child in placed.get_children():
+		if child is Node2D:
+			var t = tilemap.local_to_map(child.global_position)
+			if t.distance_to(slot_tile) <= 1:
+				return true
+	return false
+
+## If we have a tower at any breach slot, returns world rally positions for regions we can now enter. Else empty.
+func _get_besieger_breached_region_rally_positions() -> Array:
+	var out: Array = []
+	for idx in besieger_breach_slot_indices:
+		if _is_besieger_slot_breached(idx):
+			for rid in besieger_outer_region_ids:
+				if rid >= 0 and rid < besieger_region_rally.size():
+					out.append(besieger_region_rally[rid])
+			break
+	return out
+
+## Enemies that are inside a region we have breached (tower at breach slot). Empty if no breach.
+func _get_enemies_in_besieger_breached_regions() -> Array:
+	var rally_positions = _get_besieger_breached_region_rally_positions()
+	if rally_positions.is_empty():
+		return []
+	return _get_enemies_in_besieger_accessible_regions()
+
+## Enemies currently in the region(s) we can enter (door gone or wall breached).
+## Uses besieger_accessible_region_ids (set each tick: door-breached regions, or all outer if tower breach).
+func _get_enemies_in_besieger_accessible_regions() -> Array:
+	var out: Array = []
+	var region_ids_to_use = besieger_accessible_region_ids if not besieger_accessible_region_ids.is_empty() else besieger_outer_region_ids
+	if region_ids_to_use.is_empty():
+		return out
+	for unit in all_enemy_units():
+		var pos = unit.get("unit_position")
+		if pos == null:
+			continue
+		if not besieger_region_by_tile.has(pos):
+			continue
+		var rid = besieger_region_by_tile[pos]
+		if rid in region_ids_to_use:
+			out.append(unit)
+	return out
 
 func _get_castle_wall_positions() -> Array[Vector2]:
 	var tilemap = root_map.first_tilemap_layer
@@ -1190,6 +1415,49 @@ func attack_non_siege_only(enemy: Node2D):
 		if u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
 			continue
 		u.set_attack(enemy.map_unique_id)
+
+func _has_any_rams() -> bool:
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u != null and u.get("unit_id") == OWN_RAM_UNIT_ID:
+			return true
+	return false
+
+func _has_any_melee() -> bool:
+	var ranged_ids = GlobalSettings.get_list_of_ranged()
+	if ranged_ids == null:
+		ranged_ids = []
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u == null or u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
+			continue
+		if u.unit_id not in ranged_ids:
+			return true
+	return false
+
+func _attack_door_with_melee_only(door: Node2D):
+	var ranged_ids = GlobalSettings.get_list_of_ranged()
+	if ranged_ids == null:
+		ranged_ids = []
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u == null or u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
+			continue
+		if u.unit_id in ranged_ids:
+			continue
+		u.set_attack(door.map_unique_id)
+
+func _attack_door_with_ranged_only(door: Node2D):
+	var ranged_ids = GlobalSettings.get_list_of_ranged()
+	if ranged_ids == null:
+		ranged_ids = []
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u == null or u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
+			continue
+		if u.unit_id not in ranged_ids:
+			continue
+		u.set_attack(door.map_unique_id)
 	
 func all_own_units():
 	var own_units = []
