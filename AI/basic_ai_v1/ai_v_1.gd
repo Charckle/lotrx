@@ -8,6 +8,7 @@ var current_state = State.IDLE # ATM just for digging
 var state_ = 0 #  0 iddle, 1 attack, 2 defend
 @export var is_siege = false
 @export var is_siege_defending = false
+@export var ai_paused := false  # set true in inspector to disable all AI (for FPS testing)
 
 @export var faction = 99
 @export var friendly_factions = []
@@ -55,8 +56,8 @@ var siege_slot_tiles: Array = []     # [Vector2i, ...] per slot index
 var door_to_regions: Dictionary = {} # siege_id -> Array[region_id]
 const SIEGE_REGION_FLOOD_MAX := 500  # max tiles per checkpoint region
 @export var debug_regions = false
-# 0 = move ranged + castle units this tick; 1 = move melee next tick (stagger)
-var siege_defense_phase = 0
+# One-time assignment: move units to walls/checkpoints only once at start; do not reassign when units die
+var siege_defense_positions_assigned = false
 const CASTLE_WALL_UNIT_IDS := [8]  # cauldron / boiling oil; move to wall next to siege slots and outer door
 const ENEMY_RAM_UNIT_ID := 7
 const ENEMY_SIEGE_TOWER_UNIT_ID := 9
@@ -77,8 +78,9 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	if debug_regions and map_type == MapTypes.CASTLE:
-		queue_redraw()
+	if ai_paused:
+		return
+	# Debug region overlay redraws only when data changes (see build_siege_defense_data, _update_siege_breached_regions)
 
 func _draw():
 	if not debug_regions or map_type != MapTypes.CASTLE or siege_regions.is_empty():
@@ -125,7 +127,7 @@ func evaluate_threat(first:bool):
 	var their_side = 0
 	
 	for unit in units_on_map:
-		if unit.faction == self.faction or unit.faction in self.friendly_factions:
+		if unit.faction == self.faction or (self.friendly_factions != null and unit.faction in self.friendly_factions):
 			my_side += unit.unit_strenght
 		else:
 			their_side += unit.unit_strenght
@@ -167,6 +169,8 @@ func set_state(my_side, their_side, first: bool):
 
 
 func _on_timer_timeout():
+	if ai_paused:
+		return
 	empty_dead_units()
 	set_inner_doors(1)
 	
@@ -183,6 +187,16 @@ func _on_timer_timeout():
 
 	else:
 		print("GG!")
+
+func _on_cauldrin_timer_timeout():
+	if ai_paused:
+		return
+	if map_type != MapTypes.CASTLE or not siege_defense_built or siege_regions.is_empty():
+		return
+	if current_state != State.DEFENDING:
+		return
+	_update_siege_breached_regions()
+	move_castle_units_to_wall()
 
 func initial_setup():	
 	set_unit_groups()
@@ -510,6 +524,8 @@ func build_siege_defense_data():
 			siege_slot_tiles.append(tilemap.local_to_map(child.global_position))
 
 	siege_defense_built = true
+	if debug_regions and map_type == MapTypes.CASTLE:
+		queue_redraw()
 
 func _get_castle_wall_positions() -> Array[Vector2]:
 	var tilemap = root_map.first_tilemap_layer
@@ -557,10 +573,13 @@ func _get_enemy_siege_tower_positions() -> Array[Vector2]:
 	return out
 
 ## One position per siege wall slot, sorted by distance to nearest siege tower (closest threat first).
+## When there are no siege towers, returns empty so cauldrins are sent to doors (ram threat) only.
 func _get_castle_wall_slots_sorted_by_tower_threat() -> Array[Vector2]:
+	var tower_positions = _get_enemy_siege_tower_positions()
+	if tower_positions.is_empty():
+		return []
 	var tilemap = root_map.first_tilemap_layer
 	const CARDINALS := [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
-	var tower_positions = _get_enemy_siege_tower_positions()
 	var slots_with_dist: Array = []  # { position, distance }
 	for slot_tile in siege_slot_tiles:
 		var best_pos: Vector2 = tilemap.map_to_local(slot_tile) + tilemap.global_position
@@ -631,6 +650,16 @@ func _get_castle_door_positions_sorted_by_ram_threat() -> Array[Vector2]:
 		out.append(entry["position"])
 	return out
 
+## Path length in number of cells from start tile to end tile; INF if no path.
+func _get_path_length_cells(from_tile: Vector2i, to_tile: Vector2i) -> float:
+	var astar = root_map.astar_grid
+	if not astar.is_in_boundsv(from_tile) or not astar.is_in_boundsv(to_tile):
+		return INF
+	var path = astar.get_id_path(from_tile, to_tile, false)
+	if path.is_empty():
+		return INF
+	return float(path.size())
+
 func _is_siege_slot_breached(slot_tile: Vector2i) -> bool:
 	var placed = root_map.get_node_or_null("siege_walls/placed_loc")
 	if placed == null:
@@ -695,6 +724,8 @@ func _update_siege_breached_regions():
 			for rid in door_to_regions[door_id]:
 				if rid != inner_region_id and rid < siege_regions.size():
 					siege_regions[rid]["breached"] = true
+	if debug_regions and map_type == MapTypes.CASTLE:
+		queue_redraw()
 
 ## Temporarily free all own unit positions from astar so we see terrain-only solids.
 ## Returns list of positions freed; call _temp_restore_unit_positions with it after.
@@ -899,7 +930,7 @@ func all_enemy_units():
 	var all_enemy_units = []
 	
 	for unit in all_units:
-		if not (unit.faction == self.faction or unit.faction in self.friendly_factions):
+		if not (unit.faction == self.faction or (self.friendly_factions != null and unit.faction in self.friendly_factions)):
 			all_enemy_units.append(unit)
 	
 	return all_enemy_units
@@ -910,13 +941,12 @@ func send_groups_to_markers():
 	else:
 		if siege_defense_built and not siege_regions.is_empty():
 			_update_siege_breached_regions()
-			if siege_defense_phase == 0:
+			# Archers and melee: assign only once (so dead units don't pull others away from frontline)
+			if not siege_defense_positions_assigned:
 				move_archers_to_walls_by_enemy()
-				move_castle_units_to_wall()
-				siege_defense_phase = 1
-			else:
 				move_melee_to_siege_regions()
-				siege_defense_phase = 0
+				siege_defense_positions_assigned = true
+			# Cauldrins: updated by CauldrinTimer every 4s (see _on_cauldrin_timer_timeout)
 
 func move_to_computed_defense_positions():
 	if computed_defense_positions.is_empty():
@@ -984,18 +1014,38 @@ func move_castle_units_to_wall():
 		positions = _get_castle_wall_positions()
 	if positions.is_empty():
 		return
-	var pos_index = 0
+	# Gather living cauldrins
+	var cauldrins: Array = []
 	for unit_id in CASTLE_WALL_UNIT_IDS:
 		if unit_id not in unit_groups:
 			continue
 		for group in unit_groups[unit_id]:
 			for unit_wr in group["units"]:
 				var u = gr(unit_wr)
-				if u == null:
-					continue
-				var pos = positions[pos_index % positions.size()]
-				u.set_move(pos)
-				pos_index += 1
+				if u != null:
+					cauldrins.append(u)
+	if cauldrins.is_empty():
+		return
+	# Assign each position (in threat order) to the closest unassigned cauldrin so we don't shuffle them
+	var assigned: Array[bool] = []
+	assigned.resize(cauldrins.size())
+	for j in cauldrins.size():
+		assigned[j] = false
+	var n_assign = mini(positions.size(), cauldrins.size())
+	for idx in n_assign:
+		var pos = positions[idx]
+		var best_j = -1
+		var best_dist_sq := INF
+		for j in cauldrins.size():
+			if assigned[j]:
+				continue
+			var d_sq = cauldrins[j].global_position.distance_squared_to(pos)
+			if d_sq < best_dist_sq:
+				best_dist_sq = d_sq
+				best_j = j
+		if best_j >= 0:
+			assigned[best_j] = true
+			cauldrins[best_j].set_move(pos)
 
 func move_archers_to_walls_by_enemy():
 	var ranged_ids = GlobalSettings.get_list_of_ranged()

@@ -13,10 +13,11 @@ func _ready() -> void:
 	#hp - (dmg - def)
 	
 	parent_n.unit_id = 9 # 9 siege_tower
-	parent_n.agression_range_base = 16
-	parent_n.agression_range = 16
-	parent_n.attack_range = 16
-	parent_n.m_speed = 20
+	parent_n.agression_range_base = 10
+	parent_n.agression_range = 10
+	parent_n.attack_range = 10
+	#parent_n.m_speed = 20
+	parent_n.m_speed = 300
 	parent_n.primary_mele_fighter = false
 	parent_n.can_dig = false
 	parent_n.siege_weapon = true

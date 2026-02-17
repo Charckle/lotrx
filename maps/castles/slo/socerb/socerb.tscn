@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=4 uid="uid://dpq75kochn3i"]
+[gd_scene load_steps=15 format=4 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
 [ext_resource type="Script" uid="uid://bcwv87arec41m" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
@@ -9,12 +9,9 @@
 [ext_resource type="PackedScene" uid="uid://d1306ntr6ywvh" path="res://units/castle_units/small_door/map_placer/vertical/small_door_vertical_map_placer.tscn" id="7_3t5sj"]
 [ext_resource type="PackedScene" uid="uid://b5wrwpj4nswnb" path="res://units/other_units/crossbow/crossbow.tscn" id="7_8yq8l"]
 [ext_resource type="PackedScene" uid="uid://bmc6el8pavh5" path="res://units/random_units/checkpoint_flag/checkpoint_flag.tscn" id="8_vih8o"]
-[ext_resource type="PackedScene" uid="uid://ca6v18yb265rd" path="res://units/other_units/ram/ram.tscn" id="9_54hdq"]
 [ext_resource type="PackedScene" uid="uid://b80mlkmflbfbj" path="res://AI/basic_ai_v1/ai_v_1.tscn" id="9_w1qor"]
 [ext_resource type="PackedScene" uid="uid://bdo428sgd8fug" path="res://units/other_units/cauldron/cauldron.tscn" id="10_ixc38"]
-[ext_resource type="PackedScene" uid="uid://cl6m2xq23hmco" path="res://units/other_units/siege_tower/siege_tower.tscn" id="11_p1aew"]
 [ext_resource type="PackedScene" uid="uid://6k5bqys5j8x4" path="res://maps/othr/player_start_loc/player_start_loc.tscn" id="13_o55kd"]
-[ext_resource type="PackedScene" uid="uid://dbtipfdsfx1em" path="res://spawners/units/units_spawner.tscn" id="18_2cmut"]
 [ext_resource type="PackedScene" uid="uid://bd2oebmiliabk" path="res://units/other_units/siege_tower/siege_wall/siege_wall.tscn" id="20_vnevk"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_2psup"]
@@ -114,14 +111,12 @@ faction = 2
 position = Vector2(624, -688)
 faction = 2
 
-[node name="crossbow3" parent="units" index="18" instance=ExtResource("7_8yq8l")]
+[node name="crossbow5" parent="units" index="18" instance=ExtResource("7_8yq8l")]
+position = Vector2(368, 560)
+
+[node name="crossbow3" parent="units" index="19" instance=ExtResource("7_8yq8l")]
 position = Vector2(624, -720)
 faction = 2
-
-[node name="ram" parent="units" index="19" instance=ExtResource("9_54hdq")]
-position = Vector2(752, 528)
-debugging_ = true
-aggressive = false
 
 [node name="cauldron" parent="units" index="20" instance=ExtResource("10_ixc38")]
 position = Vector2(496, -528)
@@ -134,9 +129,6 @@ faction = 2
 [node name="cauldron5" parent="units" index="22" instance=ExtResource("10_ixc38")]
 position = Vector2(720, -432)
 faction = 2
-
-[node name="siege_tower" parent="units" index="23" instance=ExtResource("11_p1aew")]
-position = Vector2(208, 528)
 
 [node name="projectiles" parent="." index="7"]
 metadata/_edit_lock_ = true
@@ -159,36 +151,6 @@ faction = 2
 main_door = true
 new_siege_id = 300
 door_health = 200
-
-[node name="knights_spawner" parent="spawners" index="2" instance=ExtResource("18_2cmut")]
-position = Vector2(304, 528)
-unit_type = 3
-unit_numbers = 6
-
-[node name="mace_spawners" parent="spawners" index="3" instance=ExtResource("18_2cmut")]
-position = Vector2(432, 528)
-unit_type = 4
-unit_numbers = 10
-
-[node name="pikeman_spawner" parent="spawners" index="4" instance=ExtResource("18_2cmut")]
-position = Vector2(592, 528)
-unit_type = 5
-unit_numbers = 10
-
-[node name="archers_spawner" parent="spawners" index="5" instance=ExtResource("18_2cmut")]
-position = Vector2(944, 528)
-unit_type = 1
-unit_numbers = 10
-
-[node name="archers_spawner2" parent="spawners" index="6" instance=ExtResource("18_2cmut")]
-position = Vector2(944, 592)
-unit_type = 1
-unit_numbers = 10
-
-[node name="pikeman_spawner2" parent="spawners" index="7" instance=ExtResource("18_2cmut")]
-position = Vector2(592, 592)
-unit_type = 5
-unit_numbers = 10
 
 [node name="PoiFlag" parent="checkpoints" index="0" instance=ExtResource("8_vih8o")]
 position = Vector2(688, -112)

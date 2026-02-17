@@ -1,8 +1,8 @@
 extends Node2D
 
-const reload_cooldown = 2      # same as archer cooldown
-const burst_interval = 0.4     # short delay between burst shots
-const burst_count = 3          # arrows per burst
+const reload_cooldown = 5      # same as archer cooldown
+const burst_interval = 0.6     # short delay between burst shots
+const burst_count = 2          # arrows per burst
 
 var can_attack = true
 var shots_fired = 0

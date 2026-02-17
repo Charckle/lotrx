@@ -9,4 +9,9 @@ script = ExtResource("1_t8y0o")
 wait_time = 2.0
 autostart = true
 
+[node name="CauldrinTimer" type="Timer" parent="."]
+wait_time = 4.0
+autostart = true
+
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="timeout" from="CauldrinTimer" to="." method="_on_cauldrin_timer_timeout"]
