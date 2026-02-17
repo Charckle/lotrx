@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=4 uid="uid://dpq75kochn3i"]
+[gd_scene load_steps=18 format=4 uid="uid://dpq75kochn3i"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_pay0i"]
 [ext_resource type="Script" uid="uid://bcwv87arec41m" path="res://maps/castles/slo/socerb/map_rules.gd" id="2_hws0q"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://b5wrwpj4nswnb" path="res://units/other_units/crossbow/crossbow.tscn" id="7_8yq8l"]
 [ext_resource type="PackedScene" uid="uid://ca6v18yb265rd" path="res://units/other_units/ram/ram.tscn" id="8_2quf8"]
 [ext_resource type="PackedScene" uid="uid://bmc6el8pavh5" path="res://units/random_units/checkpoint_flag/checkpoint_flag.tscn" id="8_vih8o"]
+[ext_resource type="PackedScene" uid="uid://cl6m2xq23hmco" path="res://units/other_units/siege_tower/siege_tower.tscn" id="9_0hlgj"]
 [ext_resource type="PackedScene" uid="uid://b80mlkmflbfbj" path="res://AI/basic_ai_v1/ai_v_1.tscn" id="9_w1qor"]
 [ext_resource type="PackedScene" uid="uid://bdo428sgd8fug" path="res://units/other_units/cauldron/cauldron.tscn" id="10_ixc38"]
 [ext_resource type="PackedScene" uid="uid://dbtipfdsfx1em" path="res://spawners/units/units_spawner.tscn" id="12_ykjh8"]
@@ -138,6 +139,9 @@ position = Vector2(208, 240)
 [node name="ram2" parent="units" index="24" instance=ExtResource("8_2quf8")]
 position = Vector2(240, 240)
 
+[node name="siege_tower" parent="units" index="25" instance=ExtResource("9_0hlgj")]
+position = Vector2(944, 400)
+
 [node name="projectiles" parent="." index="7"]
 metadata/_edit_lock_ = true
 
@@ -163,10 +167,12 @@ door_health = 200
 [node name="units_spawner" parent="spawners" index="2" instance=ExtResource("12_ykjh8")]
 position = Vector2(432, 560)
 unit_type = 2
+unit_numbers = 20
 
 [node name="units_spawner2" parent="spawners" index="3" instance=ExtResource("12_ykjh8")]
 position = Vector2(432, 464)
-unit_type = 2
+unit_type = 3
+unit_numbers = 20
 
 [node name="PoiFlag" parent="checkpoints" index="0" instance=ExtResource("8_vih8o")]
 position = Vector2(688, -112)

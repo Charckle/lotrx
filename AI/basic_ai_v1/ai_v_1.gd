@@ -66,6 +66,18 @@ var melee_unit_assigned_region: Dictionary = {}
 const CASTLE_WALL_UNIT_IDS := [8]  # cauldron / boiling oil; move to wall next to siege slots and outer door
 const ENEMY_RAM_UNIT_ID := 7
 const ENEMY_SIEGE_TOWER_UNIT_ID := 9
+const OWN_RAM_UNIT_ID := 7
+const OWN_SIEGE_TOWER_UNIT_ID := 9
+
+# Besieger (attacker) state: phased advance toward gate, hold while siege engines work, then attack on breach
+enum BesiegerPhase { APPROACHING, HOLDING_AT_GATE, BREACHED }
+var besieger_phase = BesiegerPhase.APPROACHING
+var besieger_attack_data_built = false
+var enemy_door_units: Array = []   # [weakref(door), ...] doors to destroy (from defense_script doors_to_te_destroyed)
+var besieger_gate_position = Vector2.ZERO  # rally point for non-siege blob
+var besieger_slot_world_positions: Array = []  # [Vector2, ...] for siege towers
+const BESIEGER_HOLD_THRESHOLD_CELLS := 5.0  # close enough to gate = holding
+var besieger_tower_slot_assigned: Dictionary = {}  # unit map_unique_id -> slot index (so we don't reassign every tick)
 
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 
@@ -181,6 +193,7 @@ func _on_timer_timeout():
 	if ai_paused:
 		return
 	empty_dead_units()
+	add_new_units_to_control()
 	set_inner_doors(1)
 	if self.lost:
 		print("GG!")
@@ -219,6 +232,8 @@ func initial_setup():
 	set_unit_groups()
 	if map_type == MapTypes.CASTLE:
 		call_deferred("build_siege_defense_data")
+		if not is_siege_defending:
+			call_deferred("build_siege_attack_data")
 
 func set_unit_groups(units_on_map=null):
 	# create base groups for the units and add them to them
@@ -325,10 +340,113 @@ func castle_defender_defend():
 
 # --- Castle: besieger (attacking the castle) ---
 func castle_besieger_attack():
+	if not besieger_attack_data_built:
+		build_siege_attack_data()
 	set_center_ow_own_forces()
-	var neerest_enemy = get_neerest_enemy()
-	if neerest_enemy != null:
-		attack_unit_w_all(neerest_enemy)
+	var tilemap = root_map.first_tilemap_layer
+	var alive_doors = _get_alive_enemy_doors()
+	var cell_size = float(root_map.m_cell_size)
+	var dist_to_gate = own_forces_center.distance_to(besieger_gate_position)
+	var hold_threshold_px = BESIEGER_HOLD_THRESHOLD_CELLS * cell_size
+
+	# Phase: breach = no doors left; else holding if close to gate, else approaching
+	if alive_doors.is_empty():
+		besieger_phase = BesiegerPhase.BREACHED
+	else:
+		if dist_to_gate <= hold_threshold_px:
+			besieger_phase = BesiegerPhase.HOLDING_AT_GATE
+		else:
+			besieger_phase = BesiegerPhase.APPROACHING
+
+	# 1) Rams: send to doors (skip if no doors)
+	if not alive_doors.is_empty():
+		var rams: Array = []
+		for unit_wr in all_own_units():
+			var u = gr(unit_wr)
+			if u != null and u.get("unit_id") == OWN_RAM_UNIT_ID:
+				rams.append(unit_wr)
+		for unit_wr in rams:
+			var ram = gr(unit_wr)
+			if ram == null:
+				continue
+			var current_target = ram.get_right_target()
+			var valid_door_target = false
+			if current_target != null:
+				for d in alive_doors:
+					if d == current_target:
+						valid_door_target = true
+						break
+			if valid_door_target:
+				continue
+			var best_door = null
+			var best_dist = INF
+			for door in alive_doors:
+				var door_tile = door.get("unit_position")
+				if door_tile == null:
+					door_tile = tilemap.local_to_map(door.global_position)
+				var adj_world = _get_adjacent_walkable_to_door(door_tile)
+				var d = ram.global_position.distance_to(adj_world)
+				if d < best_dist:
+					best_dist = d
+					best_door = door
+			if best_door != null:
+				ram.set_attack(best_door.map_unique_id)
+				var door_tile = best_door.get("unit_position")
+				if door_tile == null:
+					door_tile = tilemap.local_to_map(best_door.global_position)
+				ram.set_move(_get_adjacent_walkable_to_door(door_tile))
+
+	# 2) Siege towers: move to wall slots
+	var placed_node = root_map.get_node_or_null("siege_walls/placed_loc")
+	for uid in besieger_tower_slot_assigned.duplicate().keys():
+		var found = false
+		for unit_wr in all_own_units():
+			var u = gr(unit_wr)
+			if u != null and u.map_unique_id == uid:
+				found = true
+				break
+		if not found:
+			besieger_tower_slot_assigned.erase(uid)
+	var used_slot_indices: Dictionary = {}
+	if placed_node != null:
+		for child in placed_node.get_children():
+			if child is Node2D:
+				var pt = tilemap.local_to_map(child.global_position)
+				for i in besieger_slot_world_positions.size():
+					if tilemap.local_to_map(besieger_slot_world_positions[i]).distance_to(pt) <= 1:
+						used_slot_indices[i] = true
+						break
+	for uid in besieger_tower_slot_assigned:
+		used_slot_indices[besieger_tower_slot_assigned[uid]] = true
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u == null or u.get("unit_id") != OWN_SIEGE_TOWER_UNIT_ID:
+			continue
+		var slot_idx = besieger_tower_slot_assigned.get(u.map_unique_id, -1)
+		if slot_idx >= 0 and slot_idx < besieger_slot_world_positions.size():
+			u.set_move(besieger_slot_world_positions[slot_idx])
+			continue
+		var best_slot = -1
+		var best_dist = INF
+		for i in besieger_slot_world_positions.size():
+			if used_slot_indices.get(i, false):
+				continue
+			var d = u.global_position.distance_to(besieger_slot_world_positions[i])
+			if d < best_dist:
+				best_dist = d
+				best_slot = i
+		if best_slot >= 0:
+			besieger_tower_slot_assigned[u.map_unique_id] = best_slot
+			used_slot_indices[best_slot] = true
+			u.set_move(besieger_slot_world_positions[best_slot])
+
+	# 3) Non-siege: phased advance — move to gate blob, then hold; on breach attack normally
+	if besieger_phase == BesiegerPhase.APPROACHING or besieger_phase == BesiegerPhase.HOLDING_AT_GATE:
+		move_non_siege_to_position(besieger_gate_position)
+	else:
+		var neerest_enemy = get_neerest_enemy()
+		if neerest_enemy != null:
+			attack_non_siege_only(neerest_enemy)
 
 func castle_besieger_defend():
 	# Retreat to own PlayerStartLoc and defend there (open-map style formation).
@@ -554,6 +672,64 @@ func build_siege_defense_data():
 	siege_defense_built = true
 	if debug_regions and map_type == MapTypes.CASTLE:
 		queue_redraw()
+
+func build_siege_attack_data():
+	if besieger_attack_data_built or is_siege_defending:
+		return
+	if not siege_defense_built:
+		build_siege_defense_data()
+	var tilemap = root_map.first_tilemap_layer
+	var map_rules = root_map.get_node_or_null("map_rules")
+	var doors_to_destroy: Array = []
+	if map_rules != null and map_rules.get("defense_script") != null and map_rules.defense_script.has("door_closure"):
+		for rule in map_rules.defense_script["door_closure"]:
+			for door_id in rule.get("doors_to_te_destroyed", []):
+				doors_to_destroy.append(door_id)
+	enemy_door_units.clear()
+	var gate_sum = Vector2.ZERO
+	var gate_count = 0
+	for unit in root_map.get_node("units").get_children():
+		if unit.get("siege_id") == null:
+			continue
+		if unit.faction == faction or (friendly_factions != null and unit.faction in friendly_factions):
+			continue
+		if unit.siege_id not in doors_to_destroy:
+			continue
+		var uid = unit.get("unit_id")
+		var is_door = unit.get("is_small_door") != null or (uid != null and uid in [500, 501, 502])
+		if not is_door:
+			continue
+		enemy_door_units.append(weakref(unit))
+		gate_sum += unit.global_position
+		gate_count += 1
+	if gate_count > 0:
+		besieger_gate_position = gate_sum / gate_count
+	else:
+		besieger_gate_position = root_map.global_position
+	besieger_slot_world_positions.clear()
+	for t in siege_slot_tiles:
+		besieger_slot_world_positions.append(tilemap.map_to_local(t) + tilemap.global_position)
+	besieger_attack_data_built = true
+
+## Returns list of door nodes (alive) that are "to be destroyed". Caller can use for rams / breach check.
+func _get_alive_enemy_doors() -> Array:
+	var out: Array = []
+	for door_wr in enemy_door_units:
+		var door = gr(door_wr)
+		if door != null:
+			out.append(door)
+	return out
+
+## One walkable tile adjacent to door_tile for ram to stand. Returns world position.
+func _get_adjacent_walkable_to_door(door_tile: Vector2i) -> Vector2:
+	var astar = root_map.astar_grid
+	var tilemap = root_map.first_tilemap_layer
+	const CARDINALS := [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
+	for off in CARDINALS:
+		var n = door_tile + off
+		if astar.is_in_boundsv(n) and not astar.is_point_solid(n):
+			return tilemap.map_to_local(n) + tilemap.global_position
+	return tilemap.map_to_local(door_tile) + tilemap.global_position
 
 func _get_castle_wall_positions() -> Array[Vector2]:
 	var tilemap = root_map.first_tilemap_layer
@@ -987,6 +1163,15 @@ func move_all_to_position(world_pos: Vector2):
 		if u != null:
 			u.set_move(world_pos)
 
+func move_non_siege_to_position(world_pos: Vector2):
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u == null:
+			continue
+		if u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
+			continue
+		u.set_move(world_pos)
+
 
 func attack_unit_w_all(enemy: Node2D):
 	var own_units = all_own_units()
@@ -996,6 +1181,15 @@ func attack_unit_w_all(enemy: Node2D):
 		if gr(unit_wr) == null:
 			continue
 		gr(unit_wr).set_attack(enemy.map_unique_id)
+
+func attack_non_siege_only(enemy: Node2D):
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u == null:
+			continue
+		if u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
+			continue
+		u.set_attack(enemy.map_unique_id)
 	
 func all_own_units():
 	var own_units = []
@@ -1376,6 +1570,30 @@ func empty_dead_units():
 	
 	if all_units_count == 0:
 		self.lost = true
+
+## Add any faction units that are on the map but not yet in my_units_on_map / unit_groups (e.g. from spawners that run after AI _ready).
+func add_new_units_to_control():
+	for unit in root_map.get_all_units():
+		if unit.faction != faction and (friendly_factions == null or unit.faction not in friendly_factions):
+			continue
+		var already_tracked = false
+		for unit_wr in my_units_on_map:
+			if unit_wr.get_ref() == unit:
+				already_tracked = true
+				break
+		if already_tracked:
+			continue
+		var unit_wr = weakref(unit)
+		my_units_on_map.append(unit_wr)
+		var unit_id = unit.unit_id
+		if not unit_groups.has(unit_id):
+			var new_group = base_unit_group.duplicate(true)
+			unit_groups[unit_id] = [new_group]
+		add_unit_to_group(unit_wr)
+		if map_type == MapTypes.CASTLE and "stance" in unit:
+			var ranged_ids = GlobalSettings.get_list_of_ranged()
+			if ranged_ids == null or unit.unit_id not in ranged_ids:
+				unit.stance = 1
 
 func gr(weak_refer):
 	if weak_refer == null:
