@@ -148,7 +148,7 @@ func set_state(my_side, their_side, first: bool):
 			last_rally_recalc_time = 0.0
 			open_attack_phase = OpenAttackPhase.ADVANCING
 			if map_type == MapTypes.CASTLE:
-				open_all_doors()
+				call_deferred("open_all_doors")
 		else:
 			current_state = State.DEFENDING
 			computed_defense_positions.clear()
@@ -171,7 +171,7 @@ func set_state(my_side, their_side, first: bool):
 				last_rally_recalc_time = 0.0
 				open_attack_phase = OpenAttackPhase.ADVANCING
 				if map_type == MapTypes.CASTLE:
-					open_all_doors()
+					call_deferred("open_all_doors")
 			else:
 				current_state = State.DEFENDING
 				print("Still Defending!")
