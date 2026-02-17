@@ -1,6 +1,6 @@
 extends Node2D
 
-var ai_faction = 2
+var ai_faction = 1
 var ai_factions = []
 var map_type = "castle"
 
@@ -15,8 +15,8 @@ func _enter_tree():
 	initialize_map()
 
 func initialize_map():
-	var map_options = {"user_faction": 1,
-						"ai_faction": 2}
+	var map_options = {"user_faction": 2,
+						"ai_faction": 1}
 	
 	if GlobalSettings.map_options != null:
 		map_options = GlobalSettings.map_options

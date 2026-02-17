@@ -1,6 +1,6 @@
 extends Node
 
-var my_faction = 1
+var my_faction = 2
 var friendly_factions = []
 
 #var game_unit_count_start = null
