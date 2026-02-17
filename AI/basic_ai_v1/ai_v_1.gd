@@ -423,7 +423,7 @@ func castle_besieger_attack():
 				if door_tile == null:
 					door_tile = tilemap.local_to_map(door.global_position)
 				var adj_tile = _get_adjacent_walkable_tile_to_door(door_tile)
-				var path_len = _get_path_length_cells(ram_tile, adj_tile)
+				var path_len = _get_path_length_cells_for_ram(ram_tile, adj_tile)
 				if path_len >= INF:
 					continue
 				if path_len < best_path_len:
@@ -1085,6 +1085,44 @@ func _get_path_length_cells(from_tile: Vector2i, to_tile: Vector2i) -> float:
 	if not astar.is_in_boundsv(from_tile) or not astar.is_in_boundsv(to_tile):
 		return INF
 	var path = astar.get_id_path(from_tile, to_tile, false)
+	if path.is_empty():
+		return INF
+	return float(path.size())
+
+## Returns tiles that rams must never path through (wall breach openings).
+func _get_ram_blocked_tiles() -> Dictionary:
+	var blocked: Dictionary = {}
+	var placed = root_map.get_node_or_null("siege_walls/placed_loc")
+	if placed == null:
+		return blocked
+	const CARDINALS := [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
+	for idx in besieger_breach_slot_indices:
+		if not _is_besieger_slot_breached(idx):
+			continue
+		var slot_tile = siege_slot_tiles[idx]
+		blocked[slot_tile] = true
+		for off in CARDINALS:
+			blocked[slot_tile + off] = true
+	return blocked
+
+## Path length for ram: same as _get_path_length_cells but breach tiles are unwalkable.
+func _get_path_length_cells_for_ram(from_tile: Vector2i, to_tile: Vector2i) -> float:
+	var astar = root_map.astar_grid
+	if not astar.is_in_boundsv(from_tile) or not astar.is_in_boundsv(to_tile):
+		return INF
+	var blocked = _get_ram_blocked_tiles()
+	if blocked.has(from_tile) or blocked.has(to_tile):
+		return INF
+	# Temporarily mark breach tiles solid
+	var saved: Dictionary = {}  # tile -> was_solid
+	for t in blocked:
+		if astar.is_in_boundsv(t):
+			saved[t] = astar.is_point_solid(t)
+			astar.set_point_solid(t, true)
+	var path = astar.get_id_path(from_tile, to_tile, false)
+	# Restore
+	for t in saved:
+		astar.set_point_solid(t, saved[t])
 	if path.is_empty():
 		return INF
 	return float(path.size())

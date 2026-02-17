@@ -370,7 +370,26 @@ func update_astar_grid_units():
 		#print(unit.unit_position)
 		astar_grid.set_point_solid(unit.unit_position)
 
-
+## Returns tiles that rams must never path through (wall breach openings from siege towers).
+func get_ram_blocked_tiles() -> Array:
+	var out: Array = []
+	var available = get_node_or_null("siege_walls/available_loc")
+	var placed = get_node_or_null("siege_walls/placed_loc")
+	if available == null or placed == null:
+		return out
+	var tilemap = first_tilemap_layer
+	const CARDINALS := [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
+	for child in available.get_children():
+		var slot_tile = tilemap.local_to_map(child.global_position)
+		for placed_child in placed.get_children():
+			if placed_child is Node2D:
+				var pt = tilemap.local_to_map(placed_child.global_position)
+				if slot_tile.distance_to(pt) <= 1:
+					out.append(slot_tile)
+					for off in CARDINALS:
+						out.append(slot_tile + off)
+					break
+	return out
 
 func get_solid_points():
 	#print("checking solids")

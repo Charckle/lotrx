@@ -315,10 +315,25 @@ func move_(target_move_to=null):
 	if astar_grid.is_point_solid(target_walk):
 		astar_grid.set_point_solid(solid_tile, false)
 		return_solid = true
-		
+
+	# Rams must never path through wall breaches (siege tower openings)
+	var ram_blocked: Array = []
+	var saved_ram_solids: Dictionary = {}
+	if unit_id == 7:
+		ram_blocked = root_map.get_ram_blocked_tiles()
+		for t in ram_blocked:
+			if astar_grid.is_in_boundsv(t):
+				saved_ram_solids[t] = astar_grid.is_point_solid(t)
+				astar_grid.set_point_solid(t, true)
+
 	new_id_path = astar_grid.get_id_path(unit_pos_for_calc, target_walk, true)
-	target_walk = new_id_path[-1]
-	
+
+	for t in saved_ram_solids:
+		astar_grid.set_point_solid(t, saved_ram_solids[t])
+
+	if not new_id_path.is_empty():
+		target_walk = new_id_path[-1]
+
 	if return_solid:
 		astar_grid.set_point_solid(solid_tile)
 	
