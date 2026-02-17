@@ -14,8 +14,8 @@ func _ready() -> void:
 	
 	parent_n.unit_id = 7 # 7 = ram
 	parent_n.attack_range = 1
-	#parent_n.m_speed = 20
-	parent_n.m_speed = 300
+	parent_n.m_speed = 20
+	#parent_n.m_speed = 300
 	parent_n.primary_mele_fighter = true
 	parent_n.can_dig = false
 	parent_n.attack_dmg_range = 0

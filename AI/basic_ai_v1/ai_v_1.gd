@@ -147,6 +147,8 @@ func set_state(my_side, their_side, first: bool):
 			current_state = State.ATTACKING
 			last_rally_recalc_time = 0.0
 			open_attack_phase = OpenAttackPhase.ADVANCING
+			if map_type == MapTypes.CASTLE:
+				open_all_doors()
 		else:
 			current_state = State.DEFENDING
 			computed_defense_positions.clear()
@@ -168,6 +170,8 @@ func set_state(my_side, their_side, first: bool):
 				current_state = State.ATTACKING
 				last_rally_recalc_time = 0.0
 				open_attack_phase = OpenAttackPhase.ADVANCING
+				if map_type == MapTypes.CASTLE:
+					open_all_doors()
 			else:
 				current_state = State.DEFENDING
 				print("Still Defending!")
@@ -1257,6 +1261,16 @@ func set_inner_doors(state:int):
 		if unit.faction == faction:
 			if unit.main_door == false:
 				unit.get_node("actions").set_state(state)
+
+func open_all_doors():
+	# Open every gate so units can go out to attack (siege sally-out)
+	get_all_doors()
+	for unit_wr in doors:
+		var unit = gr(unit_wr)
+		if unit == null:
+			continue
+		if unit.faction == faction:
+			unit.get_node("actions").set_state(1)
 				
 func set_doors(siege_id, state:int):
 	# 1 is open, 0 is closed

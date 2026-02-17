@@ -16,8 +16,8 @@ func _ready() -> void:
 	parent_n.agression_range_base = 10
 	parent_n.agression_range = 10
 	parent_n.attack_range = 10
-	#parent_n.m_speed = 20
-	parent_n.m_speed = 300
+	parent_n.m_speed = 20
+	#parent_n.m_speed = 300
 	parent_n.primary_mele_fighter = false
 	parent_n.can_dig = false
 	parent_n.siege_weapon = true
