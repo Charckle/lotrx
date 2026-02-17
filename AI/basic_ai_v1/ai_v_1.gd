@@ -58,6 +58,11 @@ const SIEGE_REGION_FLOOD_MAX := 500  # max tiles per checkpoint region
 @export var debug_regions = false
 # One-time assignment: move units to walls/checkpoints only once at start; do not reassign when units die
 var siege_defense_positions_assigned = false
+# Delay before closing inner doors after breach so defenders can fall back (ms)
+const BREACH_DOOR_CLOSE_DELAY_MS := 5000
+var breach_close_allowed_at: Dictionary = {}  # door_rule index -> time (msec) when we may close
+# Melee: which region each unit was assigned to (map_unique_id -> region_id) for fallback-only moves
+var melee_unit_assigned_region: Dictionary = {}
 const CASTLE_WALL_UNIT_IDS := [8]  # cauldron / boiling oil; move to wall next to siege slots and outer door
 const ENEMY_RAM_UNIT_ID := 7
 const ENEMY_SIEGE_TOWER_UNIT_ID := 9
@@ -946,6 +951,9 @@ func send_groups_to_markers():
 				move_archers_to_walls_by_enemy()
 				move_melee_to_siege_regions()
 				siege_defense_positions_assigned = true
+			else:
+				# Only move units from breached regions to fallback; don't shuffle everyone
+				move_melee_from_breached_regions_to_fallback()
 			# Cauldrins: updated by CauldrinTimer every 4s (see _on_cauldrin_timer_timeout)
 
 func move_to_computed_defense_positions():
@@ -971,18 +979,19 @@ func move_melee_to_siege_regions():
 	var ranged_ids = GlobalSettings.get_list_of_ranged()
 	if ranged_ids == null:
 		ranged_ids = []
-	var target_flag_positions: Array[Vector2] = []
+	# Build (flag_position, region_id) so we can record which region each unit is assigned to
+	var target_slots: Array = []  # [{ "position": Vector2, "region_id": int }]
 	for rid in siege_regions.size():
 		var reg = siege_regions[rid]
 		if reg["breached"] and breach_fallback_region.has(rid):
 			var fallback_id = breach_fallback_region[rid]
 			if fallback_id < siege_regions.size():
-				target_flag_positions.append(siege_regions[fallback_id]["flag_position"])
+				target_slots.append({"position": siege_regions[fallback_id]["flag_position"], "region_id": rid})
 		elif not reg["breached"]:
-			target_flag_positions.append(reg["flag_position"])
-	if target_flag_positions.is_empty():
+			target_slots.append({"position": reg["flag_position"], "region_id": rid})
+	if target_slots.is_empty():
 		return
-	var pos_index = 0
+	var slot_index = 0
 	for unit_id in unit_groups:
 		if unit_id in ranged_ids or unit_id in CASTLE_WALL_UNIT_IDS:
 			continue
@@ -991,9 +1000,35 @@ func move_melee_to_siege_regions():
 				var u = gr(unit_wr)
 				if u == null:
 					continue
-				var flag_pos = target_flag_positions[pos_index % target_flag_positions.size()]
-				u.set_move(flag_pos)
-				pos_index += 1
+				var slot = target_slots[slot_index % target_slots.size()]
+				u.set_move(slot["position"])
+				melee_unit_assigned_region[u.map_unique_id] = slot["region_id"]
+				slot_index += 1
+
+func move_melee_from_breached_regions_to_fallback():
+	var ranged_ids = GlobalSettings.get_list_of_ranged()
+	if ranged_ids == null:
+		ranged_ids = []
+	for unit_id in unit_groups:
+		if unit_id in ranged_ids or unit_id in CASTLE_WALL_UNIT_IDS:
+			continue
+		for group in unit_groups[unit_id]:
+			for unit_wr in group["units"]:
+				var u = gr(unit_wr)
+				if u == null:
+					continue
+				if not melee_unit_assigned_region.has(u.map_unique_id):
+					continue
+				var rid = melee_unit_assigned_region[u.map_unique_id]
+				if rid >= siege_regions.size():
+					continue
+				if not siege_regions[rid]["breached"] or not breach_fallback_region.has(rid):
+					continue
+				var fallback_id = breach_fallback_region[rid]
+				if fallback_id >= siege_regions.size():
+					continue
+				u.set_move(siege_regions[fallback_id]["flag_position"])
+				melee_unit_assigned_region[u.map_unique_id] = fallback_id
 
 func move_castle_units_to_wall():
 	var wall_slots := _get_castle_wall_slots_sorted_by_tower_threat()
@@ -1168,7 +1203,10 @@ func manage_doors():
 	var map_rules = root_map.get_node("map_rules")
 	if map_rules.get("defense_script") == null or not map_rules.defense_script.has("door_closure"):
 		return
-	for door_rule in map_rules.defense_script["door_closure"]:
+	var now_ms = Time.get_ticks_msec()
+	var rules = map_rules.defense_script["door_closure"]
+	for rule_idx in rules.size():
+		var door_rule = rules[rule_idx]
 		var to_destroy = door_rule.get("doors_to_te_destroyed", [])
 		var slot_indices = door_rule.get("siege_slots_that_breach", [])
 		if slot_indices is String and slot_indices == "all":
@@ -1191,9 +1229,15 @@ func manage_doors():
 				if idx >= 0 and idx < siege_slot_tiles.size() and _is_siege_slot_breached(siege_slot_tiles[idx]):
 					should_close = true
 					break
-		if should_close:
-			for door_id_2 in door_rule.get("doors_tc_close", []):
-				set_doors(door_id_2, 0)
+		if not should_close:
+			breach_close_allowed_at.erase(rule_idx)
+			continue
+		if not breach_close_allowed_at.has(rule_idx):
+			breach_close_allowed_at[rule_idx] = now_ms + BREACH_DOOR_CLOSE_DELAY_MS
+		if now_ms < breach_close_allowed_at[rule_idx]:
+			continue
+		for door_id_2 in door_rule.get("doors_tc_close", []):
+			set_doors(door_id_2, 0)
 
 
 func get_all_doors():
