@@ -89,6 +89,9 @@ var besieger_breach_slot_indices: Array = []  # slot indices that count as breac
 var besieger_accessible_region_ids: Array = []  # runtime: region ids we can enter this tick (door-breached or tower breach)
 var besieger_outer_door_ids: Array = []   # siege_ids of outer doors (doors_to_te_destroyed) - rams only target these
 var besieger_inner_door_ids: Array = []   # siege_ids of inner doors (doors_tc_close) - units destroy these after outer is breached
+# Decision-tree state for non-siege besieger behaviour
+var besieger_current_attack_target_id: int = -1   # map_unique_id of unit we're focusing; -1 if none
+var besieger_region_attacking_id: int = -1       # region id we're focusing; -1 if none
 
 @onready var root_map = get_tree().root.get_node("game") # 0 je global properties autoloader :/
 
@@ -485,9 +488,78 @@ func castle_besieger_attack():
 			used_slot_indices[best_slot] = true
 			u.set_move(besieger_slot_world_positions[best_slot])
 
-	# 3) Non-siege: siege weapons do their part; if region breached, clear it; if no rams, units attack outer doors
-	if besieger_phase == BesiegerPhase.APPROACHING or besieger_phase == BesiegerPhase.HOLDING_AT_GATE:
-		if not alive_outer_doors.is_empty() and not _has_any_rams():
+	# 3) Non-siege: decision tree (rams/towers handled above)
+	var path_from_tile = _get_besieger_non_siege_path_from_tile()
+
+	# --- 1) Have a target: validate path, re-issue attack or clear and proceed ---
+	if besieger_current_attack_target_id >= 0:
+		var target_node = root_map.all_units_w_unique_id.get(besieger_current_attack_target_id)
+		if target_node == null:
+			besieger_current_attack_target_id = -1
+		else:
+			if _besieger_has_path_to_unit(path_from_tile, target_node):
+				attack_non_siege_only(target_node)
+				return
+			besieger_current_attack_target_id = -1
+
+	# --- 2) Region marked as attacking ---
+	if besieger_region_attacking_id >= 0:
+		var enemies_in_region = _get_enemies_in_region(besieger_region_attacking_id)
+		if enemies_in_region.is_empty():
+			besieger_region_attacking_id = -1
+			besieger_current_attack_target_id = -1
+		else:
+			# Current target (if any) was already validated in step 1; here we need a target in this region
+			var region_tiles = besieger_region_tiles.get(besieger_region_attacking_id, [])
+			var tiles_set: Dictionary = {}
+			for t in region_tiles:
+				tiles_set[t] = true
+			var current_valid = false
+			if besieger_current_attack_target_id >= 0:
+				var cur = root_map.all_units_w_unique_id.get(besieger_current_attack_target_id)
+				if cur != null:
+					var pt = cur.get("unit_position")
+					if pt != null and tiles_set.get(pt, false):
+						current_valid = true
+			if current_valid:
+				var cur = root_map.all_units_w_unique_id.get(besieger_current_attack_target_id)
+				attack_non_siege_only(cur)
+				return
+			var nearest: Node2D = null
+			var best_d = INF
+			for en in enemies_in_region:
+				var d = own_forces_center.distance_to(en.global_position)
+				if d < best_d:
+					best_d = d
+					nearest = en
+			if nearest != null:
+				besieger_current_attack_target_id = nearest.map_unique_id
+				attack_non_siege_only(nearest)
+				return
+
+	# --- 3) No region attacking: pick an accessible region with units and mark it ---
+	var rid_with_units = _get_one_accessible_region_with_units()
+	if rid_with_units >= 0:
+		besieger_region_attacking_id = rid_with_units
+		return
+
+	# --- 4) Enemies outside regions (walkable tiles not in any region) ---
+	var outside_enemies = _get_enemies_on_walkable_outside_regions()
+	if not outside_enemies.is_empty():
+		var nearest_out: Node2D = null
+		var best_d = INF
+		for en in outside_enemies:
+			var d = own_forces_center.distance_to(en.global_position)
+			if d < best_d:
+				best_d = d
+				nearest_out = en
+		if nearest_out != null:
+			attack_non_siege_only(nearest_out)
+			return
+
+	# --- 5) Outside doors not breached: rams or units attack outer door ---
+	if not _besieger_outside_doors_breached():
+		if not _has_any_rams() and not alive_outer_doors.is_empty():
 			var nearest_door: Node2D = null
 			var best_d = INF
 			for d in alive_outer_doors:
@@ -496,64 +568,29 @@ func castle_besieger_attack():
 					best_d = dist
 					nearest_door = d
 			if nearest_door != null:
-				# All non-siege units attack the door (melee and ranged both)
 				_attack_door_with_melee_only(nearest_door)
 				_attack_door_with_ranged_only(nearest_door)
-		else:
-			move_non_siege_to_position(wait_position)
-	elif besieger_phase == BesiegerPhase.ASSAULT_BREACHED_REGIONS or besieger_phase == BesiegerPhase.BREACHED:
-		# Rally positions = regions we have access to (from door breach or tower breach)
-		var rally_positions: Array = _get_besieger_breached_region_rally_positions().duplicate()
-		for rid in besieger_accessible_region_ids:
-			if rid >= 0 and rid < besieger_region_rally.size():
-				var rp = besieger_region_rally[rid]
-				if rp not in rally_positions:
-					rally_positions.append(rp)
-		if rally_positions.is_empty() and not besieger_outer_region_ids.is_empty():
-			for rid in besieger_outer_region_ids:
-				if rid >= 0 and rid < besieger_region_rally.size():
-					rally_positions.append(besieger_region_rally[rid])
+				return
+		move_non_siege_to_position(wait_position)
+		return
 
-		var has_access_to_regions = not rally_positions.is_empty()
-		var enemies_in_accessible = _get_enemies_in_besieger_accessible_regions()
-		var inner_doors = _get_alive_inner_doors()
+	# --- 6) No accessible enemies: attack any reachable door ---
+	var reachable_doors = _get_besieger_reachable_doors()
+	if not reachable_doors.is_empty():
+		var nearest_door: Node2D = null
+		var best_d = INF
+		for d in reachable_doors:
+			var dist = own_forces_center.distance_to(d.global_position)
+			if dist < best_d:
+				best_d = dist
+				nearest_door = d
+		if nearest_door != null:
+			_attack_door_with_melee_only(nearest_door)
+			_attack_door_with_ranged_only(nearest_door)
+			return
 
-		if not has_access_to_regions:
-			# No access to any region - stay in front of gate
-			move_non_siege_to_position(besieger_gate_position)
-		elif not enemies_in_accessible.is_empty():
-			# Access to region(s): go there and clear enemy units
-			var nearest_in_region: Node2D = null
-			var best_dist = INF
-			for en in enemies_in_accessible:
-				var d = own_forces_center.distance_to(en.global_position)
-				if d < best_dist:
-					best_dist = d
-					nearest_in_region = en
-			if nearest_in_region != null:
-				attack_non_siege_only(nearest_in_region)
-		elif not inner_doors.is_empty():
-			# No units in regions we can access; we have doors - attack them to proceed to next region
-			var nearest_door: Node2D = null
-			var best_d = INF
-			for d in inner_doors:
-				var dist = own_forces_center.distance_to(d.global_position)
-				if dist < best_d:
-					best_d = dist
-					nearest_door = d
-			if nearest_door != null:
-				_attack_door_with_melee_only(nearest_door)
-				_attack_door_with_ranged_only(nearest_door)
-		else:
-			# No enemies, no doors - move to region rally to sweep / position
-			var nearest_rally = rally_positions[0]
-			var d_min = own_forces_center.distance_to(nearest_rally)
-			for rp in rally_positions:
-				var d = own_forces_center.distance_to(rp)
-				if d < d_min:
-					d_min = d
-					nearest_rally = rp
-			move_non_siege_to_position(nearest_rally)
+	# --- 7) No reachable doors and no enemies: game won / wait for other systems ---
+	return
 
 func castle_besieger_defend():
 	# Retreat to own PlayerStartLoc and defend there (open-map style formation).
@@ -1004,6 +1041,91 @@ func _get_enemies_in_besieger_accessible_regions() -> Array:
 		if rid in region_ids_to_use:
 			out.append(unit)
 	return out
+
+## Tile to use as path-from for besieger non-siege (one of our units or gate).
+func _get_besieger_non_siege_path_from_tile() -> Vector2i:
+	var tilemap = root_map.first_tilemap_layer
+	for unit_wr in all_own_units():
+		var u = gr(unit_wr)
+		if u == null or u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
+			continue
+		var pos = u.get("unit_position")
+		if pos != null:
+			return pos
+	return tilemap.local_to_map(besieger_gate_position)
+
+## True if there is a path from from_tile to the unit's tile (for non-siege pathfinding).
+func _besieger_has_path_to_unit(from_tile: Vector2i, unit: Node2D) -> bool:
+	var pos = unit.get("unit_position")
+	if pos == null:
+		pos = root_map.first_tilemap_layer.local_to_map(unit.global_position)
+	return _get_path_length_cells(from_tile, pos) < INF
+
+## Enemies on tiles that are not inside any besieger region (e.g. in front of gate, approach).
+func _get_enemies_on_walkable_outside_regions() -> Array:
+	var out: Array = []
+	for unit in all_enemy_units():
+		var pos = unit.get("unit_position")
+		if pos == null:
+			continue
+		if besieger_region_by_tile.has(pos):
+			continue
+		out.append(unit)
+	return out
+
+## Enemies whose unit_position is in the given region's tiles.
+func _get_enemies_in_region(region_id: int) -> Array:
+	if not besieger_region_tiles.has(region_id):
+		return []
+	var tiles_set: Dictionary = {}
+	for t in besieger_region_tiles[region_id]:
+		tiles_set[t] = true
+	var out: Array = []
+	for unit in all_enemy_units():
+		var pos = unit.get("unit_position")
+		if pos == null:
+			continue
+		if tiles_set.get(pos, false):
+			out.append(unit)
+	return out
+
+## Accessible region ids that have path from our side and at least one enemy. Picks one at random when multiple.
+func _get_one_accessible_region_with_units() -> int:
+	var from_tile = _get_besieger_non_siege_path_from_tile()
+	var tilemap = root_map.first_tilemap_layer
+	var candidates: Array = []
+	for rid in besieger_accessible_region_ids:
+		if rid < 0 or rid >= besieger_region_rally.size():
+			continue
+		var rally_world = besieger_region_rally[rid]
+		var rally_tile = tilemap.local_to_map(rally_world)
+		if _get_path_length_cells(from_tile, rally_tile) >= INF:
+			continue
+		if _get_enemies_in_region(rid).is_empty():
+			continue
+		candidates.append(rid)
+	if candidates.is_empty():
+		return -1
+	return candidates[randi() % candidates.size()]
+
+## Alive enemy doors that have a path from our path-from tile (any door: outer or inner).
+func _get_besieger_reachable_doors() -> Array:
+	var from_tile = _get_besieger_non_siege_path_from_tile()
+	var alive = _get_alive_enemy_doors()
+	var out: Array = []
+	for door in alive:
+		var door_tile = door.get("unit_position")
+		if door_tile == null:
+			door_tile = root_map.first_tilemap_layer.local_to_map(door.global_position)
+		var adj = _get_adjacent_walkable_tile_to_door(door_tile)
+		if _get_path_length_cells(from_tile, adj) >= INF:
+			continue
+		out.append(door)
+	return out
+
+## True if outer doors have been breached (we have access to at least one region via door or tower).
+func _besieger_outside_doors_breached() -> bool:
+	return not besieger_accessible_region_ids.is_empty()
 
 func _get_castle_wall_positions() -> Array[Vector2]:
 	var tilemap = root_map.first_tilemap_layer
