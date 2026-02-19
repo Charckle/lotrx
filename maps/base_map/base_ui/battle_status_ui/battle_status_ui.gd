@@ -68,6 +68,10 @@ func _on_timer_timeout():
 	set_progressbar()
 
 
+func _is_door_unit(unit) -> bool:
+	var uid = unit.get("unit_id")
+	return unit.get("is_small_door") != null or (uid != null and uid in [500, 501, 502])
+
 func set_progressbar(save_units_score=false):
 	var units_on_map = root_map.get_all_units()
 
@@ -76,6 +80,8 @@ func set_progressbar(save_units_score=false):
 	var factions_on_map: Dictionary = {} # faction_id -> true
 
 	for unit in units_on_map:
+		if _is_door_unit(unit):
+			continue
 		factions_on_map[unit.faction] = true
 		if unit.faction == self.faction or unit.faction in self.friendly_factions:
 			my_side += unit.unit_strenght

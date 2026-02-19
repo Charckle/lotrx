@@ -41,8 +41,6 @@ func _process(delta: float) -> void:
 	global_position = global_position + (diretion_vector * (speed * delta))
 	
 	if oil_pos_for_calc != oil_pos_for_calc_old:
-		print(unit_position)
-		print(oil_pos_for_calc_old)
 		ttd -= 1
 		oil_pos_for_calc_old = oil_pos_for_calc
 		
@@ -54,9 +52,7 @@ func _process(delta: float) -> void:
 					var pos_ition = first_tilemap_layer.map_to_local(block)
 					spawn_puddles(pos_ition)
 					already_placed_bloks.append(block)
-				else:
-					print("kura")
-					print(block)
+
 	
 	if ttd <= 0:
 		queue_free()

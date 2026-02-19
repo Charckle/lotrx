@@ -49,10 +49,8 @@ func initialize_ai_defense_script():
 			{
 				"doors_to_te_destroyed": [300],
 				"doors_tc_close": [200],
-				# optional: when a siege tower is placed at one of these slot indices (siege_walls/available_loc child index), close inner doors too
-				# "siege_slots_that_breach": [0, 1, 2],
-				# or use "all" to treat any placed siege tower as breach for this rule:
-				# "siege_slots_that_breach": "all",
+				# When a siege tower is placed at a slot, outer regions become accessible to the besieger.
+				"siege_slots_that_breach": "all",
 			},
 		]
 	}

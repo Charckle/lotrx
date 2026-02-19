@@ -55,6 +55,7 @@ var breach_fallback_region: Dictionary = {}  # region_id -> fallback_region_id
 var siege_slot_tiles: Array = []     # [Vector2i, ...] per slot index
 var door_to_regions: Dictionary = {} # siege_id -> Array[region_id]
 const SIEGE_REGION_FLOOD_MAX := 500  # max tiles per checkpoint region
+const FREE_ALL_FACTIONS := -1  # pass to _temp_free_unit_positions to free all units regardless of faction
 @export var debug_regions = false
 # One-time assignment: move units to walls/checkpoints only once at start; do not reassign when units die
 var siege_defense_positions_assigned = false
@@ -114,16 +115,28 @@ func _process(delta):
 	# Debug region overlay redraws only when data changes (see build_siege_defense_data, _update_siege_breached_regions)
 
 func _draw():
-	if not debug_regions or map_type != MapTypes.CASTLE or siege_regions.is_empty():
+	if not debug_regions or map_type != MapTypes.CASTLE:
 		return
 	var tilemap = root_map.first_tilemap_layer
 	var radius = 4.0
-	for reg in siege_regions:
-		var color = Color.RED if reg["breached"] else Color.from_hsv(fmod(reg["region_id"] * 0.13, 1.0), 0.7, 0.9)
-		for t in reg["tiles"]:
-			var world_pos = tilemap.map_to_local(t) + tilemap.global_position
-			var local_pos = to_local(world_pos)
-			draw_circle(local_pos, radius, color)
+	# Defender: draw siege_regions (breached = red, else hue by region_id)
+	if not siege_regions.is_empty():
+		for reg in siege_regions:
+			var color = Color.RED if reg["breached"] else Color.from_hsv(fmod(reg["region_id"] * 0.13, 1.0), 0.7, 0.9)
+			for t in reg["tiles"]:
+				var world_pos = tilemap.map_to_local(t) + tilemap.global_position
+				var local_pos = to_local(world_pos)
+				draw_circle(local_pos, radius, color)
+	# Besieger: draw the 2 accessible regions (tower/door breach) with distinct colors
+	if not is_siege_defending and besieger_attack_data_built and not besieger_accessible_region_ids.is_empty():
+		var accessible_colors = [Color.GREEN, Color.CYAN]
+		for idx in besieger_accessible_region_ids.size():
+			var rid = besieger_accessible_region_ids[idx]
+			var color = accessible_colors[idx] if idx < accessible_colors.size() else Color.from_hsv(fmod(rid * 0.2, 1.0), 1.0, 1.0)
+			for t in besieger_region_tiles.get(rid, []):
+				var world_pos = tilemap.map_to_local(t) + tilemap.global_position
+				var local_pos = to_local(world_pos)
+				draw_circle(local_pos, radius, color)
 
 func set_faction():
 	# If faction was set externally (e.g. spawned from multiplayer lobby), don't override
@@ -381,10 +394,25 @@ func castle_besieger_attack():
 			door_breached_rally_positions.append(besieger_region_rally[rid])
 	# Accessible = door-breached regions; if we also have tower breach, we can target all outer regions
 	var tower_breach_rally = _get_besieger_breached_region_rally_positions()
+	var accessible_color_names = ["GREEN", "CYAN"]
 	if not tower_breach_rally.is_empty():
 		besieger_accessible_region_ids = besieger_outer_region_ids.duplicate()
+		var color_list = []
+		for idx in besieger_accessible_region_ids.size():
+			var rid = besieger_accessible_region_ids[idx]
+			var cname = accessible_color_names[idx] if idx < accessible_color_names.size() else ("hue_" + str(rid))
+			color_list.append("rid %d=%s" % [rid, cname])
+		print("[castle_besieger_attack] set accessible from TOWER_BREACH, count: ", besieger_accessible_region_ids.size(), " | ", ", ".join(color_list))
 	else:
 		besieger_accessible_region_ids = door_breached_region_ids.duplicate()
+		var color_list = []
+		for idx in besieger_accessible_region_ids.size():
+			var rid = besieger_accessible_region_ids[idx]
+			var cname = accessible_color_names[idx] if idx < accessible_color_names.size() else ("hue_" + str(rid))
+			color_list.append("rid %d=%s" % [rid, cname])
+		print("[castle_besieger_attack] set accessible from DOOR_BREACHED, count: ", besieger_accessible_region_ids.size(), " | ", ", ".join(color_list))
+	if debug_regions:
+		queue_redraw()
 
 	# Phase: full breach (no doors) -> attack; wall breach or door breached -> assault regions (units clear region, ram goes to next door); else hold or approach
 	var breached_rally_positions: Array = tower_breach_rally.duplicate()
@@ -885,7 +913,7 @@ func build_siege_attack_data():
 	besieger_breach_slot_indices.clear()
 	var checkpoints_node = root_map.get_node_or_null("checkpoints")
 	if checkpoints_node != null:
-		var freed = _temp_free_unit_positions()
+		var freed = _temp_free_unit_positions(FREE_ALL_FACTIONS)
 		var flags = checkpoints_node.get_children()
 		for i in flags.size():
 			var flag = flags[i]
@@ -1094,19 +1122,48 @@ func _get_one_accessible_region_with_units() -> int:
 	var from_tile = _get_besieger_non_siege_path_from_tile()
 	var tilemap = root_map.first_tilemap_layer
 	var candidates: Array = []
+	var skipped_no_path := 0
+	var skipped_no_enemies := 0
+	var all_enemies = all_enemy_units()
 	for rid in besieger_accessible_region_ids:
 		if rid < 0 or rid >= besieger_region_rally.size():
 			continue
 		var rally_world = besieger_region_rally[rid]
 		var rally_tile = tilemap.local_to_map(rally_world)
-		if _get_path_length_cells(from_tile, rally_tile) >= INF:
+		if _get_path_length_cells_ignore_units(from_tile, rally_tile) >= INF:
+			skipped_no_path += 1
 			continue
-		if _get_enemies_in_region(rid).is_empty():
+		var enemies_in_rid = _get_enemies_in_region(rid)
+		if enemies_in_rid.is_empty():
+			skipped_no_enemies += 1
+			# Debug: why no enemies? total enemies vs in-region count, and sample enemy tile
+			var region_tiles = besieger_region_tiles.get(rid, [])
+			var tiles_set: Dictionary = {}
+			for t in region_tiles:
+				tiles_set[t] = true
+			var in_region_count := 0
+			for unit in all_enemies:
+				var pos = unit.get("unit_position")
+				if pos == null:
+					continue
+				var t = Vector2i(pos.x, pos.y)
+				if tiles_set.get(t, false):
+					in_region_count += 1
+			print("[_get_one_accessible_region_with_units] rid ", rid, " | total_enemies: ", all_enemies.size(), " | in_region: ", in_region_count, " | region_tiles_count: ", region_tiles.size())
+			if all_enemies.size() > 0 and in_region_count == 0:
+				var sample = all_enemies[0]
+				var pos = sample.get("unit_position")
+				if pos == null:
+					pos = tilemap.local_to_map(sample.global_position)
+				var t = Vector2i(pos.x, pos.y)
+				var in_set = tiles_set.get(t, false)
+				var in_by_tile = besieger_region_by_tile.get(t, -999)
+				print("  sample enemy tile: ", t, " | in_region_tiles: ", in_set, " | besieger_region_by_tile[t]: ", in_by_tile)
 			continue
 		candidates.append(rid)
-	if candidates.is_empty():
-		return -1
-	return candidates[randi() % candidates.size()]
+	var result = -1 if candidates.is_empty() else candidates[randi() % candidates.size()]
+	print("[_get_one_accessible_region_with_units] considered: ", besieger_accessible_region_ids.size(), " | skipped_no_path: ", skipped_no_path, " | skipped_no_enemies: ", skipped_no_enemies, " | candidates: ", candidates.size(), " | return rid: ", result)
+	return result
 
 ## Alive enemy doors that have a path from our path-from tile (any door: outer or inner).
 func _get_besieger_reachable_doors() -> Array:
@@ -1260,6 +1317,27 @@ func _get_path_length_cells(from_tile: Vector2i, to_tile: Vector2i) -> float:
 		return INF
 	return float(path.size())
 
+## Path length ignoring tiles blocked by units (so we know if a region is accessible but currently blocked).
+func _get_path_length_cells_ignore_units(from_tile: Vector2i, to_tile: Vector2i) -> float:
+	var astar = root_map.astar_grid
+	if not astar.is_in_boundsv(from_tile) or not astar.is_in_boundsv(to_tile):
+		return INF
+	var unit_tiles: Dictionary = {}
+	for unit in root_map.get_all_units():
+		var pos = unit.get("unit_position")
+		if pos == null:
+			pos = root_map.first_tilemap_layer.local_to_map(unit.global_position)
+		var t = Vector2i(pos.x, pos.y)
+		if astar.is_in_boundsv(t) and not unit_tiles.has(t):
+			unit_tiles[t] = astar.is_point_solid(t)
+			astar.set_point_solid(t, false)
+	var path = astar.get_id_path(from_tile, to_tile, false)
+	for t in unit_tiles:
+		astar.set_point_solid(t, unit_tiles[t])
+	if path.is_empty():
+		return INF
+	return float(path.size())
+
 ## Returns tiles that rams must never path through (wall breach openings).
 func _get_ram_blocked_tiles() -> Dictionary:
 	var blocked: Dictionary = {}
@@ -1365,16 +1443,32 @@ func _update_siege_breached_regions():
 	if debug_regions and map_type == MapTypes.CASTLE:
 		queue_redraw()
 
-## Temporarily free all own unit positions from astar so we see terrain-only solids.
+## Temporarily free unit positions from astar so we see terrain-only solids.
+## factions_to_free: null = own faction only; FREE_ALL_FACTIONS (-1) = all units; int = that faction; Array[int] = those factions.
 ## Returns list of positions freed; call _temp_restore_unit_positions with it after.
-func _temp_free_unit_positions() -> Array:
+func _temp_free_unit_positions(factions_to_free: Variant = null) -> Array:
 	var astar = root_map.astar_grid
 	var freed: Array[Vector2i] = []
-	for unit_wr in all_own_units():
-		var u = gr(unit_wr)
-		if u == null:
+	var units_to_consider: Array = []
+	if factions_to_free == null:
+		for unit_wr in all_own_units():
+			var u = gr(unit_wr)
+			if u != null:
+				units_to_consider.append(u)
+	elif factions_to_free == FREE_ALL_FACTIONS:
+		units_to_consider = root_map.get_all_units()
+	elif factions_to_free is int:
+		for unit in root_map.get_all_units():
+			if unit.get("faction") == factions_to_free:
+				units_to_consider.append(unit)
+	elif factions_to_free is Array:
+		for unit in root_map.get_all_units():
+			if unit.get("faction") in factions_to_free:
+				units_to_consider.append(unit)
+	for unit in units_to_consider:
+		var pos = unit.get("unit_position")
+		if pos == null:
 			continue
-		var pos = u.unit_position
 		if astar.is_point_solid(pos):
 			astar.set_point_solid(pos, false)
 			freed.append(pos)

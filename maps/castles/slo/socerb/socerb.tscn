@@ -134,7 +134,7 @@ position = Vector2(720, -432)
 faction = 2
 
 [node name="ram2" parent="units" index="23" instance=ExtResource("8_2quf8")]
-position = Vector2(464, -400)
+position = Vector2(-208, 240)
 
 [node name="siege_tower" parent="units" index="24" instance=ExtResource("9_0hlgj")]
 position = Vector2(528, -112)
