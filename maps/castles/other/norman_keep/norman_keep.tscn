@@ -1,12 +1,20 @@
-[gd_scene load_steps=9 format=4 uid="uid://bqyl6rh2jwjw2"]
+[gd_scene load_steps=17 format=4 uid="uid://bqyl6rh2jwjw2"]
 
 [ext_resource type="PackedScene" uid="uid://daqh8gy6154tf" path="res://maps/base_map/base_map.tscn" id="1_0dfb1"]
+[ext_resource type="Script" uid="uid://bprbynd4edlrj" path="res://maps/castles/other/norman_keep/map_rules.gd" id="2_5fu27"]
 [ext_resource type="TileSet" uid="uid://q3ygopelucdk" path="res://tiles/tilesets/castle_tiles.tres" id="2_suytx"]
 [ext_resource type="PackedScene" uid="uid://iycf6hgid0wt" path="res://units/castle_units/small_door/map_placer/horizontal/small_door_horizontal_map_placer.tscn" id="3_me7gj"]
+[ext_resource type="PackedScene" uid="uid://c5pey8052bhw8" path="res://units/other_units/archer/archer.tscn" id="4_0vli4"]
 [ext_resource type="PackedScene" uid="uid://d1306ntr6ywvh" path="res://units/castle_units/small_door/map_placer/vertical/small_door_vertical_map_placer.tscn" id="4_6fs6g"]
 [ext_resource type="PackedScene" uid="uid://ddvimmib84knj" path="res://units/castle_units/portcullis/portcullis_big_placer/portcullis_big_placer.tscn" id="5_587sg"]
+[ext_resource type="PackedScene" uid="uid://b5wrwpj4nswnb" path="res://units/other_units/crossbow/crossbow.tscn" id="5_op3i1"]
+[ext_resource type="PackedScene" uid="uid://dvytc5sw73we2" path="res://units/other_units/swordsman/swordsman.tscn" id="6_hmii0"]
 [ext_resource type="PackedScene" uid="uid://bmc6el8pavh5" path="res://units/random_units/checkpoint_flag/checkpoint_flag.tscn" id="6_ohhbn"]
 [ext_resource type="PackedScene" uid="uid://6k5bqys5j8x4" path="res://maps/othr/player_start_loc/player_start_loc.tscn" id="7_7p5ng"]
+[ext_resource type="PackedScene" uid="uid://bdo428sgd8fug" path="res://units/other_units/cauldron/cauldron.tscn" id="7_hmii0"]
+[ext_resource type="PackedScene" uid="uid://ca6v18yb265rd" path="res://units/other_units/ram/ram.tscn" id="8_k4hn5"]
+[ext_resource type="PackedScene" uid="uid://b80mlkmflbfbj" path="res://AI/basic_ai_v1/ai_v_1.tscn" id="9_15lf7"]
+[ext_resource type="PackedScene" uid="uid://dbtipfdsfx1em" path="res://spawners/units/units_spawner.tscn" id="11_1aehf"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_5hhay"]
 viewport_path = NodePath("CloudShadowsViewport")
@@ -14,6 +22,7 @@ viewport_path = NodePath("CloudShadowsViewport")
 [node name="game" instance=ExtResource("1_0dfb1")]
 
 [node name="map_rules" type="Node2D" parent="." index="0"]
+script = ExtResource("2_5fu27")
 
 [node name="TileMap" type="Node2D" parent="." index="1"]
 
@@ -25,43 +34,250 @@ tile_set = ExtResource("2_suytx")
 tile_map_data = PackedByteArray("AAAOAOb/AQABAAQAAAAOAOf/AQABAAQAAAAOAOj/AQABAAQAAAAOAOn/AQABAAQAAAAOAOr/AQABAAQAAAAOAOv/AQABAAQAAAAOAOz/AQABAAQAAAAPAOb/AQABAAQAAAAPAOf/AQABAAQAAAAPAOj/AQABAAQAAAAPAOn/AQABAAQAAAAPAOr/AQABAAQAAAAPAOv/AQABAAQAAAAPAOz/AQABAAQAAAAQAOb/AQABAAQAAAAQAOf/AQABAAQAAAAQAOj/AQABAAQAAAAQAOn/AQABAAQAAAAQAOr/AQABAAQAAAAQAOv/AQABAAQAAAAQAOz/AQABAAQAAAARAOb/AQABAAQAAAARAOf/AQABAAQAAAARAOj/AQABAAQAAAARAOn/AQABAAQAAAARAOr/AQABAAQAAAARAOv/AQABAAQAAAARAOz/AQABAAQAAAASAOb/AQACAAUAAAASAOf/AQABAAQAAAASAOj/AQABAAQAAAASAOn/AQABAAQAAAASAOr/AQABAAQAAAASAOv/AQABAAQAAAASAOz/AQABAAQAAAATAOb/AQAEAAUAAAATAOf/AQABAAQAAAATAOj/AQABAAQAAAATAOn/AQABAAQAAAATAOr/AQABAAQAAAATAOv/AQABAAQAAAATAOz/AQABAAQAAAAUAOb/AQADAAQAAAAUAOf/AQABAAQAAAAUAOj/AQABAAQAAAAUAOn/AQABAAQAAAAUAOr/AQABAAQAAAAUAOv/AQABAAQAAAAUAOz/AQABAAQAAAANAOb/AQACAAMAAAANAOf/AQACAAIAAAANAOj/AQACAAQAAAANAOn/AQACAAMAAAANAOr/AQACAAIAAAANAOv/AQACAAQAAAANAOz/AQACAAMAAAANAO3/AQACAAUAAAAOAO3/AQAEAAUAAAAPAO3/AQADAAUAAAAQAO3/AQAFAAUAAAARAO3/AQAEAAUAAAASAO3/AQADAAUAAAATAO3/AQAFAAUAAAAUAO3/AQAEAAUAAAAVAO3/AQAGAAUAAAAVAOz/AQAGAAQAAAAVAOv/AQAGAAIAAAAVAOr/AQAGAAMAAAAVAOn/AQAGAAQAAAAVAOj/AQAEAAQAAAAVAOf/AQABAAQAAAAVAOb/AQADAAgAAAAVAOX/AQADAAcAAAAUAOX/AQACAAcAAAATAOX/AQABAAQAAAAPAOX/AQAEAAQAAAAOAOX/AQAEAAEAAAANAOX/AQACAAEAAAAQAOX/AQABAAQAAAARAOX/AQABAAQAAAASAOX/AQAEAAQAAAANAOT/AQABAAQAAAAOAOT/AQABAAQAAAAPAOT/AQABAAQAAAAQAOT/AQABAAQAAAARAOT/AQABAAQAAAASAOT/AQABAAQAAAATAOT/AQABAAQAAAAUAOT/AQACAAYAAAAVAOT/AQADAAYAAAANAOP/AQABAAQAAAAOAOP/AQABAAQAAAAPAOP/AQABAAQAAAAQAOP/AQABAAQAAAARAOP/AQABAAQAAAASAOP/AQABAAQAAAATAOP/AQABAAQAAAAUAOP/AQABAAQAAAAVAOP/AQABAAQAAAAWAOP/AQABAAQAAAAWAOT/AQAEAAYAAAAWAOX/AQAEAAgAAAAWAOb/AQAEAAgAAAAWAOf/AQAEAAgAAAAWAOj/AQAEAAoAAAAWAOn/AQABAAQAAAAWAOr/AQABAAQAAAAWAOv/AQABAAQAAAAWAOz/AQABAAQAAAAWAO3/AQABAAQAAAAWAO7/AQABAAQAAAAXAOP/AQABAAQAAAAXAOT/AQAFAAYAAAAXAOX/AQAFAAcAAAAXAOb/AQAFAAgAAAAXAOf/AQAFAAkAAAAXAOj/AQAFAAoAAAAXAOn/AQABAAQAAAAXAOr/AQABAAQAAAAXAOv/AQABAAQAAAAXAOz/AQABAAQAAAAXAO3/AQABAAQAAAAXAO7/AQABAAQAAAALAO7/AQABAAQAAAALAO//AQABAAQAAAAMAO7/AQABAAQAAAAMAO//AQABAAQAAAANAO7/AQABAAQAAAANAO//AQABAAQAAAAOAO7/AQABAAQAAAAOAO//AQABAAQAAAAPAO7/AQABAAQAAAAPAO//AQABAAQAAAAQAO7/AQABAAQAAAAQAO//AQABAAQAAAARAO7/AQABAAQAAAARAO//AQABAAQAAAASAO7/AQABAAQAAAASAO//AQABAAQAAAATAO7/AQABAAQAAAATAO//AQABAAQAAAAUAO7/AQABAAQAAAAUAO//AQABAAQAAAAVAO7/AQABAAQAAAAVAO//AQABAAQAAAAWAO//AQABAAQAAAAXAO//AQABAAQAAAAKAOT/AQABAAQAAAAKAOX/AQABAAQAAAAKAOb/AQABAAQAAAAKAOf/AQABAAQAAAAKAOj/AQABAAQAAAAKAOn/AQABAAQAAAAKAOr/AQABAAQAAAAKAOv/AQABAAQAAAAKAOz/AQABAAQAAAAKAO3/AQABAAQAAAALAOT/AQABAAQAAAALAOX/AQABAAQAAAALAOb/AQABAAQAAAALAOf/AQABAAQAAAALAOj/AQABAAQAAAALAOn/AQABAAQAAAALAOr/AQABAAQAAAALAOv/AQABAAQAAAALAOz/AQABAAQAAAALAO3/AQABAAQAAAAMAOT/AQABAAQAAAAMAOX/AQABAAQAAAAMAOb/AQABAAQAAAAMAOf/AQABAAQAAAAMAOj/AQABAAQAAAAMAOn/AQABAAQAAAAMAOr/AQABAAQAAAAMAOv/AQABAAQAAAAMAOz/AQABAAQAAAAMAO3/AQABAAQAAAALAOP/AQABAAQAAAAMAOP/AQABAAQAAAAKAO7/AQABAAQAAAAKAO//AQABAAQAAAAKAPD/AQABAAQAAAALAPD/AQABAAQAAAAMAPD/AQABAAQAAAANAPD/AQABAAQAAAAOAPD/AQABAAQAAAAPAPD/AQABAAQAAAAQAPD/AQABAAQAAAARAPD/AQABAAQAAAASAPD/AQABAAQAAAATAPD/AQABAAQAAAAUAPD/AQABAAQAAAAVAPD/AQABAAQAAAAYAOr/AQABAAQAAAAYAOv/AQABAAQAAAAYAOz/AQABAAQAAAAYAO3/AQABAAQAAAAYAO7/AQABAAQAAAAYAO//AQABAAQAAAAYAOP/AQABAAQAAAAYAOT/AQAGAAYAAAAYAOX/AQAGAAcAAAAYAOb/AQAGAAgAAAAYAOf/AQAGAAkAAAAYAOj/AQAGAAoAAAAYAOn/AQABAAQAAAAKAOL/AQABAAQAAAAKAOP/AQABAAQAAAALAOL/AQABAAQAAAAMAOL/AQABAAQAAAANAOL/AQABAAQAAAAOAOL/AQABAAQAAAAPAOL/AQABAAQAAAAQAOL/AQABAAQAAAARAOL/AQABAAQAAAASAOL/AQABAAQAAAATAOL/AQABAAQAAAAUAOL/AQABAAQAAAAVAOL/AQABAAQAAAAWAOL/AQABAAQAAAAXAOL/AQABAAQAAAAYAOL/AQABAAQAAAAJAOL/AQABAAQAAAAJAOP/AQAEAAQAAAAJAOT/AQACAAIAAAAJAOX/AQACAAQAAAAJAOb/AQACAAMAAAAJAOf/AQACAAIAAAAJAOj/AQACAAQAAAAJAOn/AQACAAMAAAAJAOr/AQACAAIAAAAJAOv/AQACAAQAAAAJAOz/AQACAAMAAAAJAO3/AQACAAIAAAAJAO7/AQACAAQAAAAJAO//AQACAAMAAAAJAPD/AQAEAAQAAAAZAOb/AQAGAAQAAAAZAOf/AQACAAUAAAAZAOj/AQADAAQAAAAZAOn/AQABAAQAAAAZAOr/AQABAAQAAAAZAOv/AQAEAAQAAAAZAOL/AQABAAQAAAAZAOP/AQACAAEAAAAZAOT/AQAGAAMAAAAZAOX/AQAGAAIAAAAJAOH/AQABAAQAAAAKAOH/AQABAAQAAAALAOH/AQAEAAQAAAAMAOH/AQADAAEAAAANAOH/AQAFAAEAAAAOAOH/AQAEAAEAAAAPAOH/AQADAAEAAAAQAOH/AQAFAAEAAAARAOH/AQAEAAEAAAASAOH/AQADAAEAAAATAOH/AQAFAAEAAAAUAOH/AQAEAAEAAAAVAOH/AQADAAEAAAAWAOH/AQAFAAEAAAAXAOH/AQAEAAQAAAAYAOH/AQABAAQAAAAZAOH/AQABAAQAAAAJAPH/AQABAAQAAAAKAPH/AQABAAQAAAALAPH/AQAEAAQAAAAMAPH/AQADAAUAAAANAPH/AQAFAAUAAAAOAPH/AQAEAAUAAAAPAPH/AQADAAUAAAAQAPH/AQAFAAUAAAARAPH/AQAEAAUAAAASAPH/AQADAAUAAAATAPH/AQAFAAUAAAAUAPH/AQAEAAUAAAAVAPH/AQADAAUAAAAHAPD/AQACAAEAAAAHAPH/AQACAAMAAAAHAPL/AQACAAIAAAAHAPP/AQACAAQAAAAHAPT/AQACAAUAAAAIAPD/AQAEAAEAAAAIAPH/AQABAAQAAAAIAPL/AQABAAQAAAAIAPP/AQABAAQAAAAIAPT/AQAEAAUAAAAJAPL/AQABAAQAAAAJAPP/AQABAAQAAAAJAPT/AQADAAUAAAAKAPL/AQABAAQAAAAKAPP/AQABAAQAAAAKAPT/AQAFAAUAAAALAPL/AQAGAAIAAAALAPP/AQAGAAQAAAALAPT/AQAGAAUAAAAHAN//AQACAAEAAAAHAOD/AQACAAMAAAAHAOH/AQACAAIAAAAHAOL/AQACAAQAAAAHAOP/AQACAAUAAAAIAN//AQADAAEAAAAIAOD/AQABAAQAAAAIAOH/AQABAAQAAAAIAOL/AQABAAQAAAAIAOP/AQAEAAUAAAAJAN//AQAFAAEAAAAJAOD/AQABAAQAAAAKAN//AQAEAAEAAAAKAOD/AQABAAQAAAALAN//AQAGAAEAAAALAOD/AQAGAAMAAAAXAN//AQACAAEAAAAXAOD/AQACAAMAAAAYAN//AQADAAEAAAAYAOD/AQABAAQAAAAZAN//AQAFAAEAAAAZAOD/AQABAAQAAAAaAN//AQAEAAEAAAAaAOD/AQABAAQAAAAaAOH/AQABAAQAAAAaAOL/AQABAAQAAAAaAOP/AQAEAAUAAAAbAN//AQAGAAEAAAAbAOD/AQAGAAIAAAAbAOH/AQAGAAQAAAAbAOL/AQAGAAMAAAAbAOP/AQAGAAUAAAAXAPD/AQABAAQAAAAXAPH/AQAEAAQAAAAXAPL/AQACAAIAAAAXAPP/AQACAAQAAAAXAPT/AQACAAUAAAAYAPD/AQABAAQAAAAYAPH/AQABAAQAAAAYAPL/AQABAAQAAAAYAPP/AQABAAQAAAAYAPT/AQAEAAUAAAAZAPD/AQAEAAQAAAAZAPH/AQABAAQAAAAZAPL/AQABAAQAAAAZAPP/AQABAAQAAAAZAPT/AQADAAUAAAAaAPD/AQAEAAEAAAAaAPH/AQABAAQAAAAaAPL/AQABAAQAAAAaAPP/AQABAAQAAAAaAPT/AQAFAAUAAAAbAPD/AQAGAAEAAAAbAPH/AQAGAAIAAAAbAPL/AQAGAAQAAAAbAPP/AQAGAAMAAAAbAPT/AQAGAAUAAAAWAPD/AQABAAQAAAAWAPH/AQAFAAUAAAAaAOn/AQABAAQAAAAaAOj/AQABAAQAAAAaAOr/AQABAAQAAAAaAOv/AQAEAAQAAAAbAOv/AQABAAQAAAAcAOv/AQABAAQAAAAdAOv/AQABAAQAAAAeAOv/AQABAAQAAAAfAOv/AQAEAAQAAAAaAOf/AQADAAEAAAAbAOf/AQAFAAEAAAAcAOf/AQAEAAEAAAAdAOf/AQADAAEAAAAeAOf/AQAFAAEAAAAfAOf/AQAGAAEAAAAfAOj/AQAGAAIAAAAfAOn/AQAGAAQAAAAfAOr/AQAGAAMAAAAbAOj/AQABAAQAAAAcAOj/AQABAAQAAAAdAOj/AQABAAQAAAAeAOj/AQABAAQAAAAeAOn/AQABAAQAAAAdAOn/AQABAAQAAAAcAOn/AQABAAQAAAAbAOn/AQABAAQAAAAbAOr/AQABAAQAAAAcAOr/AQABAAQAAAAdAOr/AQABAAQAAAAeAOr/AQABAAQAAAAbAOz/AQACAAAAAAAcAOz/AQACAAAAAAAdAOz/AQACAAAAAAAeAOz/AQACAAAAAAAaAOz/AQADAAQAAAAfAOz/AQADAAQAAAAZAO7/AQAGAAIAAAAZAO//AQAGAAQAAAAZAO3/AQAGAAMAAAAZAOz/AQAGAAIAAAA=")
 tile_set = ExtResource("2_suytx")
 
+[node name="archer" parent="units" index="0" instance=ExtResource("4_0vli4")]
+position = Vector2(464, -528)
+faction = 2
+
+[node name="archer2" parent="units" index="1" instance=ExtResource("4_0vli4")]
+position = Vector2(496, -528)
+faction = 2
+
+[node name="archer3" parent="units" index="2" instance=ExtResource("4_0vli4")]
+position = Vector2(528, -528)
+faction = 2
+
+[node name="archer4" parent="units" index="3" instance=ExtResource("4_0vli4")]
+position = Vector2(560, -528)
+faction = 2
+
+[node name="archer5" parent="units" index="4" instance=ExtResource("4_0vli4")]
+position = Vector2(592, -528)
+faction = 2
+
+[node name="archer6" parent="units" index="5" instance=ExtResource("4_0vli4")]
+position = Vector2(624, -528)
+faction = 2
+
+[node name="archer7" parent="units" index="6" instance=ExtResource("4_0vli4")]
+position = Vector2(656, -528)
+faction = 2
+
+[node name="archer8" parent="units" index="7" instance=ExtResource("4_0vli4")]
+position = Vector2(528, -656)
+faction = 2
+
+[node name="archer9" parent="units" index="8" instance=ExtResource("4_0vli4")]
+position = Vector2(560, -656)
+faction = 2
+
+[node name="archer10" parent="units" index="9" instance=ExtResource("4_0vli4")]
+position = Vector2(624, -656)
+faction = 2
+
+[node name="archer11" parent="units" index="10" instance=ExtResource("4_0vli4")]
+position = Vector2(592, -656)
+faction = 2
+
+[node name="archer12" parent="units" index="11" instance=ExtResource("4_0vli4")]
+position = Vector2(752, -592)
+faction = 2
+
+[node name="archer13" parent="units" index="12" instance=ExtResource("4_0vli4")]
+position = Vector2(752, -624)
+faction = 2
+
+[node name="archer14" parent="units" index="13" instance=ExtResource("4_0vli4")]
+position = Vector2(368, -624)
+faction = 2
+
+[node name="archer15" parent="units" index="14" instance=ExtResource("4_0vli4")]
+position = Vector2(368, -656)
+faction = 2
+
+[node name="archer16" parent="units" index="15" instance=ExtResource("4_0vli4")]
+position = Vector2(720, -848)
+faction = 2
+
+[node name="archer17" parent="units" index="16" instance=ExtResource("4_0vli4")]
+position = Vector2(560, -912)
+faction = 2
+
+[node name="archer18" parent="units" index="17" instance=ExtResource("4_0vli4")]
+position = Vector2(496, -912)
+faction = 2
+
+[node name="archer19" parent="units" index="18" instance=ExtResource("4_0vli4")]
+position = Vector2(464, -912)
+faction = 2
+
+[node name="archer20" parent="units" index="19" instance=ExtResource("4_0vli4")]
+position = Vector2(528, -912)
+faction = 2
+
+[node name="crossbow" parent="units" index="20" instance=ExtResource("5_op3i1")]
+position = Vector2(368, -528)
+faction = 2
+
+[node name="crossbow2" parent="units" index="21" instance=ExtResource("5_op3i1")]
+position = Vector2(368, -880)
+faction = 2
+
+[node name="crossbow3" parent="units" index="22" instance=ExtResource("5_op3i1")]
+position = Vector2(368, -848)
+faction = 2
+
+[node name="crossbow4" parent="units" index="23" instance=ExtResource("5_op3i1")]
+position = Vector2(400, -528)
+faction = 2
+
+[node name="crossbow5" parent="units" index="24" instance=ExtResource("5_op3i1")]
+position = Vector2(752, -720)
+faction = 2
+
+[node name="crossbow6" parent="units" index="25" instance=ExtResource("5_op3i1")]
+position = Vector2(752, -688)
+faction = 2
+
+[node name="swordman" parent="units" index="26" instance=ExtResource("6_hmii0")]
+position = Vector2(944, -720)
+faction = 2
+
+[node name="swordman2" parent="units" index="27" instance=ExtResource("6_hmii0")]
+position = Vector2(912, -720)
+faction = 2
+
+[node name="swordman3" parent="units" index="28" instance=ExtResource("6_hmii0")]
+position = Vector2(880, -720)
+faction = 2
+
+[node name="swordman4" parent="units" index="29" instance=ExtResource("6_hmii0")]
+position = Vector2(464, -816)
+faction = 2
+
+[node name="swordman5" parent="units" index="30" instance=ExtResource("6_hmii0")]
+position = Vector2(464, -784)
+faction = 2
+
+[node name="swordman6" parent="units" index="31" instance=ExtResource("6_hmii0")]
+position = Vector2(464, -752)
+faction = 2
+
+[node name="swordman7" parent="units" index="32" instance=ExtResource("6_hmii0")]
+position = Vector2(464, -720)
+faction = 2
+
+[node name="swordman8" parent="units" index="33" instance=ExtResource("6_hmii0")]
+position = Vector2(688, -944)
+faction = 2
+
+[node name="swordman9" parent="units" index="34" instance=ExtResource("6_hmii0")]
+position = Vector2(720, -944)
+faction = 2
+
+[node name="swordman10" parent="units" index="35" instance=ExtResource("6_hmii0")]
+position = Vector2(688, -912)
+faction = 2
+
+[node name="swordman11" parent="units" index="36" instance=ExtResource("6_hmii0")]
+position = Vector2(720, -912)
+faction = 2
+
+[node name="swordman12" parent="units" index="37" instance=ExtResource("6_hmii0")]
+position = Vector2(656, -912)
+faction = 2
+
+[node name="swordman13" parent="units" index="38" instance=ExtResource("6_hmii0")]
+position = Vector2(656, -944)
+faction = 2
+
+[node name="cauldron" parent="units" index="39" instance=ExtResource("7_hmii0")]
+position = Vector2(784, -560)
+faction = 2
+
+[node name="cauldron2" parent="units" index="40" instance=ExtResource("7_hmii0")]
+position = Vector2(336, -784)
+faction = 2
+
+[node name="ram" parent="units" index="41" instance=ExtResource("8_k4hn5")]
+position = Vector2(720, 528)
+
+[node name="ram2" parent="units" index="42" instance=ExtResource("8_k4hn5")]
+position = Vector2(752, 528)
+
+[node name="Ai_v_1" parent="ai_stuff" index="1" instance=ExtResource("9_15lf7")]
+
 [node name="SmallDoorHorizontalMapPlacer" parent="spawners" index="0" instance=ExtResource("3_me7gj")]
 position = Vector2(528, -848)
 faction = 2
+new_siege_id = 100
 
 [node name="SmallDoorVerticalMapPlacer" parent="spawners" index="1" instance=ExtResource("4_6fs6g")]
 position = Vector2(816, -720)
 faction = 2
+new_siege_id = 200
 door_health = 350
 
 [node name="PortcullisBigPlacer" parent="spawners" index="2" instance=ExtResource("5_587sg")]
 position = Vector2(880, -656)
 faction = 2
 main_door = true
-new_siege_id = -2
+new_siege_id = 300
+
+[node name="units_spawner" parent="spawners" index="3" instance=ExtResource("11_1aehf")]
+position = Vector2(80, 528)
+unit_type = 1
+unit_numbers = 14
+
+[node name="units_spawner5" parent="spawners" index="4" instance=ExtResource("11_1aehf")]
+position = Vector2(80, 592)
+unit_type = 1
+unit_numbers = 14
+
+[node name="units_spawner2" parent="spawners" index="5" instance=ExtResource("11_1aehf")]
+position = Vector2(368, 528)
+unit_type = 4
+unit_numbers = 14
+
+[node name="units_spawner6" parent="spawners" index="6" instance=ExtResource("11_1aehf")]
+position = Vector2(368, 592)
+unit_type = 4
+unit_numbers = 14
+
+[node name="units_spawner3" parent="spawners" index="7" instance=ExtResource("11_1aehf")]
+position = Vector2(1072, 528)
+unit_numbers = 20
+
+[node name="units_spawner7" parent="spawners" index="8" instance=ExtResource("11_1aehf")]
+position = Vector2(1072, 592)
+unit_numbers = 20
+
+[node name="units_spawner4" parent="spawners" index="9" instance=ExtResource("11_1aehf")]
+position = Vector2(720, 592)
+unit_type = 5
+unit_numbers = 15
 
 [node name="CheckpointFlag" parent="checkpoints" index="0" instance=ExtResource("6_ohhbn")]
-position = Vector2(816, -464)
+position = Vector2(816, -411)
 faction = 2
 
 [node name="CheckpointFlag2" parent="checkpoints" index="1" instance=ExtResource("6_ohhbn")]
-position = Vector2(272, -464)
+position = Vector2(304, -432)
 faction = 2
 
 [node name="CheckpointFlag3" parent="checkpoints" index="2" instance=ExtResource("6_ohhbn")]
-position = Vector2(304, -1008)
+position = Vector2(304, -990)
 faction = 2
 
 [node name="CheckpointFlag4" parent="checkpoints" index="3" instance=ExtResource("6_ohhbn")]
-position = Vector2(784, -1008)
+position = Vector2(824, -989)
 faction = 2
 
 [node name="CheckpointFlag5" parent="checkpoints" index="4" instance=ExtResource("6_ohhbn")]
-position = Vector2(720, -848)
+position = Vector2(724, -816)
 faction = 2
 
 [node name="CheckpointFlag6" parent="checkpoints" index="5" instance=ExtResource("6_ohhbn")]
-position = Vector2(944, -752)
+position = Vector2(912, -720)
 faction = 2
 
 [node name="PlayerStartLoc" parent="othr" index="0" instance=ExtResource("7_7p5ng")]

@@ -7,7 +7,7 @@ enum State { IDLE, ATTACKING, DEFENDING }
 var current_state = State.IDLE # ATM just for digging
 var state_ = 0 #  0 iddle, 1 attack, 2 defend
 @export var is_siege = false
-@export var is_siege_defending = true
+@export var is_siege_defending = false
 @export var ai_paused := false  # set true in inspector to disable all AI (for FPS testing)
 
 @export var faction = 99
@@ -70,6 +70,12 @@ const ENEMY_RAM_UNIT_ID := 7
 const ENEMY_SIEGE_TOWER_UNIT_ID := 9
 const OWN_RAM_UNIT_ID := 7
 const OWN_SIEGE_TOWER_UNIT_ID := 9
+## Open map: ratio to switch between attack and defend (either direction)
+const OPEN_THREAT_RATIO_TO_SWITCH := 1.2
+## Castle defender: ratio to sally out (my_side > their_side * this) or switch back to defend (their_side > my_side * this)
+const CASTLE_DEFENDER_THREAT_RATIO_TO_SWITCH := 5.0
+## Castle besieger: ratio to switch between attack and defend (either direction)
+const CASTLE_BESIEGER_THREAT_RATIO_TO_SWITCH := 1.2
 
 # Besieger (attacker) state: phased advance toward gate, hold while siege engines work, assault breached regions, or full breach
 enum BesiegerPhase { APPROACHING, HOLDING_AT_GATE, ASSAULT_BREACHED_REGIONS, BREACHED }
@@ -103,6 +109,9 @@ func _ready():
 		map_type = MapTypes.CASTLE
 	
 	set_faction()
+	var map_rules_node = root_map.get_node_or_null("map_rules")
+	if map_rules_node != null and map_rules_node.get("defender_faction") != null:
+		is_siege_defending = (faction == map_rules_node.defender_faction)
 	get_my_units()
 	var alive_at_ready = 0
 	for u in my_units_on_map:
@@ -187,8 +196,17 @@ func evaluate_threat(first:bool):
 	set_state(my_side, their_side, first)
 
 func set_state(my_side, their_side, first: bool):
+	var ratio_to_use: float
+	if map_type == MapTypes.OPEN:
+		ratio_to_use = OPEN_THREAT_RATIO_TO_SWITCH
+	elif is_siege_defending:
+		ratio_to_use = CASTLE_DEFENDER_THREAT_RATIO_TO_SWITCH
+	else:
+		ratio_to_use = CASTLE_BESIEGER_THREAT_RATIO_TO_SWITCH
+
+	print("[AI faction %s] threat eval: my_side=%s their_side=%s ratio=%s first=%s" % [faction, my_side, their_side, ratio_to_use, first])
 	if first:
-		if my_side > their_side:
+		if my_side > their_side * ratio_to_use:
 			print("Starting Attack!")
 			current_state = State.ATTACKING
 			last_rally_recalc_time = 0.0
@@ -201,8 +219,8 @@ func set_state(my_side, their_side, first: bool):
 			print("Starting Defense!")
 	else:
 		if current_state == State.ATTACKING:
-			# if their > own * 1.2 = defense
-			if their_side > my_side * 1.2:
+			# if their > own * ratio = defense
+			if their_side > my_side * ratio_to_use:
 				current_state = State.DEFENDING
 				computed_defense_positions.clear()
 				print("Starting Defense!")
@@ -210,8 +228,8 @@ func set_state(my_side, their_side, first: bool):
 				current_state = State.ATTACKING
 				print("Still Attacking!")
 		else:
-			# if own > their * 1.2 = attack
-			if my_side > their_side * 1.2:
+			# if own > their * ratio = attack
+			if my_side > their_side * ratio_to_use:
 				print("Starting Attack!")
 				current_state = State.ATTACKING
 				last_rally_recalc_time = 0.0
@@ -1726,6 +1744,8 @@ func attack_unit_w_all(enemy: Node2D):
 		var enemy_wr = weakref(enemy)
 		if gr(unit_wr) == null:
 			continue
+		if gr(unit_wr).get("unit_id") in CASTLE_DOOR_UNIT_IDS:
+			continue
 		gr(unit_wr).set_attack(enemy.map_unique_id)
 
 func attack_non_siege_only(enemy: Node2D):
@@ -1734,6 +1754,8 @@ func attack_non_siege_only(enemy: Node2D):
 		if u == null:
 			continue
 		if u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
+			continue
+		if u.get("unit_id") in CASTLE_DOOR_UNIT_IDS:
 			continue
 		u.set_attack(enemy.map_unique_id)
 
@@ -1764,6 +1786,8 @@ func _attack_door_with_melee_only(door: Node2D):
 		var u = gr(unit_wr)
 		if u == null or u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
 			continue
+		if u.get("unit_id") in CASTLE_DOOR_UNIT_IDS:
+			continue
 		if u.unit_id in ranged_ids:
 			continue
 		u.set_attack(door.map_unique_id)
@@ -1775,6 +1799,8 @@ func _attack_door_with_ranged_only(door: Node2D):
 	for unit_wr in all_own_units():
 		var u = gr(unit_wr)
 		if u == null or u.get("unit_id") == OWN_RAM_UNIT_ID or u.get("unit_id") == OWN_SIEGE_TOWER_UNIT_ID:
+			continue
+		if u.get("unit_id") in CASTLE_DOOR_UNIT_IDS:
 			continue
 		if u.unit_id not in ranged_ids:
 			continue
@@ -2074,6 +2100,8 @@ func group_sttack_unit(group, unit_to_attack_wr):
 		var unit = gr(unit_wr)
 		var unit_to_attack = gr(unit_to_attack_wr)
 		if unit != null and unit_to_attack != null:
+			if unit.get("unit_id") in CASTLE_DOOR_UNIT_IDS:
+				continue
 			unit.set_attack(unit_to_attack.map_unique_id)
 
 func manage_doors():

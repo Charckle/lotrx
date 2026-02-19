@@ -1,6 +1,6 @@
 extends Node2D
 
-var ai_faction = 2
+var ai_faction = 1
 var ai_factions = []
 var map_type = "castle"
 ## Faction that holds the castle on this map; AI with this faction uses defender logic (is_siege_defending).
@@ -17,8 +17,8 @@ func _enter_tree():
 	initialize_map()
 
 func initialize_map():
-	var map_options = {"user_faction":1,
-						"ai_faction": 2}
+	var map_options = {"user_faction":2,
+						"ai_faction": 1}
 	
 	if GlobalSettings.map_options != null:
 		map_options = GlobalSettings.map_options
@@ -50,7 +50,7 @@ func initialize_ai_defense_script():
 		"door_closure": [
 			{
 				"doors_to_te_destroyed": [300],
-				"doors_tc_close": [200],
+				"doors_tc_close": [200, 100],
 				# When a siege tower is placed at a slot, outer regions become accessible to the besieger.
 				"siege_slots_that_breach": "all",
 			},

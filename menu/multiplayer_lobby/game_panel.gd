@@ -68,4 +68,26 @@ func get_all_maps():
 	}
 	maps.append(castle_socerb)
 	
+	var castle_norman_keep = {
+		"name": "siege: Norman Keep",
+		"desc": "A siege of the Norman Keep.",
+		"path": "uid://bqyl6rh2jwjw2",
+		"map_options": {
+			"ai_faction": 0,
+			"playabe_factions": [1, 2]
+		}
+	}
+	maps.append(castle_norman_keep)
+	
+	var castle_enclosed = {
+		"name": "siege: Enclosed Castle",
+		"desc": "A siege of the enclosed castle.",
+		"path": "uid://cfcsmgdubo7v1",
+		"map_options": {
+			"ai_faction": 0,
+			"playabe_factions": [1, 2]
+		}
+	}
+	maps.append(castle_enclosed)
+	
 	return maps
