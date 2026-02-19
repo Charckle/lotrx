@@ -187,13 +187,15 @@ func _input(event):
 		pass
 	
 	if Input.is_action_just_pressed("right_click"):
-		self.create_going_marker()
-		# move/attack with units, is they are selected
+		var target_pos := get_global_mouse_position()
+		if event is InputEventMouseButton:
+			var minimap_node = get_node_or_null("UI/Minimap")
+			if minimap_node and minimap_node.visible and minimap_node.get_global_rect().has_point(event.global_position):
+				target_pos = minimap_node.get_world_position_from_global(event.global_position)
+		self.create_going_marker(target_pos)
 		if units_selected.size() != 0:
-			# instruct the selected units
 			for unit in units_selected:
-				#unit.set_move()
-				unit.set_act()
+				unit.set_act(target_pos)
 	
 	# Check if the right mouse button is pressed
 	
@@ -438,11 +440,11 @@ func global_map_sectors_generate():
 	print("-------")
 
 
-func create_going_marker():
+func create_going_marker(target_position = null):
+	if target_position == null:
+		target_position = get_global_mouse_position()
 	var instance = going_marker.instantiate()
-
-	instance.position =  get_global_mouse_position()
-	
+	instance.position = target_position
 	self.get_node("othr").add_child(instance)
 
 

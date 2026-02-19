@@ -197,6 +197,11 @@ func _minimap_to_world(minimap_pos: Vector2) -> Vector2:
 	var relative := minimap_pos / minimap_size
 	return map_rect.position + relative * map_rect.size
 
+
+func get_world_position_from_global(global_pos: Vector2) -> Vector2:
+	var local_pos := global_pos - get_global_rect().position
+	return _minimap_to_world(local_pos)
+
 # ── Click / drag to navigate ────────────────────────────────────────────
 
 func _gui_input(event: InputEvent):

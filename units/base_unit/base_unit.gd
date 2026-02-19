@@ -96,8 +96,9 @@ func get_right_target():
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	lifebar.progress_bar.max_value = base_health
-	lifebar.progress_bar.value = base_health
+	var max_hp = base_health if base_health != null else 120
+	lifebar.progress_bar.max_value = max_hp
+	lifebar.progress_bar.value = max_hp
 	target_walk = unit_position
 	
 	pinning_blocks = get_adjecent_blocks()
@@ -666,11 +667,13 @@ func draw_debug_data():
 		var string_ = str(aggressive) + "\n" + str(is_moving) + "\n" +  str(current_id_path.size())
 		self.debug_label.text = str(stance) #str(retried_times)
 
-func set_act():
+func set_act(target_pos = null):
 	if GlobalSettings.my_faction == faction:
 		walking_in_agression = false
-		var mouse_pos = get_global_mouse_position()
-		var unit_wr = root_map.get_wr_unit_on_mouse_position()
+		if target_pos == null:
+			target_pos = get_global_mouse_position()
+		var mouse_pos: Vector2 = target_pos
+		var unit_wr: WeakRef = root_map.get_wr_unit_on_position(mouse_pos)
 		#if location has a hostile unit attack, otherwise, move
 		# root_map.all_units_w_unique_id[self.map_unique_id]
 		if gr(unit_wr) == null:
