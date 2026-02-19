@@ -68,6 +68,9 @@ func being_attacked_by(unit_wr_obj):
 	pass
 
 func get_damaged(damage: int, penetration: int, modifier=null):
+	# Cauldron oil does not damage doors / castle structures
+	if modifier == "oil":
+		return
 	#dmg
 	#a_pen
 	#a_defense

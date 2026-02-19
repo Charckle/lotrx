@@ -60,7 +60,11 @@ func _append_entry(entry: Dictionary) -> void:
 		var players = GlobalSettings.multiplayer_data.get("players", {})
 		var player = players.get(peer_id, {})
 		display_name = player.get("name", "Player")
-		color = _name_to_color(display_name)
+		var lobby_color = player.get("color", null)
+		if lobby_color is Dictionary and lobby_color.has("red") and lobby_color.has("green") and lobby_color.has("blue"):
+			color = Color(lobby_color["red"] / 255.0, lobby_color["green"] / 255.0, lobby_color["blue"] / 255.0)
+		else:
+			color = _name_to_color(display_name)
 
 	var row = HBoxContainer.new()
 
