@@ -36,6 +36,8 @@ func _on_timer_timeout() -> void:
 
 @rpc("authority", "call_local", "reliable")
 func attack_mele(right_target_id):
+	if not multiplayer.is_server():
+		return
 	var att_object = weakref(main_r.all_units_w_unique_id[right_target_id])
 	
 	can_attack = false

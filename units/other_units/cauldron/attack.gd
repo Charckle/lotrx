@@ -26,6 +26,8 @@ func _process(delta: float) -> void:
 
 @rpc("authority", "call_local", "reliable")
 func attack_range(right_target_id):
+	if not multiplayer.is_server():
+		return
 	var att_object = weakref(main_r.all_units_w_unique_id[right_target_id])
 	
 	if in_range(att_object):

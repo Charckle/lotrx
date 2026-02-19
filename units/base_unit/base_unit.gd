@@ -820,6 +820,8 @@ func get_died():
 
 @rpc("authority", "call_local", "reliable")
 func dig_moat(right_target_id):
+	if not multiplayer.is_server():
+		return
 	#var all_moats = root_map.get_node("moat").get_children()
 	var att_object = weakref(root_map.all_units_w_unique_id[right_target_id])
 	

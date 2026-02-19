@@ -96,6 +96,8 @@ func find_closest_enemy():
 
 @rpc("authority", "call_local", "reliable")
 func start_burst(right_target_id):
+	if not multiplayer.is_server():
+		return
 	can_attack = false
 	shots_fired = 0
 	burst_target_id = right_target_id

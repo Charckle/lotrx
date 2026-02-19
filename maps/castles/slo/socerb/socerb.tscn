@@ -164,12 +164,26 @@ door_health = 200
 [node name="units_spawner" parent="spawners" index="2" instance=ExtResource("12_ykjh8")]
 position = Vector2(432, 560)
 unit_type = 2
-unit_numbers = 20
+unit_numbers = 6
 
 [node name="units_spawner2" parent="spawners" index="3" instance=ExtResource("12_ykjh8")]
 position = Vector2(432, 464)
 unit_type = 3
-unit_numbers = 20
+unit_numbers = 5
+
+[node name="units_spawner3" parent="spawners" index="4" instance=ExtResource("12_ykjh8")]
+position = Vector2(800, 526)
+unit_numbers = 10
+
+[node name="units_spawner4" parent="spawners" index="5" instance=ExtResource("12_ykjh8")]
+position = Vector2(114, 557)
+unit_type = 1
+unit_numbers = 8
+
+[node name="units_spawner5" parent="spawners" index="6" instance=ExtResource("12_ykjh8")]
+position = Vector2(110, 461)
+unit_type = 5
+unit_numbers = 12
 
 [node name="PoiFlag" parent="checkpoints" index="0" instance=ExtResource("8_vih8o")]
 position = Vector2(688, -112)
