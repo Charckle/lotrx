@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://ds28k06qeir42"]
 
 [ext_resource type="Script" uid="uid://vtwydycca2m5" path="res://menu/multiplayer_lobby/multiplayer_lobby.gd" id="1_khp07"]
-[ext_resource type="Script" uid="uid://2igqepo5vjub" path="res://menu/multiplayer_lobby/chat_panel.gd" id="2_qb0ln"]
+[ext_resource type="PackedScene" uid="uid://geb6nqwq681y" path="res://menu/chat/chat_panel.tscn" id="2_chat"]
 [ext_resource type="Script" uid="uid://dwfebs54xrlu3" path="res://menu/multiplayer_lobby/game_panel.gd" id="3_5lrq1"]
 [ext_resource type="Texture2D" uid="uid://dmby1llgakjrl" path="res://sprites/menus/main_,menu_bg.png" id="4_ln4nv"]
 
@@ -20,48 +20,16 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="chat_panel" type="Panel" parent="CanvasLayer/main_panel"]
+[node name="ChatPanel" parent="CanvasLayer/main_panel" instance=ExtResource("2_chat")]
 layout_mode = 1
-anchors_preset = 14
+anchors_preset = 4
 anchor_top = 0.5
-anchor_right = 1.0
 anchor_bottom = 0.5
 offset_left = 48.0
-offset_top = -272.0
-offset_right = -816.0
-offset_bottom = 208.0
-grow_horizontal = 2
+offset_top = -240.0
+offset_right = 531.0
+offset_bottom = 240.0
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_p2ty0")
-script = ExtResource("2_qb0ln")
-
-[node name="LineEdit" type="LineEdit" parent="CanvasLayer/main_panel/chat_panel"]
-layout_mode = 0
-offset_left = 32.0
-offset_top = 433.0
-offset_right = 384.0
-offset_bottom = 464.0
-placeholder_text = ">.."
-
-[node name="messages_panel" type="Panel" parent="CanvasLayer/main_panel/chat_panel"]
-layout_mode = 0
-offset_left = 32.0
-offset_top = 32.0
-offset_right = 384.0
-offset_bottom = 416.0
-
-[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/main_panel/chat_panel/messages_panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/main_panel/chat_panel/messages_panel/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
 
 [node name="player_panel" type="Panel" parent="CanvasLayer/main_panel"]
 layout_mode = 1
@@ -215,6 +183,5 @@ position = Vector2(640.5, 330)
 scale = Vector2(0.850911, 0.691406)
 texture = ExtResource("4_ln4nv")
 
-[connection signal="text_submitted" from="CanvasLayer/main_panel/chat_panel/LineEdit" to="CanvasLayer/main_panel/chat_panel" method="_on_line_edit_text_submitted"]
 [connection signal="pressed" from="CanvasLayer/main_panel/bottom_panel/leave_game" to="." method="_on_leave_game_pressed"]
 [connection signal="pressed" from="CanvasLayer/main_panel/bottom_panel/start_game" to="." method="_on_start_game_pressed"]

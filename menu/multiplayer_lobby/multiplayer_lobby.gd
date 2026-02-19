@@ -3,7 +3,6 @@ extends Node2D
 @onready var multiplayer_menu = get_tree().root.get_node("MutiplayerMenu")
 @onready var multiplayer_lobby = get_tree().root.get_node("MultiplayerLobby")
 
-@onready var chat_panel = $CanvasLayer/main_panel/chat_panel
 @onready var selected_map_name = $CanvasLayer/main_panel/bottom_panel/selected_map_name
 @onready var player_gui_cont = $CanvasLayer/main_panel/player_panel/ScrollContainer/VBoxContainer
 
@@ -271,13 +270,14 @@ func change_faction(player_id, button_index):
 		GlobalSettings.my_faction = faction_id
 
 
-func send_smg(msg: String):
-	chat_panel.receive_chat_message.rpc(msg)
+func send_smg(msg: String) -> void:
+	ChatManager.send_system_message.rpc(msg)
 
-func remove_multiplayer_peer():
+func remove_multiplayer_peer() -> void:
 	GlobalSettings.multiplayer_data["players"].clear()
 	multiplayer.multiplayer_peer = null
 	GlobalSettings.map_options = null
+	ChatManager.clear_log()
 
 func _on_leave_game_pressed() -> void:
 	remove_multiplayer_peer()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bn7ri334xglt1"]
+[gd_scene load_steps=11 format=3 uid="uid://bn7ri334xglt1"]
 
 [ext_resource type="Script" uid="uid://bpn7lcmoldbvn" path="res://maps/base_map/base_ui/camera.gd" id="1_lp3te"]
 [ext_resource type="Script" uid="uid://dswet14n1pooj" path="res://maps/base_map/base_ui/fps_label.gd" id="2_siea2"]
@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://djdxhdrnypy0c" path="res://maps/base_map/base_ui/scoreboard_panel/scoreboard_panel.tscn" id="6_mnpmd"]
 [ext_resource type="PackedScene" uid="uid://ddfk6bpdcwqat" path="res://menu/pause_menu/pause_menu.tscn" id="7_8huk2"]
 [ext_resource type="PackedScene" uid="uid://5bbafsmtb06v" path="res://maps/base_map/base_ui/minimap.tscn" id="8_mmap1"]
+[ext_resource type="Script" path="res://maps/base_map/base_ui/in_game_chat.gd" id="9_igchat"]
+[ext_resource type="PackedScene" uid="uid://bqx7chatpanel01" path="res://menu/chat/chat_panel.tscn" id="10_chat"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xg1d3"]
 bg_color = Color(0.6, 0.6, 0.6, 0.317647)
@@ -68,3 +70,42 @@ anchor_right = 0.5
 anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="InGameChat" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("9_igchat")
+
+[node name="ChatPanel" parent="InGameChat" instance=ExtResource("10_chat")]
+visible = false
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -480.0
+offset_right = 376.0
+offset_bottom = 0.0
+grow_vertical = 0
+
+[node name="CloseButton" type="Button" parent="InGameChat"]
+visible = false
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 340.0
+offset_top = -476.0
+offset_right = 376.0
+offset_bottom = -448.0
+grow_vertical = 0
+text = "×"

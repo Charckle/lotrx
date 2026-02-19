@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GlobalSettings="*res://singletons/global_settings.gd"
 ButtonHoverSound="*res://singletons/button_hover_sound.gd"
+ChatManager="*res://singletons/chat_manager.gd"
 
 [display]
 

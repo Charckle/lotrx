@@ -1,0 +1,54 @@
+[gd_scene load_steps=3 format=3 uid="uid://geb6nqwq681y"]
+
+[ext_resource type="Script" uid="uid://bp5erp4xulal1" path="res://menu/chat/chat_panel.gd" id="1_chat"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(0.314316, 0.314316, 0.314316, 1)
+
+[node name="ChatPanel" type="Panel"]
+custom_minimum_size = Vector2(352, 480)
+offset_right = 497.0
+offset_bottom = 481.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+script = ExtResource("1_chat")
+
+[node name="LineEdit" type="LineEdit" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -38.0
+offset_right = -32.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 0
+placeholder_text = ">.."
+
+[node name="messages_panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = -32.0
+offset_bottom = -48.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="messages_panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="messages_panel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[connection signal="text_submitted" from="LineEdit" to="." method="_on_line_edit_text_submitted"]
