@@ -4,7 +4,7 @@ var ai_faction = 2
 var ai_factions = []
 var map_type = "castle"
 ## Faction that holds the castle on this map; AI with this faction uses defender logic (is_siege_defending).
-var defender_faction = 1
+var defender_faction = 2
 
 var defense_script = {}
 

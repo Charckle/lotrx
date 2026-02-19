@@ -198,9 +198,15 @@ func _input(event):
 	# Check if the right mouse button is pressed
 	
 	if Input.is_action_just_pressed("left_click") and not Input.is_action_pressed("shift_"):
-		# Call a function to reset variables
-		deselect_all_units()
-		Input.set_custom_mouse_cursor(cursor_default)
+		# Don't deselect when clicking on the minimap (minimap click only moves camera)
+		var over_minimap := false
+		if event is InputEventMouseButton:
+			var minimap_node = get_node_or_null("UI/Minimap")
+			if minimap_node and minimap_node.visible:
+				over_minimap = minimap_node.get_global_rect().has_point(event.global_position)
+		if not over_minimap:
+			deselect_all_units()
+			Input.set_custom_mouse_cursor(cursor_default)
 		
 	# control groups
 	if event is InputEventKey:
