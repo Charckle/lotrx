@@ -7,7 +7,7 @@ enum State { IDLE, ATTACKING, DEFENDING }
 var current_state = State.IDLE # ATM just for digging
 var state_ = 0 #  0 iddle, 1 attack, 2 defend
 @export var is_siege = false
-@export var is_siege_defending = false
+@export var is_siege_defending = true
 @export var ai_paused := false  # set true in inspector to disable all AI (for FPS testing)
 
 @export var faction = 99
@@ -65,6 +65,7 @@ var breach_close_allowed_at: Dictionary = {}  # door_rule index -> time (msec) w
 # Melee: which region each unit was assigned to (map_unique_id -> region_id) for fallback-only moves
 var melee_unit_assigned_region: Dictionary = {}
 const CASTLE_WALL_UNIT_IDS := [8]  # cauldron / boiling oil; move to wall next to siege slots and outer door
+const CASTLE_DOOR_UNIT_IDS := [500, 501, 502]  # door/structure units (base_castle_unit); no set_move, skip in melee/archer assignment
 const ENEMY_RAM_UNIT_ID := 7
 const ENEMY_SIEGE_TOWER_UNIT_ID := 9
 const OWN_RAM_UNIT_ID := 7
@@ -103,8 +104,14 @@ func _ready():
 	
 	set_faction()
 	get_my_units()
+	var alive_at_ready = 0
+	for u in my_units_on_map:
+		if gr(u) != null:
+			alive_at_ready += 1
+	print("[AI faction %s] _ready: my_units_on_map=%s, alive=%s" % [faction, my_units_on_map.size(), alive_at_ready])
 	set_units_to_defense_stance()
-	evaluate_threat(true)
+	# Defer first threat evaluation so spawners (and other deferred inits) can add units before we decide ATTACKING vs DEFENDING (and thus whether to open all doors)
+	call_deferred("evaluate_threat", true)
 	initial_setup()
 
 
@@ -221,6 +228,15 @@ func _on_timer_timeout():
 		return
 	empty_dead_units()
 	add_new_units_to_control()
+	var alive = 0
+	for u in my_units_on_map:
+		if gr(u) != null:
+			alive += 1
+	var groups_total = 0
+	for uid in unit_groups:
+		for g in unit_groups[uid]:
+			groups_total += g["units"].size()
+	print("[AI faction %s] timer: my_units_on_map=%s alive=%s unit_groups_entries=%s" % [faction, my_units_on_map.size(), alive, groups_total])
 	set_inner_doors(1)
 	if self.lost:
 		print("GG!")
@@ -238,6 +254,7 @@ func _on_timer_timeout():
 			if self.current_state == State.ATTACKING:
 				castle_defender_attack()
 			else:
+				print("[AI faction %s] defense stage 1: entering castle_defender_defend" % faction)
 				castle_defender_defend()
 		else:
 			if self.current_state == State.ATTACKING:
@@ -361,6 +378,7 @@ func castle_defender_attack():
 		attack_unit_w_all(neerest_enemy)
 
 func castle_defender_defend():
+	print("[AI faction %s] defense stage 2: calling send_groups_to_markers" % faction)
 	send_groups_to_markers()
 	check_range_units_pinned()
 	manage_doors()
@@ -1783,13 +1801,17 @@ func all_enemy_units():
 	return all_enemy_units
 
 func send_groups_to_markers():
+	print("[AI faction %s] defense stage 3: send_groups_to_markers map_type=%s" % [faction, "OPEN" if map_type == MapTypes.OPEN else "CASTLE"])
 	if map_type == MapTypes.OPEN:
 		move_to_computed_defense_positions()
 	else:
+		print("[AI faction %s] defense stage 3b: castle branch siege_defense_built=%s siege_regions.size()=%s" % [faction, siege_defense_built, siege_regions.size()])
 		if siege_defense_built and not siege_regions.is_empty():
+			print("[AI faction %s] defense stage 3c: condition passed, siege_defense_positions_assigned=%s" % [faction, siege_defense_positions_assigned])
 			_update_siege_breached_regions()
 			# Archers and melee: assign only once (so dead units don't pull others away from frontline)
 			if not siege_defense_positions_assigned:
+				print("[AI faction %s] defense stage 3d: calling move_archers_to_walls_by_enemy and move_melee_to_siege_regions" % faction)
 				move_archers_to_walls_by_enemy()
 				move_melee_to_siege_regions()
 				siege_defense_positions_assigned = true
@@ -1797,6 +1819,8 @@ func send_groups_to_markers():
 				# Only move units from breached regions to fallback; don't shuffle everyone
 				move_melee_from_breached_regions_to_fallback()
 			# Cauldrins: updated by CauldrinTimer every 4s (see _on_cauldrin_timer_timeout)
+		else:
+			print("[AI faction %s] defense stage 3b SKIP: siege_defense_built and not siege_regions.is_empty() is false, not sending units" % faction)
 
 func move_to_computed_defense_positions():
 	if computed_defense_positions.is_empty():
@@ -1818,6 +1842,7 @@ func move_to_computed_defense_positions():
 					to_pos_index += 1
 
 func move_melee_to_siege_regions():
+	print("[AI faction %s] defense stage 4: move_melee_to_siege_regions entered" % faction)
 	var ranged_ids = GlobalSettings.get_list_of_ranged()
 	if ranged_ids == null:
 		ranged_ids = []
@@ -1831,11 +1856,14 @@ func move_melee_to_siege_regions():
 				target_slots.append({"position": siege_regions[fallback_id]["flag_position"], "region_id": rid})
 		elif not reg["breached"]:
 			target_slots.append({"position": reg["flag_position"], "region_id": rid})
+	print("[AI faction %s] defense stage 4b: target_slots.size()=%s" % [faction, target_slots.size()])
 	if target_slots.is_empty():
+		print("[AI faction %s] defense stage 4 SKIP: target_slots empty, not sending melee" % faction)
 		return
 	var slot_index = 0
+	var melee_sent = 0
 	for unit_id in unit_groups:
-		if unit_id in ranged_ids or unit_id in CASTLE_WALL_UNIT_IDS:
+		if unit_id in ranged_ids or unit_id in CASTLE_WALL_UNIT_IDS or unit_id in CASTLE_DOOR_UNIT_IDS:
 			continue
 		for group in unit_groups[unit_id]:
 			for unit_wr in group["units"]:
@@ -1846,13 +1874,15 @@ func move_melee_to_siege_regions():
 				u.set_move(slot["position"])
 				melee_unit_assigned_region[u.map_unique_id] = slot["region_id"]
 				slot_index += 1
+				melee_sent += 1
+	print("[AI faction %s] defense stage 4 done: sent %s melee to siege regions" % [faction, melee_sent])
 
 func move_melee_from_breached_regions_to_fallback():
 	var ranged_ids = GlobalSettings.get_list_of_ranged()
 	if ranged_ids == null:
 		ranged_ids = []
 	for unit_id in unit_groups:
-		if unit_id in ranged_ids or unit_id in CASTLE_WALL_UNIT_IDS:
+		if unit_id in ranged_ids or unit_id in CASTLE_WALL_UNIT_IDS or unit_id in CASTLE_DOOR_UNIT_IDS:
 			continue
 		for group in unit_groups[unit_id]:
 			for unit_wr in group["units"]:
@@ -1925,10 +1955,12 @@ func move_castle_units_to_wall():
 			cauldrins[best_j].set_move(pos)
 
 func move_archers_to_walls_by_enemy():
+	print("[AI faction %s] defense stage 5: move_archers_to_walls_by_enemy entered siege_regions.size()=%s" % [faction, siege_regions.size()])
 	var ranged_ids = GlobalSettings.get_list_of_ranged()
 	if ranged_ids == null:
 		ranged_ids = []
 	if siege_regions.is_empty():
+		print("[AI faction %s] defense stage 5 SKIP: siege_regions empty, not sending archers" % faction)
 		return
 	var enemy_center = own_forces_center + Vector2(200, 0)
 	var enemies = all_enemy_units()
@@ -1940,8 +1972,9 @@ func move_archers_to_walls_by_enemy():
 		flag_positions.append(reg["flag_position"])
 	flag_positions.sort_custom(func(a, b): return enemy_center.distance_squared_to(a) < enemy_center.distance_squared_to(b))
 	var pos_index = 0
+	var archers_sent = 0
 	for unit_id in ranged_ids:
-		if unit_id not in unit_groups:
+		if unit_id not in unit_groups or unit_id in CASTLE_DOOR_UNIT_IDS:
 			continue
 		for group in unit_groups[unit_id]:
 			for unit_wr in group["units"]:
@@ -1951,6 +1984,8 @@ func move_archers_to_walls_by_enemy():
 				var pos = flag_positions[pos_index % flag_positions.size()]
 				u.set_move(pos)
 				pos_index += 1
+				archers_sent += 1
+	print("[AI faction %s] defense stage 5 done: sent %s archers to flag_positions (count=%s)" % [faction, archers_sent, flag_positions.size()])
 
 func set_unit_groups_position():
 	pass
@@ -2089,16 +2124,28 @@ func get_all_doors():
 			doors.append(weakref(unit))
 
 func set_inner_doors(state:int):
-	# 1 is open, 0 is closed
-	
+	# 1 is open, 0 is closed. Only touch "inner" doors (doors_tc_close); never open outer/front (doors_to_te_destroyed).
 	get_all_doors()
+	var inner_door_siege_ids: Dictionary = {}
+	if map_type == MapTypes.CASTLE:
+		var map_rules = root_map.get_node_or_null("map_rules")
+		if map_rules != null and map_rules.get("defense_script") != null and map_rules.defense_script.has("door_closure"):
+			for rule in map_rules.defense_script["door_closure"]:
+				for door_id in rule.get("doors_tc_close", []):
+					inner_door_siege_ids[door_id] = true
 	for unit_wr in doors:
 		var unit = gr(unit_wr)
 		if unit == null:
 			continue
-		if unit.faction == faction:
-			if unit.main_door == false:
-				unit.get_node("actions").set_state(state)
+		if unit.faction != faction:
+			continue
+		var should_touch = false
+		if not inner_door_siege_ids.is_empty():
+			should_touch = unit.get("siege_id") != null and inner_door_siege_ids.has(unit.siege_id)
+		else:
+			should_touch = unit.main_door == false
+		if should_touch:
+			unit.get_node("actions").set_state(state)
 
 func open_all_doors():
 	# Open every gate so units can go out to attack (siege sally-out)
