@@ -44,6 +44,9 @@ var old_target_walk: Vector2
 var current_id_path: Array
 var current_point_path: PackedVector2Array
 
+# Waypoints: list of Vector2 world positions to visit in order (Shift+right-click adds)
+var waypoints: Array = []
+
 @export var stance = 0 #(0: attack, 1 is defense)
 
 var agression_radius = 6 #not in use
@@ -283,9 +286,15 @@ func check_who_pinning_me():
 
 #func set_move(recalc=false):
 func set_move(target_move_to=null): # null means it will just recalculate the old target
+	waypoints.clear()
 	update_target_attack.rpc(null)
 	is_attacking = false
 	move_(target_move_to)
+
+func add_waypoint(target_pos: Vector2):
+	waypoints.append(target_pos)
+	if current_id_path.is_empty():
+		move_(waypoints[0])
 
 func set_attack(unit_map_unique_id: int):
 	update_target_attack.rpc(unit_map_unique_id)
@@ -432,6 +441,12 @@ func _physics_process(delta):
 	var old_global_position = global_position
 	
 	if current_id_path.is_empty():
+		# Advance to next waypoint if we have any (we just reached the current one)
+		if waypoints.size() > 0:
+			waypoints.pop_front()
+			if waypoints.size() > 0:
+				move_(waypoints[0])
+				return
 		is_moving = false
 		# Clear vacate intent — unit is idle
 		if unit_position in root_map.cells_with_vacate_intent:

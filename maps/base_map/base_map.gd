@@ -99,7 +99,7 @@ func execute_the_commands():
 	for command in commands_to_execute:
 		if (command["curr_tick"] + 2) <= current_tick:
 			if command["map_unique_id"] in all_units_w_unique_id:
-				# Batch set_move commands for cooperative pathfinding
+				# Batch set_move commands for cooperative pathfinding (add_waypoint runs immediately)
 				if command["func"] == "set_move":
 					batch_move_commands.append(command)
 				else:
@@ -191,11 +191,12 @@ func _input(event):
 		if event is InputEventMouseButton:
 			var minimap_node = get_node_or_null("UI/Minimap")
 			if minimap_node and minimap_node.visible and minimap_node.get_global_rect().has_point(event.global_position):
-				target_pos = minimap_node.get_world_position_from_global(event.global_position)
-		self.create_going_marker(target_pos)
-		if units_selected.size() != 0:
-			for unit in units_selected:
-				unit.set_act(target_pos)
+				# Click was on minimap; minimap handles it via _gui_input and calls apply_right_click_command
+				pass
+			else:
+				apply_right_click_command(target_pos, Input.is_action_pressed("shift_"))
+		else:
+			apply_right_click_command(target_pos, Input.is_action_pressed("shift_"))
 	
 	# Check if the right mouse button is pressed
 	
@@ -440,11 +441,32 @@ func global_map_sectors_generate():
 	print("-------")
 
 
+func apply_right_click_command(target_pos: Vector2, add_as_waypoint: bool):
+	if add_as_waypoint:
+		create_waypoint_marker(target_pos)
+		if units_selected.size() != 0:
+			for unit in units_selected:
+				commands_in_last_tick.append({"func": "add_waypoint", "args": [target_pos], "map_unique_id": unit.map_unique_id, "curr_tick": current_tick})
+	else:
+		create_going_marker_at(target_pos)
+		if units_selected.size() != 0:
+			for unit in units_selected:
+				unit.set_act(target_pos)
+
 func create_going_marker(target_position = null):
 	if target_position == null:
 		target_position = get_global_mouse_position()
+	create_going_marker_at(target_position)
+
+func create_going_marker_at(target_position: Vector2):
 	var instance = going_marker.instantiate()
 	instance.position = target_position
+	self.get_node("othr").add_child(instance)
+
+func create_waypoint_marker(target_position: Vector2):
+	var instance = going_marker.instantiate()
+	instance.position = target_position
+	instance.scale = Vector2(0.7, 0.7)
 	self.get_node("othr").add_child(instance)
 
 

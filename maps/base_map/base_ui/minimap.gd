@@ -213,6 +213,12 @@ func _gui_input(event: InputEvent):
 			is_dragging_minimap = false
 		accept_event()
 
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		var world_pos := get_world_position_from_global(event.global_position)
+		var add_as_waypoint := Input.is_action_pressed("shift_")
+		map_root.apply_right_click_command(world_pos, add_as_waypoint)
+		accept_event()
+
 	if event is InputEventMouseMotion and is_dragging_minimap:
 		_move_camera_to(event.position)
 		accept_event()
