@@ -146,7 +146,6 @@ metadata/_edit_lock_ = true
 metadata/_edit_lock_ = true
 
 [node name="Ai_v_1" parent="ai_stuff" index="1" instance=ExtResource("9_w1qor")]
-debug_regions = true
 
 [node name="SmallDoorHorizontalMapPlacer" parent="spawners" index="0" instance=ExtResource("6_673ex")]
 position = Vector2(656, -880)
