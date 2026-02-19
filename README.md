@@ -3,28 +3,20 @@
 - the basic idea is to reacapture the spirit of the game
 
 # Current status
-- two playable maps, one castle, one open. More are almost done
-- the open map is plaaable against the AI, the castle no
+- two playable maps, three castle, one open. More are almost done
+- the AI is kinda playable, but not very smart. also, cant do moat
 - working moats, rams, doors, siege towers, oil
 - working multiplayer
 
-# Roadmap 2025
+# Roadmap 2026
 - better AI
 - fix pathfinding
 - implement castle destruction
-- implement better UI for map selection
-- implement scenarios
 - implement wooden castles
 
 
 # To Do
-- caldron should not destroy its own doors
-- AI
-    - make an order of what units get comands, so that some units get a headstart to their positions?
-	- dont execute the orders immediatelly, but put them in a queue, and every X miliseconds, execute some of them
-	- make the units not try to attack the ram begind a door, making them go to the neerest available point to them, which is on the other side of the map
 - upgrade pathfinding a second time
-- doubleclick on unit, to select all of them on screen
 - dry moat
 - make the option to load maps afer the game is built, so that additional maps can be added to the game, withought needing the user to download a new version
 - siege lvl 1
@@ -44,8 +36,6 @@
 - siege lvl 3:
 	- siege tower OK
 - wooden castles
-- scenarios:
-    - short scenarios, where you control X provicnes and have limited time to battle the enemy
 - create basic maps:
 	- enclosed norman keep OK
 	- enclosed castle OK
@@ -55,12 +45,9 @@
 - skirmish:
     - decide what siege weapons youll have
 	- decide what the ration of your army will be
-- ingame chat
-    - also, make the chat in the lobby persistent
 - horses and sieges cannot go on the walls
 - tooltip when hovering over a unit
 - weather
-	- check if you can use multimashinstance2d for weather objects
 	- set weather for all players the same
 	- add fog
 	- add wind
@@ -73,7 +60,6 @@
 	- assign a value to the tiles, and the at the start of the game, just add tree objects
 - make dynamic water with whaders or smtg, make it look like in monkey island 3
 - make an outside resource where you set data for things like unit value, strenght, etc, so its more centralized
-- waypoints
 - scroll zoom
 - AI:
 	- defending open map
